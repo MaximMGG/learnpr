@@ -1,0 +1,8 @@
+total 28
+drwxr-xr-x  2 maxim maxim 4096 Oct 28 14:07 ./
+drwxr-x--- 14 maxim maxim 4096 Oct 28 14:15 ../
+-rw-r--r--  1 maxim maxim   42 Oct 28 12:34 file1.txt
+-rwxr--r--  1 maxim maxim   83 Oct 28 13:40 hello.sh*
+-rw-r--r--  1 maxim maxim  942 Oct 28 14:07 protocol.txt
+-rw-r--r--  1 maxim maxim 4912 Oct 28 14:05 shcommads.txt
+-rw-r--r--  1 maxim maxim    0 Oct 28 14:15 test.txt

@@ -1,0 +1,131 @@
+ls -a == show all hidden files
+ls -aF == show all hidden files with info abaut catalogs
+ls -lR == show all files and all files in dirs (a lot of files, better to use with pipline "ls -lR | less"
+pwd == show where i am
+rmdir == delete dir
+rm -r == delte dir
+rm == delte file
+touch == creation a file or set new time of modification
+less == show content of file with "pajing"?? Пейджинг?
+history == show all commands the i enter before
+!! == last command
+!:0 == first word from last command
+!:1 == second word from last command
+ctrl + d == search in all entered command
+ctrl + c == stop write command and go to new line
+ctrl + d == end of file
+ctrl + z == stop running process (some instalation and ather) and make it backgraund
+fg == run stoped process agane, but in backgraund 
+ps == list of process in operating system
+ps ax == show all existing process
+ps axu == show all existing process with info abaut owners
+top == programm for showing runing process in runtime
+kill -KILL 1029 == kill process in operation system, where numbers is id of process
+& == put after command (sudo apt install nvim &) process will run in backgraund, we will not see in
+jobs == show all running backgraund tasks
+kill %2 == kill process in backgraund running task with number 2
+
+
+//Rederection input-output
+
+-- cmd1 > file1 == run programm cmd1 and set output in file1; create file1 if not exist
+-- cmd1 >> file1 == run programm cmd1 and set append output in file1; create file1 if not exist
+-- cmd2 < file2 == run programm cmd2 and set input from file2; if file don't exist will be error
+-- cmd3 > file1 < file2 == run programm cmd3 and set input and output in files
+-- cmd1 | cmd2 == run in the same time cmd1 and cmd2, and set output data from first to second programm (pipline)
+-- cmd4 2> errfile == set error stream to file errfile
+-- cmd5 2>&1 | cmd6 == combine standard streams of input and diagnostics cmd5 program and redirect to standard input to cmd6 programm
+
+
+chmod == commad for change access of rights {
+    [ugoa] [+-=] [rwxsXtugo] -> [u - user, g - group, o - others, a - all],
+    [+ - add new access of right, - remove access right, = set only thet access of right and remove others]
+    [r - read access, w = write access, x - execute access, s - set/remove Set-bids,  
+    t - Sticky Bit, u = user, g - group, o - others,
+    X - set/remove executive bit for directories]
+    chmod -R == set access of rights for all files and directories in current directory
+    f.e. -> chmod a+x myfile - set access of rights of file "myfile" for all + executive
+    chmod go-rwx * - remove r, w, x, access of rights from all with the exception of owner user
+
+    very usefull command:
+        chmod -R u+rwX, go=rX ~  == set in my home directory and all child
+        directroies to all files access of riths on wright and read, and set
+        execute access (for executable fiels) for awner, and for goup of other users set access only
+        for read, and execute for only executable files.
+}
+
+man == manual (f.e. man ls)
+sh scripts {
+
+    -f == test existing file
+    -le == equalse ( <= )
+    -lt == equalse ( < )
+    -ge == equalse ( >= )
+    -gt == equalse ( > )
+
+    $1 first arg
+    $2 second arg and other $3 ... $12
+
+    schript.sh == we can write scripts for execute inside script first line need to
+    declare script inteprite -> #!/bin/sh and then all script lines
+
+    {
+    FILE=$1  -  here is first arg from script  ($0 is name of script)
+    if [ -f "$FILE" ]; then
+        cat "$FILE"
+    else 
+        echo "File $FILE not found"
+    fi -- here simple example of if else statemnt in sh cripts
+    }
+
+    {
+        I=1
+        while [ $I -le 100 ]; do
+            ehco $I
+            I=$((I + 1))
+        done -- another example of loop, print I while I < 100
+    }
+    {
+        for C in red orange yellow green blue indigo violet; do
+            echo $C
+        done
+    } -- print all word from list  for C int ...; where C is argument ad ... is
+    list of arguments which step by step will be writen in C and then print
+}
+
+ && || 
+ cmd1 && cmd2 == execute cmd1 if success then execute cmd2
+ cmd1 || cmd2 == execute cmd1 if not success then execute cmd2
+ cmd1 && cmd2 | cmd3 == execute cmd1, if success then exucute cmd2 and set output from cmd2 to input cmd3
+(cmd1 && cms2) | cmd3 == execute cmd1, if success then exucute cmd2 and then set set output from cmd1 and cmd2 to input cmd3;
+
+{
+        PATH == global linux variable where set list pathes of executable programms
+        HOME == global linux variable path to user home directory
+        LANG == global linux variable with current language
+        EDITOR == global linux variable for setting text redactor programm
+
+        export == info abaut all global linux variables
+        unset MYVAR == remove global variable with name MYVAR
+        MYVAR=/usr/hello/ass
+        export MYVAR == create global variable
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
