@@ -24,6 +24,9 @@ kill -KILL 1029 == kill process in operation system, where numbers is id of proc
 & == put after command (sudo apt install nvim &) process will run in backgraund, we will not see in
 jobs == show all running backgraund tasks
 kill %2 == kill process in backgraund running task with number 2
+sudo systemctl status "name of program" == show all statuses abaut this program
+( sudo systemctl statuc postgresql-16 )
+uname -a == info about my processor and OS
 
 
 //Rederection input-output

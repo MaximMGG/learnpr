@@ -8,4 +8,8 @@ again:      PRINT       "Hello"
             inc         eax
             cmp         eax, 5
             jl          again
+;arr         db 1, 2, 3, 4, 5, 7
+;            PRINT       arr%%
+;            inc         arr
+; 556
             FINISH
