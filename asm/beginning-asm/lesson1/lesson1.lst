@@ -13,8 +13,9 @@
     12 0000000A 48BE-                       mov rsi, msg  ; string to display on rsi
     12 0000000C [0000000000000000] 
     13 00000014 BA0E000000                  mov rdx, len ; length of the string, wighout 0
-    14 00000019 0F05                        syscall     ; display the string
-    15 0000001B B83C000000                  mov rax, 60 ; 60 = exit
-    16 00000020 BF00000000                  mov rdi, 0  ; 0 = success exit code
-    17 00000025 0F05                        syscall    ; quit
-    18                                  
+    14 00000019 0F05                        syscall
+    15                                  
+    16 0000001B B83C000000                  mov rax, 60 ; 60 = exit
+    17 00000020 BF00000000                  mov rdi, 0  ; 0 = success exit code
+    18 00000025 0F05                        syscall
+    19                                  
