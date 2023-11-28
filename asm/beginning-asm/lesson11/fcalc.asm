@@ -1,4 +1,3 @@
-extern printf
 section .data
     number1     dq  9.3
     number2     dq  73.0
@@ -11,6 +10,8 @@ section .data
     f_sqrt      db  "The float squareroot of %f is %f", 10, 0
 
 section .text
+extern printf
+
     global main
 main:
     push    rbp
