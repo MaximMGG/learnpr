@@ -6,15 +6,11 @@
         %%arg1      db  %1, 0 ; first arg   %1
         %%fmtint    db  "%s %ld", 10, 0 ;string format
     section .text
-        push    rbp
-        mov     rbp, rsp
         mov     rdi, %%fmtint
         mov     rsi, %%arg1
         mov     rdx, [%2]  ; put second arg
         mov     rax, 0
         call    printf
-        leave
-        ret
 %endmacro
 
 section .data
