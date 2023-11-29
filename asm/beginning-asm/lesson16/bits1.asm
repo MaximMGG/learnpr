@@ -131,12 +131,15 @@ leave
 ret
 ;--------------------------------------
 printmsg:
-    section .data
+section .data
         .fmtstr     db  "%s", 0
 section .text
-    mov     rdi, .fmtstr
+    push rbp
+    mov     rbp, rsp
+    mov     rdi,.fmtstr
     mov     rax, 0
     call    printf
+    leave
     ret
 
 

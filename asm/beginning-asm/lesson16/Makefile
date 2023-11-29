@@ -6,3 +6,10 @@ bits1.o: bits1.asm
 
 printb.o: printb.c
 	gcc -c printb.c -g
+
+
+bits2: bits2.o
+	gcc -g -o bits2 $^ -no-pie
+
+bits2.o: bits2.asm
+	nasm -f elf64 -g -F dwarf $^

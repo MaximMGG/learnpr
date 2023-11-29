@@ -172,14 +172,17 @@
    131 000001E4 C3                      ret
    132                                  ;--------------------------------------
    133                                  printmsg:
-   134                                      section .data
+   134                                  section .data
    135 00000130 257300                          .fmtstr     db  "%s", 0
    136                                  section .text
-   137 000001E5 48BF-                       mov     rdi, .fmtstr
-   137 000001E7 [3001000000000000] 
-   138 000001EF B800000000                  mov     rax, 0
-   139 000001F4 E8(00000000)                call    printf
-   140 000001F9 C3                          ret
-   141                                  
-   142                                  
-   143                                  
+   137 000001E5 55                          push rbp
+   138 000001E6 4889E5                      mov     rbp, rsp
+   139 000001E9 48BF-                       mov     rdi,.fmtstr
+   139 000001EB [3001000000000000] 
+   140 000001F3 B800000000                  mov     rax, 0
+   141 000001F8 E8(00000000)                call    printf
+   142 000001FD C9                          leave
+   143 000001FE C3                          ret
+   144                                  
+   145                                  
+   146                                  
