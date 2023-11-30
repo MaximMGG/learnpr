@@ -24,7 +24,7 @@ section .data
     O_RDWR      equ     000002q
     ;create node (permissions)
     S_IRUSR     equ     00400q
-    S_IWUSE     equ     00200q
+    S_IWUSR     equ     00200q
     NL          equ     0xa
     bufferlen   equ     64
     fileName    db      "testfile.txt", 0
@@ -181,7 +181,149 @@ leave
 ret
 
 ;file manipulation functions
-
+global readFile
+feadFile:
+    mov     rax, NR_read
+    syscall
+    cmp     rax, 0
+    lj      readerror
+    mov     byte [rsi + rax], 0
+    mov     rdi, success_Read
+    push    rax
+    call    printString
+    pop     rax
+    ret
+readerror:
+    mov     rdi, error_Read
+    call    printString
+    ret
+;-----------------------------
+global deleteFile
+deleteFile:
+    mov     rax, NR_unlink
+    syscall
+    cmp     rax, 0
+    jl      deleteerror
+    mov     rdi, success_Delete
+    call    printString
+    ret
+deleteerror:
+    mov     rdi, error_Delete
+    call    printString
+    ret
+;-----------------------------
+global appendFile
+appendFile:
+    mov     rax, NR_Open
+    mov     rsi, O_PDWR|O_APPEND
+    syscall
+    cmp     rax, 0
+    jl      appenerror
+    mov     rdi, success_Append
+    push    rax
+    call    printString
+    pop     rax
+    ret
+appenderror:
+    mov     rdi error_Append
+    call    printString
+    ret
+;---------------------------------
+global  openFile
+openFile:
+    mov     rax, NR_Open
+    mov     rsi, O_PDWR
+    syscall
+    cmp     rax, 0
+    jl      openerror
+    mov     rdi, succes_Open
+    push    rax
+    call    printString
+    pop     rax
+    ret
+openerror:
+    mov     rdi, error_Open
+    call    printString
+    ret
+;-----------------------------------
+global  writeFile
+writeFile:
+    mov     rax, NR_write
+    syscall
+    cmp     rax, 0
+    jl      writeerror
+    mov     rdi, success_Write
+    call    printString
+    ret
+writeerror:
+    mov     rdi, error_Write
+    call    printString
+    ret
+;------------------------------------
+global positionFile
+positionFile:
+    mov     rax, NR_lseek
+    syscall
+    cmp     rax, 0
+    jl      psitionerror
+    mov     rdi, success_Position
+    call    printString
+    ret
+positionerror:
+    mov     rdi, error_Position
+    call    printString
+    ret
+;--------------------------------
+global closeFile
+closeFile:
+    mov     rax, NR_close
+    syscall
+    cmp     rax, 0
+    jl      closeerror
+    mov     rdi, success_Close
+    call    printString
+    ret
+closeerror
+    mov     rdi, error_close
+    call    printString
+    ret
+;------------------------------
+global createFile
+createFile:
+    mov     rax, NR_create
+    mov     rsi, S_IRUSR| S_IWUSR
+    syscall
+    cmp     rax, 0
+    jl      createerror
+    mov     rdi, success_Create
+    push    rax
+    call    printString
+    pop     rax
+    ret
+createerror:
+    mov     rdi, error_Create
+    call    printString
+    ret
+;---------------------------------
+global printString
+printString:
+    mov     r12, rdi
+    mov     rax, 0
+strLoop:
+    cmp     byte [r12], 0
+    je      strDone
+    inc     rdx
+    inc     r12
+    jmp     strLoop
+strDone:
+    cmp     rdx, 0
+    je      prtDone
+    mov     rsi, rdi
+    mov     rax, 1
+    mov     rdi, 1
+    syscall
+prtDone
+    ret
 
 
 
