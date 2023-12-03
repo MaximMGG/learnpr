@@ -1,5 +1,18 @@
+
+GCC = gcc -o $@ $^ -g -no-pie
+NASM = nasm -f elf64 -g -F dwarf $^
+
+
+all: file ownf 
+
 file: file.o
-	gcc -o $@ $^ -g -no-pie
+	$(GCC)
 
 file.o: file.asm
-	nasm -f elf64 -g -F dwarf $^
+	$(NASM)
+
+ownf: ownfile.o
+	$(GCC)
+
+ownfile.o: ownfile.asm
+	$(NASM)

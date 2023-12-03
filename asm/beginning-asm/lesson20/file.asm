@@ -1,12 +1,12 @@
 section .data
     ;expressions used for conditional assembly
     CREATE      equ     1
-    OVERWRITE   equ     1
-    APPEND      equ     1
-    O_WRITE     equ     1
-    READ        equ     1
-    O_READ      equ     1
-    DELETE      equ     1
+    OVERWRITE   equ     0
+    APPEND      equ     0
+    O_WRITE     equ     0
+    READ        equ     0
+    O_READ      equ     0
+    DELETE      equ     0
     ;syscall symbols
     NR_read     equ     0
     NR_write    equ     1
@@ -82,6 +82,7 @@ mov     rbp, rsp
     mov     rdi, qword[FD]
     call    closeFile
 %ENDIF
+
 %IF OVERWRITE
 ;opening and rewriting file, than cloging
 ;opening file
@@ -97,6 +98,7 @@ mov     rbp, rsp
     mov     rdi, qword[FD]
     call    closeFile
 %ENDIF
+
 %IF APPEND
 ;opening and appending in file, than closing
 ;open and appending data in file
@@ -240,7 +242,7 @@ openFile:
     syscall
     cmp     rax, 0
     jl      openerror
-    mov     rdi, succes_Open
+    mov     rdi, success_Open
     push    rax
     call    printString
     pop     rax
@@ -269,7 +271,7 @@ positionFile:
     mov     rax, NR_lseek
     syscall
     cmp     rax, 0
-    jl      psitionerror
+    jl      positionerror
     mov     rdi, success_Position
     call    printString
     ret
