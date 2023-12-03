@@ -14,7 +14,7 @@ section .data
     NR_close    equ     3
     NR_lseek    equ     8
     NR_create   equ     85
-    NR_inlink   equ     87
+    NR_unlink   equ     87
     ;creation and status flags
     O_CREAT     equ     00000100q
     O_APPEND    equ     00002000q
@@ -28,7 +28,7 @@ section .data
     NL          equ     0xa
     bufferlen   equ     64
     fileName    db      "testfile.txt", 0
-    DF          dq      0; file discriptor
+    FD          dq      0; file discriptor
 
     text1       db      "1. Hello...to everyone!", NL, 0
     len1        equ     $ - text1 - 1 ; delete 0
@@ -126,7 +126,7 @@ mov     rbp, rsp
 ;writing in fill position with offset
     mov     rdi, qword[FD]
     mov     rsi, text4
-    mov     rdx, qword[len4]
+    mov     rdx, qword [len4]
     call    writeFile
 ;closing file
     mov     rdi, qword[FD]
@@ -172,6 +172,10 @@ mov     rbp, rsp
 ;closing file
     mov     rdi, qword[FD]
     call    closeFile
+%ENDIF
+leave
+ret
+
 %IF DELETE
 ;deleting file
     mov     rdi, fileName
@@ -182,11 +186,11 @@ ret
 
 ;file manipulation functions
 global readFile
-feadFile:
+readFile:
     mov     rax, NR_read
     syscall
     cmp     rax, 0
-    lj      readerror
+    jl      readerror
     mov     byte [rsi + rax], 0
     mov     rdi, success_Read
     push    rax
@@ -214,25 +218,25 @@ deleteerror:
 ;-----------------------------
 global appendFile
 appendFile:
-    mov     rax, NR_Open
-    mov     rsi, O_PDWR|O_APPEND
+    mov     rax, NR_open
+    mov     rsi, O_RDWR|O_APPEND
     syscall
     cmp     rax, 0
-    jl      appenerror
+    jl      appenderror
     mov     rdi, success_Append
     push    rax
     call    printString
     pop     rax
     ret
 appenderror:
-    mov     rdi error_Append
+    mov     rdi, error_Append
     call    printString
     ret
 ;---------------------------------
 global  openFile
 openFile:
-    mov     rax, NR_Open
-    mov     rsi, O_PDWR
+    mov     rax, NR_open
+    mov     rsi, O_RDWR
     syscall
     cmp     rax, 0
     jl      openerror
@@ -283,8 +287,8 @@ closeFile:
     mov     rdi, success_Close
     call    printString
     ret
-closeerror
-    mov     rdi, error_close
+closeerror:
+    mov     rdi, error_Close
     call    printString
     ret
 ;------------------------------
@@ -322,7 +326,7 @@ strDone:
     mov     rax, 1
     mov     rdi, 1
     syscall
-prtDone
+prtDone:
     ret
 
 

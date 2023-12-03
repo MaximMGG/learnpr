@@ -24,6 +24,18 @@ mov     rbp, rsp
         mov     rsi, buf
         mov     rdx, rax
         call    printstr
+        mov     rsi, 10
+        mov     rdx, 1
+        call    printstr
+        mov     rsi, msg
+        mov     rdi, buf
+        mov     rdx, newstr
+        call    format
+        mov     rsi, newstr
+        call    strlen
+        mov     rsi, newstr
+        mov     rdx, rax
+        call    printstr
 leave
 ret
 
@@ -67,9 +79,43 @@ lenloop:
         inc     rax
         inc     rsi
         jmp     lenloop
-
 lenend:
 leave
 ret
         
-        
+global format
+format:
+push    rbp
+mov     rbp, rsp
+        push    r12
+        push    r13
+        push    r14
+        mov     r12, rsi
+        mov     r13, rdi
+        mov     r14, rdx
+find:
+        cmp     byte [r12], '%' 
+        je      append
+        mov     bl, byte [r12]
+        mov     byte [r14], bl
+        inc     r12
+        inc     r14
+        jmp     find
+append:
+        call    strlen
+appendloop:
+        mov     bl, byte[r13]
+        mov     byte[r14], bl
+        inc     r13
+        inc     r14
+        dec     rax
+        cmp     rax, 0
+        je      formatend
+        jmp     appendloop
+formatend:
+        mov byte[r14], 0xa 
+        pop r14
+        pop r13
+        pop r12
+        leave
+        ret
