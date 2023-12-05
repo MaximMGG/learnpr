@@ -11,7 +11,10 @@ section .data
 
 section .text
 extern printf
+<<<<<<< HEAD
 
+=======
+>>>>>>> 96d3d0e (lesson11)
     global main
 main:
     push    rbp
