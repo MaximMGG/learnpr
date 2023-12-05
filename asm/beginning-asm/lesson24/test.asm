@@ -12,6 +12,7 @@ extern printf
 section .data
     msg     db      "This is test string!", 10, 0
     fmt     db      "Symbol at position %d", 10, 0
+    symbol  db      "r"
 
 section .bss
     copymsg     resb    124
@@ -36,8 +37,8 @@ copyend:
     mov     rsi, copymsg
     call    strlen
     call    findr
-    mov     rsi, fmt
-    mov     rdi, r12
+    mov     rdi, fmt
+    mov     rsi, r12
     mov     rax, 0
     call    printf
 leave
@@ -60,10 +61,10 @@ ret
 global  findr
 findr:
     xor     rdi, rdi
-    mov     rdi, 114
+    lea     rdi, [copymsg]
     mov     r12, rcx
+    mov     rax, 0x72 
 findloop:
-    lodsb
     repne   scasb
     je      findend
 findend:
