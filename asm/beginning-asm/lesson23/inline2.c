@@ -18,6 +18,7 @@ int main(void) {
             );
     printf("The extended inline sum of global variables is %d.\n", bsum);
     int x = 14, y = 16, esum, eproduct, edif;
+    int sum, i = 10, j = 5;
     printf("The local variables are %d and %d\n", x, y);
 
     __asm__(
@@ -50,4 +51,14 @@ int main(void) {
             :"d"(a), "c"(y)
             );
     printf("The extended inline asm difference is %d.\n", edif);
+    
+
+    __asm__(
+            ".intel_syntax noprefix;"
+            "mov    rax, rcx;"
+            "add    rax, rbx;"
+            :"=a"(sum) // a = rax
+            :"c"(i), "b"(j)
+            );
+    printf("%d\n", sum);
 }
