@@ -26,6 +26,7 @@ align   16
             db  " %lf, %lf", 10, 0
 
 section .bss
+align 16
     spvector_res    resq    4
     dpvector_res    resq    4
 
