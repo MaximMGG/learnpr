@@ -1,0 +1,8 @@
+Here we tolk about imm flag register whan we comparing two strings with SSE
+technology
+pcmpistri
+pcmpistrm
+pcmpestri
+pcmpestrm
+
+
