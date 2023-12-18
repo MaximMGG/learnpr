@@ -14,6 +14,12 @@ sse2: sse_string5.o print16b.o
 sse_string5.o: sse_string5.asm
 	$(NASM)
 
+sse3: sse_string6.o print16b.o
+	$(GCC)
+
+sse_string6.o: sse_string6.asm
+	$(NASM)
+
 strlen:	strlen.o
 	$(GCC)
 
