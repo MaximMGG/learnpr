@@ -7,3 +7,9 @@ sse: sse_strin4.o print16b.o
 
 sse_strin4.o: sse_strin4.asm
 	$(NASM)
+
+strlen:	strlen.o
+	$(GCC)
+
+strlen.o: strlen.asm
+	$(NASM)

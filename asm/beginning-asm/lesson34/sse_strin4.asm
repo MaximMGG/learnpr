@@ -100,7 +100,6 @@ mov     rbp, rsp
         jnz     .loop
         add     rax, rcx
 
-
         movdqu  xmm0, [rbp - 16]
 leave
 ret
@@ -126,7 +125,7 @@ ret
 
 reverse_xmm0: 
 section .data
-    .bytereverse    db  15, 14, 14 ,12, 11, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    .bytereverse    db  15, 14, 13 ,12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
 section .text
 push    rbp
 mov     rbp, rsp
