@@ -20,3 +20,9 @@ format: format.o
 
 format.o: format.asm
 	$(NASM)
+
+login: getlogin.o
+	$(GCC)
+
+getlogin.o: getlogin.asm
+	$(NASM)
