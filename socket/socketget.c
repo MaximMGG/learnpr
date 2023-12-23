@@ -16,9 +16,9 @@
 int main(int argc, char **argv) {
     char buffer[BUFSIZ];
     char request[MAX_REQUEST_LEN];
-    char request_template[] = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
+    char request_template[] = "GET /api/v3/ticker?symbol=BTCUSDT HTTP/1.1\r\nHost: %s\r\n\r\n";
     struct protoent *protoent;
-    char *hostname = "example.com";
+    char *hostname = "api1.binance.com";
     in_addr_t in_addr;
     int request_len;
     int socket_file_decriptor;
