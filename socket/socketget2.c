@@ -12,6 +12,7 @@ int main(void) {
     int fd;
     struct addrinfo req, *res;
     char hostname[] = "api1.binance.com";
+<<<<<<< HEAD
     // char request[] = "method: GET https://api1.binance.com/api/v3/ticker?symbol=BTCUSDT "
                    //  "\r\nHost: api1.binance.com\r\n"
                    // "Scheme: https \r\n";
@@ -23,6 +24,9 @@ int main(void) {
     memset(&req, 0, sizeof(req));
     req.ai_family = AF_UNSPEC;
     req.ai_socktype = SOCK_STREAM;
+=======
+    char request[] = "GET / ";
+>>>>>>> 17b5397 (get2 work)
     char buffer[BUFSIZ];
     int request_len = sizeof(request);
 
