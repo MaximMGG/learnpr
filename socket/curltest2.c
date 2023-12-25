@@ -20,19 +20,11 @@ int main() {
         // curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
         // curl_easy_setopt(curl, CURLOPT_CERTINFO, 0L);
 
-        int c = 10;
-        res = curl_easy_perform(curl);
-        puts("");
-        res = curl_easy_perform(curl);
-        puts("");
-        res = curl_easy_perform(curl);
-        puts("");
-        res = curl_easy_perform(curl);
-        puts("");
-        res = curl_easy_perform(curl);
-        puts("");
-        res = curl_easy_perform(curl);
-        puts("");
+        int c = 30;
+        while (c--) {
+            res = curl_easy_perform(curl);
+            puts("");
+        }
 
         if (res != CURLE_OK) {
             fprintf(stderr, "curl_easy_perform error %s\n", curl_easy_strerror(res));

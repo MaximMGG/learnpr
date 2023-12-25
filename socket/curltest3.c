@@ -40,8 +40,12 @@ int main(void) {
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &chunk);
 
         res = curl_easy_perform(curl);
-
-        printf("%s\n", chunk.response);
+        res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
+        res = curl_easy_perform(curl);
+        // printf("%s\n", chunk.response);
 
         free(chunk.response);
     }
