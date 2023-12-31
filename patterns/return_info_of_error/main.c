@@ -7,7 +7,7 @@ int main() {
     RegKey my_key;
 
     err = createKey(&my_key, "my_key");
-    if (err == INVALID_KEY || err == INVALID_STRING) {
+    if (err == INVALID_PARAMETER) {
         printf("App exeption");
     }
     if (err == STRING_TOO_LONG) {
@@ -18,14 +18,14 @@ int main() {
     }
 
     err = storeValue(my_key, "A");
-    if (err == INVALID_KEY || err == INVALID_STRING) {
+    if (err == INVALID_PARAMETER) {
         printf("App exeption");
     }
     if (err == STRING_TOO_LONG) {
         printf("Lengs of register too long");
     }
     err = publishKey(my_key);
-    if (err == INVALID_KEY || err == INVALID_STRING) {
+    if (err == INVALID_PARAMETER) {
         printf("App exeption");
     }
     if (err == CANNOT_ADD_KEY) {

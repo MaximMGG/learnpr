@@ -1,10 +1,19 @@
 #include "reg_key.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 
 #define STRING_SIZE 100
 #define MAX_KEYS 40
+#define false 0
+
+#define logAssert(x)                            \
+    if (!(x)) {                                 \
+        printf("Error at line %i\n", __LINE__); \
+        assert(false);                          \
+    }
 
 
 struct Key {
@@ -14,46 +23,29 @@ struct Key {
 
 static struct Key* key_list[MAX_KEYS];
 
-RegError createKey(RegKey *key, char *key_name) {
-    if (key == NULL) {
-        return INVALID_KEY;
-    }
-    if (key_name == NULL) {
-        return INVALID_STRING;
-    }
-    if (STRING_SIZE <= strlen(key_name)) {
-        return STRING_TOO_LONG;
-    }
+RegKey createKey(char *key_name) {
+
+    logAssert(key_name != NULL);
+    logAssert(STRING_SIZE > strlen(key_name));
 
     RegKey newKey = calloc(1, sizeof(struct Key));
     if (newKey == NULL) {
-        return OUT_OF_MEMORY;
+        return NULL;
     }
-
     strcpy(newKey->key_name, key_name);
-    *key = newKey;
-    return OK;
+    return newKey;
 }
 
 RegError storeValue(RegKey key, char* value) {
-    if (key == NULL) {
-        return INVALID_KEY;
-    }
-    if (value == NULL) {
-        return INVALID_STRING;
-    }
-    if (STRING_SIZE <= strlen(value)) {
-        return STRING_TOO_LONG;
-    }
+    logAssert(key != NULL && value != NULL);
+    logAssert(STRING_SIZE > strlen(value));
     strcpy(key->key_value, value);
     return OK;
 }
 
 RegError publishKey(RegKey key) {
     int i;
-    if (key == NULL) {
-        return INVALID_KEY;
-    }
+    logAssert(key != NULL);
     for (i = 0; i < MAX_KEYS; i++) {
         if (key_list[i] == NULL) {
             key_list[i] = key;
