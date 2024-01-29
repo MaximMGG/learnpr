@@ -1,6 +1,32 @@
 #include <iostream>
 #include <vector>
 
+void names() {
+    using namespace std;
+    vector<string> names;
+    vector<int> ages;
+
+    string temp_s = "";
+    int temp_i = 0;
+
+    cin >> temp_s >> temp_i;
+    while(temp_s != "NoName" && temp_i != 0) {
+        if (temp_s == "") {
+            cerr << "You didnt enter name\n";
+        } else {
+            names.push_back(temp_s);
+        }
+        if (temp_i == 0) {
+            cerr << "You didnt enter age\n";
+        } else {
+            ages.push_back(temp_i);
+        }
+        cin >> temp_s >> temp_i;
+    }
+    for(int i = 0; i < names.size(); i++) {
+        cout << "Name is: " << names[i] << " ,age is: " << ages[i] << ".\n";
+    }
+}
 
 void game() {
     using namespace std;
@@ -52,7 +78,8 @@ int main() {
 
     std::cout << sizeof(nums[0]) << std::endl;
 
-    game();
+    // game();
+    names();
 
     return 0;
 }
