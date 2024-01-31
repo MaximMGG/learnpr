@@ -51,5 +51,6 @@ int main() {
 
     std::cout << sizeof(team) << std::endl;
     std::cout << sizeof(struct my_reg) << std::endl;
+
     return 0;
 }
