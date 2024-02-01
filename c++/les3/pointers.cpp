@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <cstring>
 using namespace std;
 
 
@@ -26,6 +27,13 @@ void magic() {
 
     cout << *one << endl;
     cout << one << endl;
+}
+
+string getName() {
+    string name2 = "Bob";
+    char *name = new char[20];
+    strcpy(name, "Bob");
+    return name2;
 }
 
 
@@ -62,6 +70,17 @@ int main() {
 
     int *n_p = new int;
     delete(n_p);
+
+    int *arr= new int[10];
+    delete[](arr);
+
+
+    string test = "Hello";
+    char *test_p = test.data();
+
+    cout << test_p << endl;
+
+
 
     return 0;
 }
