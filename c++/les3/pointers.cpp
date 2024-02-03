@@ -6,27 +6,19 @@ using namespace std;
 
 void magic() {
 
-    int *one = (int *) malloc(sizeof(int));
-    int *two = (int *) malloc(sizeof(int));
-    *one = 1;
-    *two = 2;
+    int one = 1;
+    int two = 2;
 
-    int *p = two;
+    int *p = &two;
     p++;
     *p = 666;
     cout << two << endl;
-    cout << *two << endl;
+    cout << &two << endl;
+    cout << &one << endl;
 
-    cout << *one << endl;
     cout << one << endl;
-    cout << *p << endl;
-    cout << p << endl;
+    cout << "======" << endl;
 
-    p -= 2;
-    *p = 777;
-
-    cout << *one << endl;
-    cout << one << endl;
 }
 
 string getName() {
@@ -60,27 +52,27 @@ int main() {
     //
 
     cout << a << endl; // not 123
-    cout << &a << endl; // still same
-    cout << *p_a << endl;
-    cout << p_a << endl;
+    // cout << &a << endl; // still same
+    // cout << *p_a << endl;
+    // cout << p_a << endl;
 
     cout << "--------------------------\n";
 
     magic();
 
-    int *n_p = new int;
-    delete(n_p);
-
-    int *arr= new int[10];
-    delete[](arr);
-
-
-    string test = "Hello";
-    char *test_p = test.data();
-
-    cout << test_p << endl;
-
-
+    // int *n_p = new int;
+    // delete(n_p);
+    //
+    // int *arr= new int[10];
+    // delete[](arr);
+    //
+    //
+    // string test = "Hello";
+    // char *test_p = test.data();
+    //
+    // cout << test_p << endl;
+    //
+    //
 
     return 0;
 }

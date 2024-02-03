@@ -20,8 +20,8 @@ void vec_sum2(vec *v) {
 
 int main() {
 
-    double x = 1.24;
-    double y = 434.131;
+    double x = 10.1;
+    double y = 10.2;
 
     std::cout << do_sum(x, y) << std::endl;
     std::cout << do_sum2(x, y) << std::endl;

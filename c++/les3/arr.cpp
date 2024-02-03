@@ -84,6 +84,10 @@ long calc() {
     long res = 0;
 
     for(int i = 0; i < EXP_LENGTH; i++) {
+<<<<<<< HEAD
+=======
+        // arr.push_back(rand() % 10);
+>>>>>>> 845f96e (jeck some singth)
         arr[i] = rand() % 10;
     }
 
