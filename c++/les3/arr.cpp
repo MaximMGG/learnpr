@@ -80,11 +80,11 @@ long calc() {
 
 long calc() {
     cout << "vector" << endl;
-    std::vector<int> arr;
+    std::vector<int> arr(EXP_LENGTH);
     long res = 0;
 
     for(int i = 0; i < EXP_LENGTH; i++) {
-        arr.push_back(rand() % 10);
+        arr[i] = rand() % 10;
     }
 
     for(int i : arr) {
