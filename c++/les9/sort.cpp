@@ -194,26 +194,45 @@ void print_arr(T t[], int n) {
     std::cout << "}\n";
 }
 
-#define FAST
+#define ARR_LEN 100000
 
 int main() {
 
-    int arr[]{3, 5, 22, 11, 6, 55, 45, 16, 87, 889, 89900, 34, 123123, 3, 0, 1, 1, 44, 5, 67, 87, 32, 1, 67, 0};
-    int len = 25;
 
-    // ssssort(arr, len);
+
 #ifdef BABLE
-     babble_sort(arr, 25);
+    std::cout << "BUBLE START" << std::endl;
+    int *arr = new int[ARR_LEN];
+    for(int i = 0; i < ARR_LEN; i++) {
+        arr[i] = rand() % 1000; 
+    }
+    babble_sort(arr, ARR_LEN);
+    // print_arr(arr, ARR_LEN);
+    std::cout << "BUBLE FINISH" << std::endl;
+    delete [] arr;
 #endif
 #ifdef CHOSE
-    chose_sort(arr, len);
+    std::cout << "CHOSE START" << std::endl;
+    int *arr = new int[ARR_LEN];
+    for(int i = 0; i < ARR_LEN; i++) {
+        arr[i] = rand() % 1000; 
+    }
+    chose_sort(arr, ARR_LEN);
+    // print_arr(arr, ARR_LEN);
+    std::cout << "CHOSE FINISH" << std::endl;
+    delete [] arr;
 #endif
 #ifdef FAST
-    // fast_sort(arr, len);
-    int *a = sssfast_sort(arr, len);
+    std::cout << "FAST START" << std::endl;
+    int *arr = new int[ARR_LEN];
+    for(int i = 0; i < ARR_LEN; i++) {
+        arr[i] = rand() % 1000; 
+    }
+    int *a = sssfast_sort(arr, ARR_LEN);
+    print_arr(a, ARR_LEN);
+    std::cout << "FAST FINISH" << std::endl;
+    delete [] arr;
 #endif
-    print_arr(a, 25);
-
 
     return 0;
 }
