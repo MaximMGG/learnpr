@@ -28,6 +28,8 @@ class Dog {
     }
 }
 
+namespace tt = My::Test;
+
 
 typedef struct {
     float x, y;
@@ -70,6 +72,7 @@ int main() {
         std::cout << a + i;
     std::cout << std::endl;
     std::cout << dd << std::endl;
-
+    tt::print_rob(r);
+    
     return 0;
 }
