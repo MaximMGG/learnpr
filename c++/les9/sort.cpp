@@ -1,4 +1,114 @@
 #include <iostream>
+#include <cstring>
+
+
+
+template <typename T>
+static T *fast_sort_helper(T *t, int l, int r) {
+    int len = r - l + 1;
+    int l_len = 0;
+    int r_len = 0;
+    T *left;
+    T *right;
+
+    if (len > 2) {
+        if (len % 2 != 0) {
+            l_len = len / 2;
+            r_len = len / 2 + 1;
+            left = new T[l_len];
+            right = new T[r_len];
+        } else {
+            l_len = r_len = len / 2;
+            left = new T[l_len];
+            right = new T[r_len];
+        }
+        left = fast_sort_helper (t, l, l + l_len - 1);
+        right = fast_sort_helper (t, l + l_len, r);
+    } else {
+        left = new T[len];
+        if (len == 1) {
+            left[0] = t[l];
+            return left;
+        }
+        if (len == 2) {
+            if (t[l] > t[r]) {
+                left[0] = t[r];
+                left[1] = t[l];
+                return left;
+            } else {
+                left[0] = t[l];
+                left[1] = t[r];
+                return left;
+            }
+        }
+    }
+
+    T *arr = new T[len];
+    for(int i = 0, l_p = 0, r_p; i < len; i++) {
+        if (l_p < l_len) {
+            if (r_p < r_len) {
+                if (left[l_p] > right[r_p]) {
+                    arr[i] = right[r_p++];
+                } else {
+                    arr[i] = left[l_p++];
+                }
+            } else {
+                arr[i] = left[l_p++];
+            }
+            continue;
+        } 
+        if (r_p < r_len) {
+            if (l_p < l_len) {
+                if (left[l_p] > right[r_p]) {
+                    arr[i] = right[r_p++];
+                } else {
+                    arr[i] = left[l_p++];
+                }
+            } else {
+                arr[i] = right[r_p++];
+            }
+            continue;
+        }
+    }
+    delete [] left;
+    delete [] right;
+    return arr;
+}
+
+
+template <typename T>
+T *fast_sort(T *t, int n) {
+    T *b = fast_sort_helper (t, 0, n - 1);
+    return b;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 template <typename T>
@@ -44,22 +154,6 @@ T *chose_sort(T *t, int n) {
     }
     return t;
 }
-
-template <typename T>
-static T *fast_sort_helpe(T *t, int start, int end) {
-    return t;
-}
-
-template <typename T>
-T *fast_sort(T *t, int n) {
-    struct temp {
-        T *arr;
-        int size;
-    };
-    T *arr = fast_sort_helpe(t, 0, n);
-    return arr;
-}
-
 
 void *sssfast_sort_helper(int *ar, int l, int r) {
     int len = r - l + 1;
@@ -194,45 +288,62 @@ void print_arr(T t[], int n) {
     std::cout << "}\n";
 }
 
-#define ARR_LEN 100000
 
-int main() {
-
+int main(int argc, char **argv) {
+    int arr_len = 0;
+    if (argc > 1) {
+        arr_len = atoi(argv[1]);
+    }
+    if (arr_len <= 0) {
+        arr_len = 1000;
+    }
 
 
 #ifdef BABLE
     std::cout << "BUBLE START" << std::endl;
-    int *arr = new int[ARR_LEN];
-    for(int i = 0; i < ARR_LEN; i++) {
+    int *arr = new int[arr_len];
+    for(int i = 0; i < arr_len; i++) {
         arr[i] = rand() % 1000; 
     }
-    babble_sort(arr, ARR_LEN);
-    // print_arr(arr, ARR_LEN);
+    babble_sort(arr, arr_len);
+    // print_arr(arr, arr_len);
     std::cout << "BUBLE FINISH" << std::endl;
     delete [] arr;
 #endif
 #ifdef CHOSE
     std::cout << "CHOSE START" << std::endl;
-    int *arr = new int[ARR_LEN];
-    for(int i = 0; i < ARR_LEN; i++) {
+    int *arr = new int[arr_len];
+    for(int i = 0; i < arr_len; i++) {
         arr[i] = rand() % 1000; 
     }
-    chose_sort(arr, ARR_LEN);
-    // print_arr(arr, ARR_LEN);
+    chose_sort(arr, arr_len);
+    // print_arr(arr, arr_len);
     std::cout << "CHOSE FINISH" << std::endl;
     delete [] arr;
 #endif
 #ifdef FAST
     std::cout << "FAST START" << std::endl;
-    int *arr = new int[ARR_LEN];
-    for(int i = 0; i < ARR_LEN; i++) {
+    int *arr = new int[arr_len];
+    for(int i = 0; i < arr_len; i++) {
         arr[i] = rand() % 1000; 
     }
-    int *a = sssfast_sort(arr, ARR_LEN);
-    print_arr(a, ARR_LEN);
+    int *a = sssfast_sort(arr, arr_len);
+    // print_arr(a, arr_len);
     std::cout << "FAST FINISH" << std::endl;
     delete [] arr;
+#endif 
+#ifdef FAST_T
+    std::cout << "FAST_T START" << std::endl;
+    int *arr = new int[arr_len];
+    for(int i = 0; i < arr_len; i++) {
+        arr[i] = rand() % 1000; 
+    }
+    int *a = fast_sort(arr, arr_len);
+    // print_arr(a, arr_len);
+    std::cout << "FAST_T FINISH" << std::endl;
+    delete [] arr;
 #endif
+    std::cout << "Array length is: " << arr_len << std::endl;
 
     return 0;
 }
