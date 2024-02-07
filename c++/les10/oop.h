@@ -1,6 +1,3 @@
-
-
-
 typedef struct {
     void (*set_name)(int hash, const char *);
     char *(*get_name)(int hash);

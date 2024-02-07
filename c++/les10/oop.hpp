@@ -2,6 +2,7 @@
 
 class Stock {
     private:
+        Stock *stock = NULL;
         std::string name;
         long capasity;
         double average;
@@ -9,9 +10,11 @@ class Stock {
         Stock(std::string name = NULL, long capasity = 0, double average = 0.0);
         ~Stock();
         void set_name(const char *name);
-        std::string get_name();
+        std::string get_name() const;
         void set_capasity(long capasity);
-        long get_capasity();
+        long get_capasity() const;
         void set_average(double average);
-        double get_average();
+        double get_average() const;
+        void show_stock() const;
+        bool compare(Stock& s);
 };
