@@ -77,7 +77,7 @@ static T *fast_sort_helper(T *t, int l, int r) {
 
 
 template <typename T>
-T *fast_sort(T *t, int n) {
+T *fust_sort(T *t, int n) {
     T *b = fast_sort_helper (t, 0, n - 1);
     return b;
 }
@@ -112,7 +112,7 @@ T *fast_sort(T *t, int n) {
 
 
 template <typename T>
-T *babble_sort(T *t, int n) {
+T *bubble_sort(T *t, int n) {
     bool ch;
 
     for(int i = 0; i < n; i++) {
@@ -289,6 +289,7 @@ void print_arr(T t[], int n) {
 }
 
 
+#ifdef ONE
 int main(int argc, char **argv) {
     int arr_len = 0;
     if (argc > 1) {
@@ -347,3 +348,4 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+#endif

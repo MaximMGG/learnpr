@@ -10,7 +10,7 @@ namespace SALES {
        double min;
     };
 
-    void setSales(Sales& s, const double ar[], int n);
+    void setSales(Sales& s, double *ar, int n);
 
     void setSales(Sales& s);
 

@@ -1,38 +1,20 @@
 #include "sal.h"
 #include <float.h>
 #include <iostream>
-
-template <typename T> 
-T sorting (T t[], int n) {
-    int first_len = n / 2;
-    int last_len = n % 2 == 0 ? n / 2 : n / 2 + 1;
-
-
-
-
-
-}
-
-// {1, 4,5, 12, 345, 1, 23, 55, 65, 3, 16, 77, 88, 345, 2, 55, 6};
-// 1, 4, 5, 12, 1, 23, 55, 345
-// 1, 1, 4, 5, 12, 23, 55, 345  2, 3, 6, 15, 55, 65, 77, 88, 345
-// 1, 1, 2, 3, 4, 5, 6, 12, 15, 23, 55, 55, 65, 77, 88, 345, 345  
-
-
-
-
+#include "sort.h"
 
 namespace SALES {
-    void setSales(Sales& s, const double ar[], int n) {
+    void setSales(Sales& s, double *ar, int n) {
+        double *sort_ar = fast_sort<double>(ar, n);
         if (n > 4) {
             for(int i = 0; i < QUARTERS; i++) {
-                s.sales[i] = ar[i];
+                s.sales[i] = sort_ar[i];
             }
             n = QUARTERS;
         } else {
             for(int i = 0; i < QUARTERS; i++) {
                 if (i < n)
-                    s.sales[i] = ar[i];
+                    s.sales[i] = sort_ar[i];
                 else 
                     s.sales[i] = 0.0;
             }
