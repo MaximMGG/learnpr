@@ -1,6 +1,11 @@
 #include <iostream>
 
 
+void error(std::string a1, std::string a2) {
+    throw std::runtime_error(a1 + a2);
+}
+
+
 class Bad_area {
     std::string name;
     public:
@@ -24,12 +29,7 @@ int do_something(int x) {
 }
 
 int main() {
-    try{
-        do_something(-1);
-    } catch (Bad_area a) {
-        std::cout << a.getError() << std::endl;
-    }
-
+    error("Hello", "how are you?");
 
     return 0;
 }
