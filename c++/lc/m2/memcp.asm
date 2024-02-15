@@ -28,3 +28,31 @@ mov     rbp, rsp
         leave
         ret
 
+section .data
+        x       dd      1222
+        y       dd      1333
+        z       dq      11111111
+        name    db      "Alice", 0
+section .bss
+        xx      resd    1
+        yy      resd    1
+        zz      resd    1
+        name2   resb    10
+section .text
+    global main
+   
+main:
+push    rbp
+mov     rbp, rsp
+        mov     rdi, xx
+        mov     rsi, x
+        mov     rdx, 4
+        call    mem_cpy_asm
+        leave
+        ret
+
+
+
+
+
+

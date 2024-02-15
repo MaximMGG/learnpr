@@ -9,6 +9,8 @@ void mem_cpy(void *dest, void *source, unsigned long size) {
     }
 }
 
+extern "C" void mem_cpy_asm(void *dest, void *source, unsigned long size);
+
 struct app {
     int a;
     int b;
@@ -25,10 +27,10 @@ int main() {
     int b = 122;
     long z = 1111111;
     const char *name = "Egenu";
-    mem_cpy(p, &a, 4);
-    mem_cpy((p + 4), &b, 4);
-    mem_cpy((p + 8), &z, 8);
-    mem_cpy((p + 16), (void *)name, 8);
+    mem_cpy_asm(p, &a, 4);
+    mem_cpy_asm((p + 4), &b, 4);
+    mem_cpy_asm((p + 8), &z, 8);
+    mem_cpy_asm((p + 16), (void *)name, 8);
     
     struct app *ap = new struct app;
     ap->a = *(int *) p;
