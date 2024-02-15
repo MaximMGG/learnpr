@@ -8,7 +8,21 @@
 static std::vector<std::string> executor;
 static std::string pr_name;
 static bool JUST_COMPILE = false;
+static bool ISCPP = false;
 static int ARGS_POS {0};
+
+void determinate_lang(char *lang) {
+    if (lang[1] == 'p') {
+        ISCPP = true;
+    } else {
+       ISCPP = false;
+    }
+}
+
+const char *get_lang() {
+    return ISCPP ? "g++ -std=c++20 " : "gcc -std=c2x ";
+}
+
 
 char *parse_program_name(char **argv) {
     int name_pos {1};
@@ -21,6 +35,7 @@ char *parse_program_name(char **argv) {
     for(int i = 0; i < len; i++) {
         if (argv[name_pos][i] == '.') {
             buf[i] = '\0';
+            determinate_lang(&argv[name_pos][i + 1]);
             break;
         }
         buf[i] = argv[name_pos][i];
@@ -31,9 +46,11 @@ char *parse_program_name(char **argv) {
 }
 
 std::string prepare_execution(int argc, char **argv) {
-    executor.push_back("g++ ");
-    executor.push_back("-o ");
+
     char *pr_name_l = parse_program_name(argv);
+
+    executor.push_back(get_lang());
+    executor.push_back("-o ");
     executor.push_back(pr_name_l);
     executor.push_back(" ");
     delete [] pr_name_l;
@@ -56,7 +73,6 @@ std::string prepare_execution(int argc, char **argv) {
     executor.push_back("-Wextra ");
     executor.push_back("-Wconversion ");
     executor.push_back("-Wsign-conversion ");
-    executor.push_back("-std=c++20 ");
     executor.push_back("-g ");
 
     std::string exe {""};
