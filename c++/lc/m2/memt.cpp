@@ -18,7 +18,6 @@ struct app {
 
 typedef struct pointer{} point;
 
-
 int main() {
 
     point *p = new point[24];

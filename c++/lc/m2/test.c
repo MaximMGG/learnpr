@@ -11,6 +11,8 @@ struct app {
 
 typedef struct point point;
 
+extern void mem_cpy_asm(void *dest, void *source, unsigned long size);
+
 
 int main() {
 
@@ -20,10 +22,10 @@ int main() {
     int y = 213421;
     long z = 1511111111111111;
     char *name = "Sham";
-    memcpy(P, &x, 4);
-    memcpy((P + 4), &y, 4);
-    memcpy((P + 8), &z, 8);
-    memcpy((P + 16), name, 8);
+    mem_cpy_asm(P, &x, 4);
+    mem_cpy_asm((P + 4), &y, 4);
+    mem_cpy_asm((P + 8), &z, 8);
+    mem_cpy_asm((P + 16), name, 8);
     struct app *a = malloc(sizeof(struct app));
 
     a->x = *(int *) P;
