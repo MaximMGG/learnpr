@@ -7,7 +7,6 @@ const int five() {
 }
 
 
-
 int main() {
     const int c = 123;
     constexpr int b {c};
