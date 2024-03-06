@@ -1,0 +1,39 @@
+#include <iostream>
+#include <type_traits>
+
+
+
+class Entity {
+    public:
+        std::string GetName() {return "Entity";}
+};
+
+class Player : public Entity {
+    private:
+        std::string  m_Name;
+    public:
+        Player(const std::string& name) : m_Name(name) {};
+
+        std::string GetName() {return m_Name;}
+};
+
+void PrintName(Entity e) {
+    std::cout << e.GetName() << '\n';
+}
+
+int main() {
+
+    Entity *e = new Entity();
+    PrintName(*e);
+
+    Player *p = new Player("Max");
+    PrintName(*p);
+
+    Entity *entity = p;
+    PrintName(*entity);
+
+    delete e;
+    delete p;
+
+    return 0;
+}
