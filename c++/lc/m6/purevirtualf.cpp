@@ -33,9 +33,8 @@ template <typename T> void max(T& t, T& t2, T& res){
 
 int main() {
 
-    Entity *e = new Entity();
+    Entity *e = new Player("");
     Print(e);
-
 
     Player *p = new Player("Two");
     Print(p);

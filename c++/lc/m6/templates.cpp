@@ -21,7 +21,7 @@ template <> const char* maximum<const char *> (const char* a, const char *b);
 template <> std::string& maximum<std::string&> (std::string& a, std::string& b);
 
 template <typename T>
-requires std::integral<T> T add(T a, T b) {return a + b;}
+requires requires (std::integral<T>) T add(T a, T b) {return a + b;}
 
 
 class Name {

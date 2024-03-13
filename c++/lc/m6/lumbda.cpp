@@ -24,5 +24,13 @@ int main() {
     std::cout << max() << '\n';
 
 
+    auto aa = [](int x, int y){
+        return x == y;
+    };
+
+    [](int x){return true;}(b);
+
+    aa(1, 3);
+
     return 0;
 }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 
 void error(std::string a1, std::string a2) {
@@ -29,7 +30,22 @@ int do_something(int x) {
 }
 
 int main() {
-    error("Hello", "how are you?");
+    // error("Hello", "how are you?");
+    try {
+        std::vector<int> vec;
+
+        for(int i{0}; i < 5; i++) {
+            vec.push_back(i);
+        }
+        for(int i{0}; i <= vec.size(); i++) {
+            std::cout << "vec[" << i << "] == " << vec[i] << '\n'; 
+        }
+    } catch (std::out_of_range) {
+        std::cerr << "Out of range\n";
+    } catch (...) {
+        std::cerr << "Error\n";
+    }
+
 
     return 0;
 }
