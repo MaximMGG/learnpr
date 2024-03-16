@@ -11,13 +11,14 @@ LinkedList *tokinize_string(const char *expression) {
     char type;
     char buf[32];
     
-    for(int i = 0; i < e_len; i++) {
+    for(int i = 0; i < e_len; ) {
         if (expression[i] >= '0' && expression[i] <= '9') {
             type = '8';
-            for(int j = 0; j < e_len; j++, i++) {
-                buf[j] = expression[i];
-                if (expression[i] >= '0' && expression[i] < '9' || expression[i] == '.')
+            for(int j = 0; j < e_len; j++) {
+                if (expression[i] >= '0' && expression[i] <= '9' || expression[i] == '.') {
                     buf[j] = expression[i];
+                    i++;
+                }
                 else 
                     goto next_sykle;
             }
@@ -45,6 +46,7 @@ LinkedList *tokinize_string(const char *expression) {
             goto next_sykle;
         }
         if (expression[i] == ' ') {
+            i++;
             continue;
         }
 next_sykle:
@@ -58,6 +60,7 @@ next_sykle:
             LList_append_next(list, &t, sizeof(Token));
             type = 0;
             memset(buf, 0, 32);
+            i++;
         }
     }
     return list;

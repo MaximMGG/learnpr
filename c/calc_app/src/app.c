@@ -52,6 +52,8 @@ int main(int argc, char **argv) {
     int brecket = 0;
     int brecket_oper = 0;
     char in_brecket = 0;
+    int operation_in_brecket = 0;
+    int open_brecket_pos = 0;
 
     while(it->data != NULL) {
         switch (((Token *)it->data)->type) {
@@ -121,20 +123,30 @@ int main(int argc, char **argv) {
                 i++;
                 continue;
             } 
-
+            if (tokens[i]->type == '8') {
+                i++;
+                continue;
+            }
             if (tokens[i]->type == '(') {
+                operation_in_brecket = 0;
                 in_brecket = 1;
-                tokens[i] = NULL;
-                token_count--;
+                // tokens[i] = NULL;
+                open_brecket_pos = i;
                 i++;
                 continue;
             } else if (tokens[i]->type == ')') {
-                brecket--;
-                tokens[i] = NULL;
-                token_count--;
-                i++;
-                in_brecket = 0;
-                continue;
+                if (operation_in_brecket > 0) {
+                    i = open_brecket_pos + 1;
+                    continue;
+                } else {
+                    brecket--;
+                    tokens[i] = NULL;
+                    tokens[open_brecket_pos] = NULL;
+                    token_count -= 2;
+                    i++;
+                    in_brecket = 0;
+                    continue;
+                }
             }
 
             if (tokens[i]->type == '*') {
@@ -152,6 +164,7 @@ int main(int argc, char **argv) {
                 tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
+                if (in_brecket) b_mult--;
                 mult--;
                 i++;
                 continue;
@@ -170,12 +183,13 @@ int main(int argc, char **argv) {
                 tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
+                if (in_brecket) b_div--;
                 div--;
                 i++;
                 continue;
             }
             if (mult <= 0 && div <= 0 || in_brecket) {
-                if (b_mult <= 0 && b_div <= 0 || !in_brecket) {
+                if (b_mult <= 0 && b_div <= 0) {
                     if (tokens[i]->type == '+') {
                         Token *x = set_left_token(tokens, i, &token_x_pos);
                         Token *y = set_right_token(tokens, i, it_c, &token_y_pos);
@@ -188,6 +202,9 @@ int main(int argc, char **argv) {
                         tokens[token_y_pos] = NULL;
                         token_count -= 2;
                         sum--;
+                        if (in_brecket) {
+                            operation_in_brecket--;
+                        }
                         i++;
                         continue;
                     } else if (tokens[i]->type == '-') {
@@ -202,10 +219,16 @@ int main(int argc, char **argv) {
                         tokens[token_y_pos] = NULL;
                         token_count -= 2;
                         sub--;
+                        if (in_brecket) {
+                            operation_in_brecket--;
+                        }
                         i++;
                         continue;
                     }
                 }
+            }
+            if (in_brecket) {
+                operation_in_brecket++;
             }
             i++;
         }
