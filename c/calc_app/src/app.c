@@ -122,8 +122,15 @@ int main(int argc, char **argv) {
 
             if (tokens[i]->type == '(') {
                 in_brecket = 1;
+                tokens[i] = NULL;
+                i++;
+                continue;
             } else if (tokens[i]->type == ')') {
+                brecket--;
+                tokens[i] = NULL;
+                i++;
                 in_brecket = 0;
+                continue;
             }
 
             if (tokens[i]->type == '*') {
@@ -136,11 +143,6 @@ int main(int argc, char **argv) {
                     break;
                 }
                 x->value *= y->value;
-                if (tokens[token_y_pos + 1]->type == ')') {
-                    brecket--;
-                    tokens[token_x_pos - 1] = NULL;
-                    tokens[token_y_pos + 1] = NULL;
-                }
                 tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
@@ -157,11 +159,6 @@ int main(int argc, char **argv) {
                     break;
                 }
                 x->value /= y->value;
-                if (tokens[token_y_pos + 1]->type == ')') {
-                    brecket--;
-                    tokens[token_x_pos - 1] = NULL;
-                    tokens[token_y_pos + 1] = NULL;
-                }
                 tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
@@ -180,11 +177,6 @@ int main(int argc, char **argv) {
                         break;
                     }
                     x->value += y->value;
-                    if (tokens[token_y_pos + 1]->type == ')') {
-                        brecket--;
-                        tokens[token_x_pos - 1] = NULL;
-                        tokens[token_y_pos + 1] = NULL;
-                    }
                     tokens[i] = NULL;
                     tokens[token_y_pos] = NULL;
                     token_count -= 2;
@@ -201,11 +193,6 @@ int main(int argc, char **argv) {
                         break;
                     }
                     x->value -= y->value;
-                    if (tokens[token_y_pos + 1]->type == ')') {
-                        brecket--;
-                        tokens[token_x_pos - 1] = NULL;
-                        tokens[token_y_pos + 1] = NULL;
-                    }
                     tokens[i] = NULL;
                     tokens[token_y_pos] = NULL;
                     token_count -= 2;
