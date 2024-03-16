@@ -39,6 +39,10 @@ int main(int argc, char **argv) {
     }
 
     LinkedList *list = tokinize_string(argv[1]);
+    if (list == NULL) {
+        perror("Incorrect enter expression\n");
+        exit(EXIT_FAILURE);
+    }
     Literator *it = LList_get_iterator(list);
 
     char calc = 1;
@@ -50,7 +54,6 @@ int main(int argc, char **argv) {
     int sum = 0;
     int sub = 0;
     int brecket = 0;
-    int brecket_oper = 0;
     char in_brecket = 0;
     int operation_in_brecket = 0;
     int open_brecket_pos = 0;
@@ -76,20 +79,18 @@ int main(int argc, char **argv) {
             while(((Token *)it->data)->type != ')') {
                 switch (((Token *)it->data)->type) {
                     case '+':
-                        brecket_oper++;
                         sum++;
                         break;
                     case '-':
-                        brecket_oper++;
                         sub++;
                         break;
                     case '*':
-                        brecket_oper++;
                         b_mult++;
+                        mult++;
                         break;
                     case '/':
-                        brecket_oper++;
                         b_div++;
+                        div++;
                         break;
                 }
                 LList_iterator_next(it);
@@ -130,7 +131,6 @@ int main(int argc, char **argv) {
             if (tokens[i]->type == '(') {
                 operation_in_brecket = 0;
                 in_brecket = 1;
-                // tokens[i] = NULL;
                 open_brecket_pos = i;
                 i++;
                 continue;

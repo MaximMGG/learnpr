@@ -1,6 +1,7 @@
 #include "../headers/calc.h"
 #include <string.h>
 
+#define NEGATIVE_VAL 11
 
 
 LinkedList *tokinize_string(const char *expression) {
@@ -10,31 +11,66 @@ LinkedList *tokinize_string(const char *expression) {
     double temp_v;
     char type;
     char buf[32];
+    char last_token = 0;
     
-    for(int i = 0; i < e_len; ) {
+    for(int i = 0, j = 0; i < e_len; ) {
         if (expression[i] >= '0' && expression[i] <= '9') {
             type = '8';
-            for(int j = 0; j < e_len; j++) {
+            for( ; j < e_len; j++) {
+                if (expression[i] == '-') {
+                    switch (last_token) {
+                        case 0:
+                            buf[j++] = '-';
+                            break;
+                        case '(':
+                            buf[j++] = '-';
+                            break;
+                        case '+':
+                        case '-':
+                        case '*':
+                        case '/':
+                            buf[j++] = '-';
+                            break;
+                    }
+                    i++;
+                    continue;
+                }
                 if (expression[i] >= '0' && expression[i] <= '9' || expression[i] == '.') {
                     buf[j] = expression[i];
                     i++;
                 }
-                else 
+                else {
+                    if (buf[0] == '0' && j == 1) {
+                        return NULL;
+                    }
                     goto next_sykle;
+                }
             }
         }
         switch (expression[i]) {
             case '+':
                 type = '+';
+                if (last_token != '8' && last_token != ')') {
+                    return NULL;
+                }
                 goto next_sykle;
             case '-':
                 type = '-';
+                if (last_token != '8' && last_token != ')') {
+                    return NULL;
+                }
                 goto next_sykle;
             case '*':
                 type = '*';
+                if (last_token != '8' && last_token != ')') {
+                    return NULL;
+                }
                 goto next_sykle;
             case '/':
                 type = '/';
+                if (last_token != '8' && last_token != ')') {
+                    return NULL;
+                }
                 goto next_sykle;
         }
         if (expression[i] == '(') {
@@ -53,11 +89,14 @@ next_sykle:
         if (type == '8') {
             Token t = {.type = type, .value = atof(buf)};
             LList_append_next(list, &t, sizeof(Token));
+            last_token = '8';
             type = 0;
             memset(buf, 0, 32);
+            j = 0;
         } else {
             Token t = {.type = type};
             LList_append_next(list, &t, sizeof(Token));
+            last_token = type;
             type = 0;
             memset(buf, 0, 32);
             i++;
