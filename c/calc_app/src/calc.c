@@ -41,7 +41,7 @@ LinkedList *tokinize_string(const char *expression) {
             goto next_sykle;
 
         } else if (expression[i] == ')') {
-            type = '(';
+            type = ')';
             goto next_sykle;
         }
         if (expression[i] == ' ') {
