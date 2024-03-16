@@ -14,33 +14,34 @@ LinkedList *tokinize_string(const char *expression) {
     char last_token = 0;
     
     for(int i = 0, j = 0; i < e_len; ) {
+        if (expression[i] == '-') {
+            switch (last_token) {
+                case 0:
+                    buf[j++] = '-';
+                    i++;
+                    break;
+                case '(':
+                    buf[j++] = '-';
+                    i++;
+                    break;
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                    buf[j++] = '-';
+                    i++;
+                    break;
+            }
+        }
         if (expression[i] >= '0' && expression[i] <= '9') {
             type = '8';
             for( ; j < e_len; j++) {
-                if (expression[i] == '-') {
-                    switch (last_token) {
-                        case 0:
-                            buf[j++] = '-';
-                            break;
-                        case '(':
-                            buf[j++] = '-';
-                            break;
-                        case '+':
-                        case '-':
-                        case '*':
-                        case '/':
-                            buf[j++] = '-';
-                            break;
-                    }
-                    i++;
-                    continue;
-                }
                 if (expression[i] >= '0' && expression[i] <= '9' || expression[i] == '.') {
                     buf[j] = expression[i];
                     i++;
                 }
                 else {
-                    if (buf[0] == '0' && j == 1) {
+                    if (buf[0] == '-' && j == 1) {
                         return NULL;
                     }
                     goto next_sykle;
