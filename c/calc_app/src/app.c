@@ -47,6 +47,9 @@ int main(int argc, char **argv) {
     int div = 0;
     int sum = 0;
     int sub = 0;
+    int brecket = 0;
+    int brecket_oper = 0;
+    char in_brecket = 0;
 
     while(it->data != NULL) {
         switch (((Token *)it->data)->type) {
@@ -62,7 +65,32 @@ int main(int argc, char **argv) {
             case '/':
                 div++;
                 break;
+        }
 
+        if (((Token *)it->data)->type == '(') {
+            brecket++;
+            while(((Token *)it->data)->type != ')') {
+                switch (((Token *)it->data)->type) {
+                    case '+':
+                        brecket_oper++;
+                        sum++;
+                        break;
+                    case '-':
+                        brecket_oper++;
+                        sub++;
+                        break;
+                    case '*':
+                        brecket_oper++;
+                        mult++;
+                        break;
+                    case '/':
+                        brecket_oper++;
+                        div++;
+                        break;
+                }
+                LList_iterator_next(it);
+                it_c++;
+            }
         }
         LList_iterator_next(it);
         it_c++;
@@ -91,7 +119,16 @@ int main(int argc, char **argv) {
                 i++;
                 continue;
             } 
+
+            if (tokens[i]->type == '(') {
+                in_brecket = 1;
+            } else if (tokens[i]->type == ')') {
+                in_brecket = 0;
+            }
+
             if (tokens[i]->type == '*') {
+                if (brecket > 0 && !in_brecket)
+                    continue;
                 Token *x = set_left_token(tokens, i, &token_x_pos);
                 Token *y = set_right_token(tokens, i, it_c, &token_y_pos);
                 if (y == NULL) {
@@ -99,13 +136,20 @@ int main(int argc, char **argv) {
                     break;
                 }
                 x->value *= y->value;
-                tokens[token_x_pos] = NULL;
+                if (tokens[token_y_pos + 1]->type == ')') {
+                    brecket--;
+                    tokens[token_x_pos - 1] = NULL;
+                    tokens[token_y_pos + 1] = NULL;
+                }
+                tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
                 mult--;
                 i++;
                 continue;
             } else if (tokens[i]->type == '/') {
+                if (brecket > 0 && !in_brecket)
+                    continue;
                 Token *x = set_left_token(tokens, i, &token_x_pos);
                 Token *y = set_right_token(tokens, i, it_c, &token_y_pos);
                 if (y == NULL) {
@@ -113,7 +157,12 @@ int main(int argc, char **argv) {
                     break;
                 }
                 x->value /= y->value;
-                tokens[token_x_pos] = NULL;
+                if (tokens[token_y_pos + 1]->type == ')') {
+                    brecket--;
+                    tokens[token_x_pos - 1] = NULL;
+                    tokens[token_y_pos + 1] = NULL;
+                }
+                tokens[i] = NULL;
                 tokens[token_y_pos] = NULL;
                 token_count -= 2;
                 div--;
@@ -122,6 +171,8 @@ int main(int argc, char **argv) {
             }
             if (mult <= 0 && div <= 0) {
                 if (tokens[i]->type == '+') {
+                    if (brecket > 0 && !in_brecket)
+                        continue;
                     Token *x = set_left_token(tokens, i, &token_x_pos);
                     Token *y = set_right_token(tokens, i, it_c, &token_y_pos);
                     if (y == NULL) {
@@ -129,13 +180,20 @@ int main(int argc, char **argv) {
                         break;
                     }
                     x->value += y->value;
-                    tokens[token_x_pos] = NULL;
+                    if (tokens[token_y_pos + 1]->type == ')') {
+                        brecket--;
+                        tokens[token_x_pos - 1] = NULL;
+                        tokens[token_y_pos + 1] = NULL;
+                    }
+                    tokens[i] = NULL;
                     tokens[token_y_pos] = NULL;
                     token_count -= 2;
                     sum--;
                     i++;
                     continue;
                 } else if (tokens[i]->type == '-') {
+                    if (brecket > 0 && !in_brecket)
+                        continue;
                     Token *x = set_left_token(tokens, i, &token_x_pos);
                     Token *y = set_right_token(tokens, i, it_c, &token_y_pos);
                     if (y == NULL) {
@@ -143,7 +201,12 @@ int main(int argc, char **argv) {
                         break;
                     }
                     x->value -= y->value;
-                    tokens[token_x_pos] = NULL;
+                    if (tokens[token_y_pos + 1]->type == ')') {
+                        brecket--;
+                        tokens[token_x_pos - 1] = NULL;
+                        tokens[token_y_pos + 1] = NULL;
+                    }
+                    tokens[i] = NULL;
                     tokens[token_y_pos] = NULL;
                     token_count -= 2;
                     sub--;

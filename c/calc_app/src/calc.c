@@ -12,13 +12,14 @@ LinkedList *tokinize_string(const char *expression) {
     char buf[32];
     
     for(int i = 0; i < e_len; i++) {
-        if (expression[i] >= '0' && expression[i] <= '9' || expression[i] == '.') {
+        if (expression[i] >= '0' && expression[i] <= '9') {
             type = '8';
             for(int j = 0; j < e_len; j++, i++) {
                 buf[j] = expression[i];
-                if (expression[i + 1] == ' ' || expression[i + 1] < '0' || expression[i + 1] > '9') {
+                if (expression[i] >= '0' && expression[i] < '9' || expression[i] == '.')
+                    buf[j] = expression[i];
+                else 
                     goto next_sykle;
-                }
             }
         }
         switch (expression[i]) {
@@ -34,6 +35,14 @@ LinkedList *tokinize_string(const char *expression) {
             case '/':
                 type = '/';
                 goto next_sykle;
+        }
+        if (expression[i] == '(') {
+            type = '(';
+            goto next_sykle;
+
+        } else if (expression[i] == ')') {
+            type = '(';
+            goto next_sykle;
         }
         if (expression[i] == ' ') {
             continue;
