@@ -2,13 +2,19 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef struct {
+    char inside;
+}try_block;
+
+try_block b;
 
 
-#define TRY 
+#define TRY b.inside = 1;
 #define CATCH(exeption)  \
+            catch1:             \
             if ( _ ## exeption ## _t.active)
 
-#define THROW(error, m) _ ## error ## _t.active = 1; if (m == NULL) {strcpy(_ ## error ## _t.msg, "error");} else strcpy(_ ## error ## _t.msg, m)
+#define THROW(error, m) _ ## error ## _t.active = 1; if (m == NULL) {strcpy(_ ## error ## _t.msg, "error");} else strcpy(_ ## error ## _t.msg, m); 
 #define E(exeption) _ ## exeption ## _t
 
 
@@ -23,7 +29,6 @@ void do_some() {
 }
 
 int main() {
-
     TRY {
         do_some();
     } CATCH(my_error) {
