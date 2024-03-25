@@ -23,9 +23,18 @@ int main() {
     printf("value is %s\n", NULL);
     func(NULL, NULL);
     ex();
+}
+char buf[64];
 
+__attribute__((constructor)) 
+int beforemain() {
+    strcpy(buf, "HELLO");
     return 0;
 }
+
+void stry(char *one, char *two) __attribute__((nonnull)) ;
+// void stry(char *one, char *two);
+
 
 void ex() {
     exit(0);
@@ -42,3 +51,7 @@ void func(char *a, void *b) {
 //     return 0;
 // }
 //
+
+void stry(char *one, char *two) {
+    printf("%s - %s\n", one, two);
+}
