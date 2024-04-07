@@ -5,9 +5,10 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
+#include <string.h>
 
 
-#define BUFLEN 1024
+#define BUFLEN 4096
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -23,8 +24,10 @@ int main(int argc, char **argv) {
     int status;
     int rv;
     char buf[BUFLEN];
+    char requst[512] = "";
     int bytenums = 0;
     struct pollfd ufds;
+    memset(&hints, 0, sizeof(struct addrinfo));
 
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -42,15 +45,8 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    ufds.fd = sockfd;
-    ufds.events = POLLIN;
+    send(sockfd, requst, 128, 0);
 
-    rv = poll(&ufds, 1, 2000);
-
-    if (rv == -1) {
-        fprintf(stderr, "pool\n");
-
-    } else {
         bytenums = recv(sockfd, buf, BUFLEN, MSG_PEEK);
         if (bytenums == -1) {
             fprintf(stderr, "recvfrom error\n");
@@ -60,7 +56,6 @@ int main(int argc, char **argv) {
         buf[bytenums] = '\0';
 
         printf("%s\n", buf);
-    }
 
     freeaddrinfo(res);
     close(sockfd);
