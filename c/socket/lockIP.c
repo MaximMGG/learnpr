@@ -16,7 +16,7 @@ int main() {
     int sockfd;
     int status;
 
-    hints.ai_family = AF_INET6;
+    hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     sockfd = socket(hints.ai_family, hints.ai_socktype, 0);
 
@@ -27,14 +27,15 @@ int main() {
     }
 
     for(p = res; p; p = p->ai_next) {
-        if (p->ai_family & AF_INET) {
+        if (p->ai_family == AF_INET) {
             char buf[INET_ADDRSTRLEN];
-            struct sockaddr_in sa = *(struct sockaddr_in *)p->ai_addr;
-            inet_ntop(AF_INET, &sa.sin_addr, buf, INET_ADDRSTRLEN);
+            struct sockaddr_in *sa = (struct sockaddr_in *)p->ai_addr;
+            inet_ntop(AF_INET, &sa->sin_addr, buf, INET_ADDRSTRLEN);
             printf("%s\n", buf);
         } else {
             char buf[INET6_ADDRSTRLEN];
-            inet_ntop(AF_INET6, &((struct sockaddr_in6 *)p->ai_addr)->sin6_addr, buf, INET6_ADDRSTRLEN);
+            struct sockaddr_in6 *in6 = (struct sockaddr_in6 *)p->ai_addr;
+            inet_ntop(AF_INET6, &in6->sin6_addr, buf, INET6_ADDRSTRLEN);
             printf("%s\n", buf);
         }
     }
