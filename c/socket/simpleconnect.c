@@ -8,7 +8,7 @@
 #include <string.h>
 
 
-#define BUFLEN 4096
+#define BUFLEN 40960
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -23,8 +23,9 @@ int main(int argc, char **argv) {
     int sockfd;
     int status;
     int rv;
-    char buf[BUFLEN];
-    char requst[512] = "GET / HTTP/1.1\r\nHost: www.example.com\r\n\r\n";
+    char *buf = malloc(sizeof(char) * BUFLEN);
+    memset(buf, 0, BUFLEN);
+    char requst[512] = "GET / HTTP/1.1\r\nHost: www.beej.us\r\n\r\n";
     int bytenums = 0;
     struct pollfd ufds;
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
 
     send(sockfd, requst, 128, 0);
 
-        bytenums = recv(sockfd, buf, BUFLEN, MSG_PEEK);
+        bytenums = recv(sockfd, buf, BUFLEN, 0);
         if (bytenums == -1) {
             fprintf(stderr, "recvfrom error\n");
             close(sockfd);
@@ -63,5 +64,6 @@ int main(int argc, char **argv) {
 
     freeaddrinfo(res);
     close(sockfd);
+    free(buf);
     return 0;
 }
