@@ -7,10 +7,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/poll.h>
+#include <openssl/ssl.h>
+//need to research it
 
 
-#define HOST "www.example.com"
-#define PORT "http"
+#define HOST "www.youtube.com"
+#define PORT "https"
 #define HOST_PAGE "MaximMGG/"
 #define GET_REQUEST  "GET /%s HTTP/1.1\r\nHost: %s\r\n\r\n"
 
@@ -23,7 +25,7 @@ int main() {
     struct addrinfo hints = {0}, *res, *p;
     int status;
     char buf[512];
-    char *receve = (char *) malloc(sizeof(char) * 1024);
+    char *receve = (char *) malloc(sizeof(char) * 128);
 
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -57,12 +59,11 @@ int main() {
 
     status = poll(&u, 1, 2000);
 
-    if (status > 0) {
-        recv(sockfd, receve, 1024, 0);
+    while(poll(&u, 1, 2000) > 0) {
+        recv(sockfd, receve, 128, 0);
+        printf("%s\n", receve);
+        // puts("------>>>>>");
     }
-
-
-    printf("%s\n", receve);
 
     freeaddrinfo(res);
     free(receve);
