@@ -7,7 +7,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/poll.h>
-#include <openssl/ssl.h>
+//#include <openssl/ssl.h>
+#include <string.h>
 //need to research it
 
 
@@ -58,11 +59,20 @@ int main() {
     u.events = POLLIN;
 
     status = poll(&u, 1, 2000);
+    char buf_c[2] = {0};
+    char line[256] = {0};
+    int line_c = 0;
 
     while(poll(&u, 1, 2000) > 0) {
-        recv(sockfd, receve, 128, 0);
-        printf("%s\n", receve);
-        // puts("------>>>>>");
+        recv(sockfd, buf_c, 1, 0);
+	if (buf_c[0] == '\n') {
+	    if (strncmp("Content length", line, 14) == 0) {
+		printf("%s\n", line);
+            }
+	    memset(line, 0, 256);
+            line_c = 0;
+        }
+	line[line_c++] = buf_c[0];
     }
 
     freeaddrinfo(res);
