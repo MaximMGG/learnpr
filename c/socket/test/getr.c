@@ -8,8 +8,8 @@
 #include <string.h>
 #include <sys/poll.h>
 //#include <openssl/ssl.h>
-#include <string.h>
 //need to research it
+#include <string.h>
 
 
 #define HOST "www.youtube.com"
