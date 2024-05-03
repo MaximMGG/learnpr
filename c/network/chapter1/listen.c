@@ -2,7 +2,6 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 
 int main() {
