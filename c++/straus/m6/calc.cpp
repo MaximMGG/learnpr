@@ -1,60 +1,58 @@
 #include <iostream>
-#include <vector>
+#include <list>
+
+#define LAST 11
+#define FIRST 12
+
 
 class Token {
-    public:
-        char kind;
-        double value;
 
+    private:
+        enum Type {
+            OPERATION, NUMBER, BRACE
+        };
+
+        struct Element{
+            Type type;
+            int number;
+            char symbol;
+            bool in_brace;
+        };
+
+        std::list <Element> elements;
+        std::list<Element>::iterator e_it;
+    public:
+        Element cur;
+        int first_last_element;
+
+        void prev_element() {
+            cur = *(--e_it);
+        }
+        void next_element() {
+            cur = *(++e_it);
+        }
+
+        void insert_element(Type type, int number, char symbol, bool in_brace) {
+            Element n{type, type == NUMBER ? number : 0, symbol, in_brace};
+            elements.push_back(n);
+        }
+
+        void delete_element(Element* el) {
+            elements.remove(*el);
+        }
+
+        Token() {
+            e_it = elements.begin();
+        }
+        ~Token();
 };
 
-std::vector<Token> tok;
 
-Token get_token() {
-    bool f = false;
-    char buf[32]{0};
-    int i {0};
-    char type;
 
-    char t;
-    while(std::cin) {
-        std::cin >> t;
-        if (t >= '0' && t < '9') {
-            buf[i] = t;
-            continue;
-        }
-        if (t == ' ') {
-            break;
-        }
-        switch (t) {
-            case '+': 
-                type = '+';
-                break;
-            case '-':
-                type = '-';
-                break;
-            case '*':
-                type = '*';
-                break;
-            case '/':
-                type = '/';
-                break;
-        }
 
-    }
-    Token a {type, buf[0] == 0 ? 0 : atof(buf)};
-    return a;
-}
 
-//   -- 23 + 483 / 11 + (4 + 2) * 7 -- 
-//   -- 14 + 7 * 2 - 4 / 4
 
-int main() {
-    while(std::cin) {
-        Token t = get_token();
-        tok.push_back(t);
-    }
-    return 0;
-}
+
+
 
 
