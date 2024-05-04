@@ -32,6 +32,16 @@ int main() {
     it++;
     std::cout << (*it)->b << '\n';
 
+    T *t3 = new T{3, "Hello3", 'i'};
+
+    list.insert(it, t3);
+
+    // it++;
+
+    for(auto t : list) {
+        std::cout << t->b << '\n';
+    }
+
 
     list.remove(*it);
 
@@ -43,6 +53,7 @@ int main() {
 
     delete(t);
     delete(t2);
+    delete(t3);
 
     return 0;
 }
