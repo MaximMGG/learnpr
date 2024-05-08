@@ -42,6 +42,21 @@ for k, v in pairs(T) do
 end
 
 
+b = ((T or {})[5] or {})[2]
+
+print(b)
+
+local W = {}
+
+for line in io.lines("functions.lua") do
+    table.insert(W, line)
+end
+
+print(#W)
+
+for l = 1, #W do
+    print(W[l])
+end
 
 
 
