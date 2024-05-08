@@ -46,3 +46,13 @@ local remove = function(str, start, count)
 end
 
 print(remove("hello world", 7, 3))
+
+
+local polindrome = function(s)
+    return s == string.reverse(s)
+end
+
+print(polindrome("Hello"))
+print(polindrome("HelleH"))
+
+
