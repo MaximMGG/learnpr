@@ -5,7 +5,6 @@ local f_e = function(x, y)
 end
 
 
-
 local _, b = f_e(1, 2) -- if we do not need to use one of return variables from function
 
 print(b)
@@ -65,5 +64,38 @@ end
 print_t(1, 5, 2, 5, 1, 2)
 
 print_t("Hello", 1, "by", "no", {1, 5})
+
+
+local nonils = function(...)
+
+    -- local buf = {}
+    -- local i = 1
+    --
+    -- for _, v in pairs({...}) do
+    --     buf[i] = v
+    --     print(buf[i])
+    --     i = i + 1
+    -- end
+
+
+    -- local t = table.pack({...})
+    -- for i = 1, t.n do
+    --     if t[i] == nil then return false
+    --     end
+    -- end
+end
+
+
+print(nonils(1, 2, 3))
+
+
+--local ll = table.pack("h", "q", "p")
+
+-- for i =  1, ll.n do
+--     print(ll[i])
+-- end
+
+
+
 
 
