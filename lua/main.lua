@@ -61,5 +61,8 @@ print(type(types.table)) -- table
 print(type(types.nill)) -- nil
 
 
+local mod = require("mymath")
+
+mod.add(2, 3)
 
 
