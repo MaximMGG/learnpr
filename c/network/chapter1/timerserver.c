@@ -25,7 +25,7 @@
 #define CLOSESOCKET(s) closesocket(s)
 #define GETSOCKETERRNO(s) (WSAGetLastError())
 #else
-#define ISVALIDSOCKET(s) ((s) >= 0)
+#define ISVALIDSOCKET(s) ((s) == -1)
 #define CLOSESOCKET(s) close(s)
 #define SOCKET int
 #define GETSOCKETERRNO() (errno)
@@ -106,6 +106,14 @@ int main() {
     printf("Closing connection...\n");
     CLOSESOCKET(socket_client);
 
+    printf("Closing listening socket...\n");
+    CLOSESOCKET(socket_listen);
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
+
+    printf("Finished.\n");
     return 0;
 }
 
