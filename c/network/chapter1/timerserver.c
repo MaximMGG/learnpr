@@ -94,14 +94,20 @@ int main() {
         "Connection: close\r\n"
         "Content-Type: text/plain\r\n\r\n"
         "Local time is: %s";
-    int bytes_sent = send(socket_client, response, strlen(response), 0);
-    printf("Send %d of %d bytes.\n", bytes_sent, (int) strlen(response));
 
+    char final_response[1024];
     time_t timer;
     time(&timer);
-    const char *time_msg = ctime(&timer);
-    bytes_sent = send(socket_client, time_msg, strlen(time_msg), 0);
-    printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(time_msg));
+    sprintf(final_response, response, ctime(&timer));
+
+    int bytes_sent = send(socket_client, final_response, strlen(final_response), 0);
+    printf("Send %d of %d bytes.\n", bytes_sent, (int) strlen(final_response));
+
+    // time_t timer;
+    // time(&timer);
+    // const char *time_msg = ctime(&timer);
+    // bytes_sent = send(socket_client, time_msg, strlen(time_msg), 0);
+    // printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(time_msg));
 
     printf("Closing connection...\n");
     CLOSESOCKET(socket_client);
