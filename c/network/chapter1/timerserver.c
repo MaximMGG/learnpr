@@ -25,10 +25,14 @@
 #define CLOSESOCKET(s) closesocket(s)
 #define GETSOCKETERRNO(s) (WSAGetLastError())
 #else
-#define ISVALIDSOCKET(s) ((s) == -1)
+#define ISVALIDSOCKET(s) ((s) >= 0)
 #define CLOSESOCKET(s) close(s)
 #define SOCKET int
 #define GETSOCKETERRNO() (errno)
+#endif
+
+#ifndef IPV6_V6ONLY
+#define IPV6_V6ONLY 27
 #endif
 
 
@@ -43,7 +47,8 @@ int main() {
     printf("Configuring local address...\n");
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET;
+    // hints.ai_family = AF_INET;
+    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
@@ -55,8 +60,16 @@ int main() {
     socket_listen = socket( bind_address->ai_family,
                             bind_address->ai_socktype,
                             bind_address->ai_protocol);
-    if (ISVALIDSOCKET(socket_listen)) {
+    if (!ISVALIDSOCKET(socket_listen)) {
         fprintf(stderr, "socket() failed. (%d)\n", GETSOCKETERRNO());
+        return 1;
+    }
+
+    //if we want to work with IPv4 and IPv6
+
+    int option = 0;
+    if (setsockopt(socket_listen, IPPROTO_IPV6, IPV6_V6ONLY, (void *) &option, sizeof(option))) {
+        fprintf(stderr, "setsockopt() failed. (%d)\n", GETSOCKETERRNO());
         return 1;
     }
 
