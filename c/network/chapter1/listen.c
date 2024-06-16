@@ -4,6 +4,9 @@
 #include <stdio.h>
 
 
+
+//here we can now aur IP address
+
 int main() {
 
     struct ifaddrs *addresses;
