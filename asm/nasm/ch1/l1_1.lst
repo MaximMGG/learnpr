@@ -1,0 +1,21 @@
+     1                                  section .data
+     2 00000000 48656C6C6F20776F6C-         msg     db  "Hello wolrd!", 10, 0
+     2 00000009 7264210A00         
+     3                                      msg_len equ $ - msg
+     4                                  
+     5                                  section .text
+     6                                      global main
+     7                                  main:
+     8 00000000 55                      push    rbp
+     9 00000001 4889E5                  mov     rbp, rsp
+    10 00000004 B801000000                      mov     rax, 1
+    11 00000009 BF01000000                      mov     rdi, 1
+    12 0000000E 48BE-                           mov     rsi, msg
+    12 00000010 [0000000000000000] 
+    13 00000018 BA0E000000                      mov     rdx, msg_len
+    14 0000001D 0F05                            syscall
+    15 0000001F 5D                              pop     rbp
+    16 00000020 4889EC                          mov     rsp, rbp
+    17 00000023 B83C000000                      mov     rax, 60
+    18 00000028 0F05                            syscall
+    19                                  
