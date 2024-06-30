@@ -4,7 +4,7 @@ nl = 10
 .data
 
 leftOp		dd	0f0f0f0fh
-rightOp1	dd	0f0f0f0fh
+rightOp1	dd	0f0f0f0f0h
 rightOp2	dd	12345678h
 titleStr	db	"Listening 2-2", 0
 
