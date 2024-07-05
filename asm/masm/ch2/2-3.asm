@@ -25,6 +25,7 @@ maxLen = 256
     externdef getc:proc
     externdef atoi:proc
     externdef printf:proc
+    externdef readLine:proc
 
     public main
 main proc
@@ -33,7 +34,6 @@ main proc
     lea     rdx, titleStr
     call    printf
     call    asmMain
-
     lea     rcx, aftertitle
     lea     rdx, titleStr
     call    printf
@@ -43,27 +43,33 @@ main endp
 
     public  asmMain
 asmMain proc
+
+    lea     rcx, prompt1
+    call    printf
     call    readLine
+    mov     rcx, rax
+    call    atoi
+    mov     intValue, rax
+    lea     rcx, prompt2
+    mov     rdx, intValue
+    call    printf
+    mov     rax, intValue
+    not     rax
+    lea     rcx, prompt3
+    mov     rdx, rax
+    call    printf
+    lea     rcx, prompt4
+    mov     rdx, intValue
+    add     rdx, 1
+    call    printf
+    lea     rcx, prompt5
+    mov     rdx, intValue
+    call    printf
+    lea     rcx, prompt6
+    mov     rdx, intValue
     ret
 asmMain endp
 
-    public  readLine
-readLine proc
-
-    xor     rcx, rcx
-.loop
-    call    putc
-    cmp     al, nl
-    je      end
-    mov     bl, al
-    mov     intut + rcx, bl
-    jmp     loop
-
-.end
-    lea     rcx, input
-    call    printf
-    ret
-readLine endp
 end
 
 

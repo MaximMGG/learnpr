@@ -1,21 +1,17 @@
 #include <stdio.h>
 
+char buf[256];
 
-
-int main() {
-
-    int len = 256;
-    int count = 0;
-    char buf[256];
+char *readLine(int buf_size) {
     char c;
+    int count = 0;
 
     while((c = getc(stdin)) != '\n') {
         buf[count++] = c;
-        if (count == len) break;
+        if (buf_size == count) {
+            break;
+        }
     }
-
-    printf(buf);
-
-
-    return 0;
+    return buf;
 }
+
