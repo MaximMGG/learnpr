@@ -1,5 +1,11 @@
 
-all = greater jumploop
+all = greater jumploop betterloop
+
+betterloop: betterloop.o
+	gcc -o $@ $^ -g -no-pie
+
+betterloop.o: betterloop.asm
+	nasm -f elf64 -g -F dwarf $<
 
 jumploop: jumploop.o
 	gcc -o $@ $^ -g -no-pie
