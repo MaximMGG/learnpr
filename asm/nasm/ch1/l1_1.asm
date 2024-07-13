@@ -3,7 +3,9 @@ section .data
     msg_len equ $ - msg
 
 section .text
+    ;global _start
     global main
+; _start:
 main:
 push    rbp
 mov     rbp, rsp
