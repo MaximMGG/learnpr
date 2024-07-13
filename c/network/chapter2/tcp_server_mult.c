@@ -22,7 +22,7 @@ int main() {
 
     struct addrinfo *con;
 
-    if (getaddrinfo(NULL, "8080", &hints, &con) == -1) {
+    if (getaddrinfo("127.0.0.1", "8080", &hints, &con) == -1) {
         ERR("getaddr info fail %d\n", errno);
         return 1;
     }
@@ -38,6 +38,7 @@ int main() {
         ERR("Binding error %d\n", errno);
         return 1;
     }
+    puts("Listening socket...");
     if (listen(listen_s, 10) == SOCK_ERR) {
         ERR("listen error %d\n", errno);
         return 1;
@@ -56,8 +57,9 @@ int main() {
             return 1;
         }
 
-        for(int i = 1; i < max_socket; i++) {
-            if (FD_ISSET(i, &set)) {
+        for(int i = 0; i < max_socket; i++) {
+            if (FD_ISSET(i, &reads)) {
+                printf("Find socket %d", i);
                 if (i == listen_s) {
                     struct sockaddr_storage client_addres;
                     socklen_t addrlen = sizeof(client_addres);
