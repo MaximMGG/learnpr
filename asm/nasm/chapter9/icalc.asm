@@ -28,8 +28,8 @@ main:
     push    rbp
     mov     rbp, rsp
     ;print numbers
-    mov     rsi, fmt
-    mov     rdi, [number1]
+    mov     rdi, fmt
+    mov     rsi, [number1]
     mov     rdx, [number2]
     mov     rax, 0
     call    printf
