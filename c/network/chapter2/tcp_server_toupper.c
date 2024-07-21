@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
                     printf("New connection: %s\n", con_name);
 
                     strcpy(c1.name, con_name);
-                    time(&c1.start_time);
+                    c1.start_time = clock();
                     
                 } else {
                     int bc = 0;
@@ -115,9 +115,9 @@ int main(int argc, char **argv) {
                         FD_CLR(i, &master);
                         close(i);
 
-                        time(&c1.end_time);
+                        c1.end_time = clock();
 
-                        printf("Client was connected %ld ms\n", ((c1.end_time - c1.start_time) * 1000) / CLOCKS_PER_SEC);
+                        printf("Client was connected %ld ms\n", (c1.end_time - c1.start_time) / 1000);
 
                         continue;
                     }

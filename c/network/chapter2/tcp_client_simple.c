@@ -16,9 +16,9 @@ char PORT[16] = "6000";
 
 int main(int argc, char **argv) {
 
-    if (argc > 1) {
-        strcpy(PORT, argv[1]);
-    }
+    // if (argc > 1) {
+    //     strcpy(PORT, argv[1]);
+    // }
 
     struct addrinfo hints = {0}, *con;
     hints.ai_family = AF_INET;
