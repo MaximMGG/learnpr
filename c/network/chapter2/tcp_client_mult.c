@@ -16,9 +16,7 @@
 
 int main() {
     struct addrinfo hints = {0};
-    hints.ai_flags = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
 
     struct addrinfo *con;
 
@@ -26,7 +24,6 @@ int main() {
         ERR("Getaddrifno error %d\n", errno);
         return 1;
     }
-
 
     char address_buffer[100];
     char service_buffer[100];
@@ -64,34 +61,32 @@ int main() {
 
         reads = master;
 
-        // struct timeval timeout;
-        // timeout.tv_sec = 0;
-        // timeout.tv_usec = 100000;
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 100000;
 
-        if (select(con_socket + 1, &reads, 0, 0, NULL) < 0) {
+        if (select(con_socket + 1, &reads, 0, 0, &timeout) < 0) {
             ERR("select() error %d\n", errno);
             return 1;
         }
 
 
         if (FD_ISSET(con_socket, &reads)) {
-            char read[64] = "Hello from client!!!";
-
-            int send_bytes = send(con_socket, read, strlen(read), 0);
-            if (send_bytes < 1) {
-                ERR("send error %d\n", errno);
-                return 1;
-            }
-
             char buf[1024] = {0};
+            int bc;
+            bc = recv(con_socket, buf, 1024, 0);
+            if (bc < 1) {
+                close(con_socket);
+            }
+            printf("Received %d bytes: %s\n", bc, buf);
 
-            recv(con_socket, buf, 1024, 0);
+            fgets(buf, 1024, stdin);
+            bc = send(con_socket, buf, strlen(buf), 0);
 
-            printf("Server response is %.*s\n", (int) strlen(buf), buf);
-
-
+            if (bc < 1) {
+                close(con_socket);
+            }
         }
-
 
         // if (FD_ISSET(con_socket, &reads)) {
         //     char read[4096];
