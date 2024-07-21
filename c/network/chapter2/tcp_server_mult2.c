@@ -46,11 +46,11 @@ int main() {
 
     while(1) {
         reads = master;
-        if (select(max_sock + 1, &master, NULL, NULL, NULL) < 0) {
+        if (select(max_sock + 1, &reads, NULL, NULL, NULL) < 0) {
             ERR();
         }
-        for(int i = 0; i < max_sock; i++) {
-            if (FD_ISSET(i, &reads)) {
+        for(int i = 0; i < max_sock + 1; i++) {
+            if (FD_ISSET(i, &reads) > 0) {
                 if (i == listen_socket) {
                     struct sockaddr_storage client_address;
                     socklen_t addrlen = sizeof(client_address);
@@ -75,7 +75,7 @@ int main() {
                         close(i);
                         continue;
                     }
-                    printf("Client setd %d bytes: %.*s", read_bytes, read_bytes, read);
+                    printf("Client setd %d bytes: %.*s\n", read_bytes, read_bytes, read);
 
                     char response[128] = "Response from server!";
                     send(i, response, strlen(response), 0);

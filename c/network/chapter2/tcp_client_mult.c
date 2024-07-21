@@ -22,7 +22,7 @@ int main() {
 
     struct addrinfo *con;
 
-    if(getaddrinfo("127.0.0.1", "8080", &hints, &con) == -1) {
+    if(getaddrinfo("127.0.0.1", "6000", &hints, &con) == -1) {
         ERR("Getaddrifno error %d\n", errno);
         return 1;
     }
@@ -57,17 +57,18 @@ int main() {
 
     //-------------------
 
+    fd_set master, reads;
+    FD_ZERO(&reads);
+    FD_SET(con_socket, &reads);
     while(1) {
-        fd_set reads;
-        FD_ZERO(&reads);
-        FD_SET(con_socket, &reads);
 
+        reads = master;
 
-        struct timeval timeout;
-        timeout.tv_sec = 0;
-        timeout.tv_usec = 100000;
+        // struct timeval timeout;
+        // timeout.tv_sec = 0;
+        // timeout.tv_usec = 100000;
 
-        if (select(con_socket + 1, &reads, 0, 0, &timeout) < 0) {
+        if (select(con_socket + 1, &reads, 0, 0, NULL) < 0) {
             ERR("select() error %d\n", errno);
             return 1;
         }
