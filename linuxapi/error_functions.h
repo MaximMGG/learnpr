@@ -7,7 +7,7 @@
 #define NORETURN
 #endif
 
-void errMsg(const char *format) NORETURN;
+void errMsg(const char *format, ...) NORETURN;
 void errExit(const char *format, ...) NORETURN;
 void err_exit(const char *format, ...) NORETURN;
 void errExitEN(int errnum, const char *format, ...) NORETURN;
