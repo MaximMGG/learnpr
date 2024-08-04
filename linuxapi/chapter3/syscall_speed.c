@@ -1,4 +1,4 @@
-#include "tlpi_hdr.h"
+#include "../tlpi_hdr.h"
 
 #ifndef NOSYSCALL
 static int myfunc() {return 1;}
@@ -12,11 +12,15 @@ int main(int argc, char **argv) {
 #else
     printf("Calling getppid()\n");
 #endif
-    for(int j = 0; j < numCalls; j++)
+    for(int j = 0; j < numCalls; j++) {
 #ifdef NOSYSCALL
         myfunc();
 #else
-    getppid();
+        pid_t mypid =  getppid();
+        printf("%d\n", mypid);
 #endif
+    }
+
+
     exit(EXIT_SUCCESS);
 }
