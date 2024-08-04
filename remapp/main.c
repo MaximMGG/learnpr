@@ -31,6 +31,20 @@ void remove_exe(char *path) {
     }
 }
 
+const char *exe_name[] = {".so", ".sh", ".clr"};
+#define EXE_NAME_LEN 3
+
+int check_exe_name(const char *name) {
+    char *f;
+    for(int i = 0; i < EXE_NAME_LEN; i++) {
+        if ((f = strstr(name, exe_name[i])) == NULL) {
+            continue;
+        } else {
+            return -1;
+        }
+    }
+    return 0;
+}
 
 void scan_dir(char *full_path) {
     DIR *dir = opendir(full_path);
@@ -56,7 +70,9 @@ void scan_dir(char *full_path) {
                 strcpy(pathcpy, full_path);
                 strcat(pathcpy, "/");
                 strcat(pathcpy, dd->d_name);
-                remove_exe(pathcpy);
+                if (check_exe_name(dd->d_name) == 0) {
+                    remove_exe(pathcpy);
+                }
             }
         }
     }
