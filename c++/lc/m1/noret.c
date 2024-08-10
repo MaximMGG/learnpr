@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <threads.h>
+#include <pthread.h>
 
 #define FOR(c) for(int i = 0 ; i < c; i++)
 
 _Atomic int number = 0;
 
-int func(void *v) {
+void *func(void *v) {
     FOR(100000) {
         number++;
     }
@@ -17,13 +18,15 @@ int func(void *v) {
 
 int main() {
     int r = 1;
-    thrd_t t1;
-    thrd_create(&t1, &func, NULL);
+
+    pthread_t t;
+    pthread_create(&t, NULL, func, NULL);
 
     FOR(100000) {
         number++;
     }
-    thrd_join(t1, &r);
+
+    pthread_join(t, NULL);
     printf("%d\n", number);
 
     return 0;

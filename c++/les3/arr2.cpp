@@ -5,6 +5,7 @@
 
 
 #define DEF_SIZE 10
+#define let auto
 
 template <typename T>
 T REALLOC(T ptr, int size) {
@@ -76,6 +77,7 @@ int main() {
     // delete [] names;
 
     int *arr = new int[10];
+    let *buf = new int[14];
 
     for(int i = 0; i < 20; i++) {
         arr[i] = i;

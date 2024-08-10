@@ -1,8 +1,6 @@
 #include <list>
 #include <iostream>
 
-
-
 template <typename T>
 void printl(const std::list<T> &list) {
     for(auto i = list.begin(); i != list.end(); i++) {

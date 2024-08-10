@@ -25,5 +25,10 @@ void first() {
 
 int main() {
     first();
+
+    double x1 = {2.3};
+    double x2 = {3.5};
+    int c = static_cast<int>(x1 + x2);
+
     return 0;
 }
