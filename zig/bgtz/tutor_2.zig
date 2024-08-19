@@ -47,6 +47,8 @@ pub fn main() void {
         }
     }
     if_statements();
+    for_loops();
+    multidimensionalArray();
 
 }
 
@@ -66,3 +68,43 @@ fn if_statements() void {
         formult = true;
     }
 }
+
+fn for_loops() void {
+    print("For loop...\n", empty);
+
+    for(0..5) |i| {
+        print("{}\n", .{i});
+    }
+
+
+    pikachu: for(0..4) |x| {
+        richu: for(0..3) |y| {
+            if (x == 2) {
+                break :pikachu;
+            }
+            if (y == 2)
+                break :richu;
+            print("x = {}, y = {}\n", .{x, y});
+        }
+    }
+
+}
+
+fn multidimensionalArray() void {
+    const multarr  = [4][2]i32 {
+        [_]i32{1,0},
+        [_]i32{0,1},
+        [_]i32{0,0},
+        [_]i32{1,1}
+    };
+
+
+    for(0..4) |i| {
+        for(0..2) |j| {
+            print("{}", .{multarr[i][j]});
+        }
+        print("\n", empty);
+    }
+}
+
+
