@@ -37,7 +37,6 @@ pub fn main() void {
     // This links the elephants so that each tail "points" to the next.
     elephantA.tail = &elephantB;
     elephantB.tail = &elephantC;
-    elephantC.tail = &elephantA;
 
     visitElephants(&elephantA);
 
@@ -56,7 +55,6 @@ fn visitElephants(first_elephant: *Elephant) void {
         // This gets the next elephant or stops:
         // which method do we want here?
         e = if (e.hasTail()) e.getTail() else break;
-        if (e.visited == true) break;
     }
 }
 
@@ -77,4 +75,4 @@ fn visitElephants(first_elephant: *Elephant) void {
 // https://github.com/ziglang/zig/blob/a502c160cd51ce3de80b3be945245b7a91967a85/src/zir.zig#L530
 //
 // 5) tomkun - here's another enum method
-// https://github.com/ziglang/zig/blo;
+// https://github.com/ziglang/zig/blob/4ca1f4ec2e3ae1a08295bc6ed03c235cb7700ab9/src/codegen/aarch64.zig#L24

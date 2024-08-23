@@ -12,16 +12,16 @@ const std = @import("std");
 
 const Elephant = struct {
     letter: u8,
-    tail: ?*Elephant = null,
+    tail: *Elephant = undefined,
     visited: bool = false,
 };
 
 pub fn main() void {
     var elephantA = Elephant{ .letter = 'A' };
     // (Please add Elephant B here!)
+    var elephantB = Elephant{ .letter = 'B' };
     var elephantC = Elephant{ .letter = 'C' };
 
-    var elephantB = Elephant{ .letter = 'B'};
     // Link the elephants so that each tail "points" to the next elephant.
     // They make a circle: A->B->C->A...
     elephantA.tail = &elephantB;
@@ -41,9 +41,9 @@ pub fn main() void {
 fn visitElephants(first_elephant: *Elephant) void {
     var e = first_elephant;
 
-    while (e.visited != true){
+    while (!e.visited) {
         std.debug.print("Elephant {u}. ", .{e.letter});
         e.visited = true;
-        e = e.tail orelse break;
+        e = e.tail;
     }
 }
