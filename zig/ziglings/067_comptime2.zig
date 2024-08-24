@@ -35,19 +35,23 @@ pub fn main() void {
     // In this contrived example, we've decided to allocate some
     // arrays using a variable count! But something's missing...
     //
-    var count = 0;
+    comptime var count = 0;
 
     count += 1;
     const a1: [count]u8 = .{'A'} ** count;
+    // @compileLog("{}", .{count});
 
     count += 1;
     const a2: [count]u8 = .{'B'} ** count;
+    // @compileLog("{}", .{count});
 
     count += 1;
     const a3: [count]u8 = .{'C'} ** count;
+    // @compileLog("{}", .{count});
 
     count += 1;
     const a4: [count]u8 = .{'D'} ** count;
+    //@compileLog("{}", .{count});
 
     print("{s} {s} {s} {s}\n", .{ a1, a2, a3, a4 });
 

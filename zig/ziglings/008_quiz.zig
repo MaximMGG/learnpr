@@ -1,4 +1,3 @@
-//
 // Quiz time! Let's see if you can fix this whole program.
 //
 // You'll have to think about this one a bit.
@@ -30,16 +29,13 @@ pub fn main() void {
     // 'lang' array we just created by indexing the array
     // 'letters' with the variable 'x'. As you can see above, x=1
     // to begin with.
-    var i: u32 = 0;
-    lang[i] = letters[x];
+    lang[0] = letters[x];
 
-    i += 1;
     x = 3;
-    lang[i] = letters[x];
+    lang[1] = letters[x];
 
-    i += 1;
     x = 5;
-    lang[i] = letters[x];
+    lang[2] = letters[x];
 
     // We want to "Program in Zig!" of course:
     std.debug.print("Program in {s}!\n", .{lang});

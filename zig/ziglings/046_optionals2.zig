@@ -48,7 +48,7 @@ pub fn main() void {
 // If e1 and e2 are valid pointers to elephants,
 // this function links the elephants so that e1's tail "points" to e2.
 fn linkElephants(e1: ?*Elephant, e2: ?*Elephant) void {
-    e1.?.tail = e2;
+    e1.?.tail = e2 orelse null;
 }
 
 // This function visits all elephants once, starting with the
@@ -66,6 +66,6 @@ fn visitElephants(first_elephant: *Elephant) void {
 
         // HINT: We want something similar to what `.?` does,
         // but instead of ending the program, we want to exit the loop...
-        e = e.tail orelse break;
+        e = e.tail orelse break; 
     }
 }
