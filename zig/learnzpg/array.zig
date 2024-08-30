@@ -14,12 +14,12 @@ pub fn main() void {
 
     print("{any}\n", .{@TypeOf(a[0..])});
     print("{any}\n", .{@TypeOf(c)});
-    // print_arr(a[0..]);
+    print_arr(a);
     // print_arr(b);
     // print_arr(c);
 }
 
-pub fn print_arr(arr: []i32) void {
+pub fn print_arr(arr: []const i32) void {
     for (arr) |a| {
         print("{d}\n", a);
     }
