@@ -1,5 +1,6 @@
 const std = @import("std");
 const c = std.c;
+const c_dirent = @cImport(@cInclude("dirent.h"));
 
 const _file = struct {};
 
@@ -13,5 +14,20 @@ pub fn main() void {
         const read_byte: usize = c.fread(&buf, 1, 512, file.?);
         std.debug.print("Read {d} bytes\n", .{read_byte});
         std.debug.print("file content -> {s}\n", .{buf});
+    }
+    readdir();
+}
+
+fn readdir() void {
+    const dir: ?*c_dirent.DIR = c_dirent.opendir("../");
+    defer _ = c_dirent.closedir(dir.?);
+
+    var dirent: ?*c_dirent.dirent = null;
+    var i: usize = 0;
+
+    while (i < 5) : (i += 1) {
+        dirent = c_dirent.readdir(dir.?);
+
+        std.debug.print("dir -> {s}\n", .{dirent.?.d_name});
     }
 }
