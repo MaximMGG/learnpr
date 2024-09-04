@@ -7,6 +7,23 @@ const Writer = struct {
     ptr: *anyopaque,
     writeAllFn: *const fn (ptr: *anyopaque, data: []const u8) anyerror!void,
 
+    fn init(ptr: anyopaque) Writer {
+        const T = @TypeOf(ptr);
+        const type_info = @typeInfo(T);
+
+        const get = struct {
+            pub fn writeAll(pointer: *anyopaque, data: []const u8) anyerror!void {
+                const self: T = @ptrCast(@alignCast(pointer));
+                return type_info.Pointer.child.writeAll(self, data);
+            }
+        };
+
+        return .{
+            .ptr = ptr,
+            .writeAllFn = get.writeAll,
+        };
+    }
+
     fn writeAll(self: Writer, data: []const u8) !void {
         return self.writeAllFn(self.ptr, data);
     }
@@ -21,6 +38,6 @@ const File = struct {
     }
 
     fn writer(self: File) Writer {
-        return .{ .ptr = self, .writeAllFn = writeAll };
+        return Writer.init(self);
     }
 };
