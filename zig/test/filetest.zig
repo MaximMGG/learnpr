@@ -10,26 +10,29 @@ pub fn main() !void {
     // while (try it.next()) |e| {
     //     std.debug.print("file name -> {s}\n", .{e.name});
     // }
-    const path = "../";
-    try print_dir(path, alc);
+    const path = "..";
+    if (!std.mem.startsWith(u8, path, "/")) {
+        var buf: [512]u8 = .{0} ** 512;
+        _ = try std.posix.getcwd(&buf);
+        try print_dir(&buf, alc);
+    } else {
+        try print_dir(path, alc);
+    }
 }
 
 pub fn print_dir(path: []const u8, alc: std.mem.Allocator) !void {
     std.debug.print("Entry func with path {s}\n", .{path});
-    const dir = try std.fs.cwd().openDir(path, .{ .iterate = true });
+    const dir = try std.fs.openDirAbsolute(path, .{ .iterate = true });
     var it = dir.iterate();
 
     std.debug.print("<<<DIR: {s}>>>\n", .{path});
     while (try it.next()) |e| {
         if (e.kind == .directory) {
-            var buf = try alc.alloc(u8, 512);
-            @memset(buf[0..512], 0);
-            _ = try std.posix.getcwd(buf);
-            std.debug.print("{s}\n", .{buf});
-            std.mem.copyForwards(u8, buf[std.mem.len(@as([*:0]u8, @ptrCast(buf)))..], "/");
-            std.mem.copyForwards(u8, buf[std.mem.len(@as([*:0]u8, @ptrCast(buf)))..], e.name);
-
-            try print_dir(e.name, alc);
+            var _p: [512]u8 = .{0} ** 512;
+            @memcpy(_p[0.._p.len], path[0..path.len]);
+            std.mem.copyForwards(u8, _p[std.mem.len(@as([*:0]u8, @ptrCast(&_p))).._p.len], "/");
+            std.mem.copyForwards(u8, _p[std.mem.len(@as([*:0]u8, @ptrCast(&_p))).._p.len], e.name);
+            try print_dir(path, alc);
         } else {
             std.debug.print("File name: {s}\n", .{e.name});
         }
