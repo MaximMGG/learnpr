@@ -6,7 +6,13 @@ pub fn main() !void {
     const alc = gpa.allocator();
 
     var lookup = std.StringHashMap(User).init(alc);
-    defer lookup.deinit();
+    defer {
+        var it = lookup.keyIterator();
+        while (it.next()) |k| {
+            alc.free(k.*);
+        }
+        lookup.deinit();
+    }
 
     const stdin = std.io.getStdIn().reader();
     const stdout = std.io.getStdOut().writer();
@@ -23,12 +29,18 @@ pub fn main() !void {
             if (name.len == 0) {
                 break;
             }
-            try lookup.put(name, .{ .power = i });
+            const _name = try alc.dupe(u8, name);
+            try lookup.put(_name, .{ .power = i });
             std.debug.print("insert -> {s}\n", .{name});
         }
     }
     const has_leto = lookup.contains("Leto");
     std.debug.print("{any}\n", .{has_leto});
+
+    var it = lookup.iterator();
+    while (it.next()) |kv| {
+        std.debug.print("Key {s}, value {any}\n", .{ kv.key_ptr.*, kv.value_ptr.* });
+    }
 }
 
 const User = struct { power: i32 };
