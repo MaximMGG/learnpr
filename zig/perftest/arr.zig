@@ -8,7 +8,7 @@ pub fn main() !void {
     var arr = std.ArrayList([]const u8).init(alc);
     defer arr.deinit();
 
-    for (0..1000000) |i| {
+    for (0..10000000) |i| {
         if (i % 7 == 0 or i % 10 == 7) {
             try arr.append("SMAC");
         } else {

@@ -1,6 +1,6 @@
 local arr = {}
 
-for i = 0, 1000000, 1 do
+for i = 0, 10000000, 1 do
     if i % 7 == 0 or i % 10 == 7 then
         arr[i] = "SMAC"
     else
