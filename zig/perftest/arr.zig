@@ -4,17 +4,21 @@ const stdout = @cImport(@cInclude("stdio.h"));
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var list = std.ArrayList(*const [1:0]u8).init(gpa.allocator());
-    var i: i32 = 0;
+    const alc = gpa.allocator();
+    var arr = std.ArrayList([]const u8).init(alc);
+    defer arr.deinit();
 
-    while (i != 1000000) {
-        try list.append("a");
-        i += 1;
+    for (0..1000000) |i| {
+        if (i % 7 == 0 or i % 10 == 7) {
+            try arr.append("SMAC");
+        } else {
+            var buf: [64]u8 = .{0} ** 64;
+            const _buf = try std.fmt.bufPrint(&buf, "{d}", .{@as(i32, @intCast(i))});
+            try arr.append(_buf);
+        }
     }
 
-    _ = stdout.printf("Hello");
-
-    print("list len is: {d}\n", .{i});
-    defer list.deinit();
-    // defer _ = gpa.deinit();
+    for (arr.items) |c| {
+        std.debug.print("{s}\n", .{c});
+    }
 }
