@@ -20,13 +20,13 @@ int main() {
     }
 
     for(int i = 0; i < JOB; i++) {
-        pthread_create(&t[i], null, job, lists[1]);
-    }
-    for(int i = 0; i < 1000; i++) {
-        arraylistAdd(lists[0], &i);
+        pthread_create(&t[i], null, job, lists[i]);
     }
     for(int i = 0; i < JOB; i++) {
         pthread_join(t[i], null);
+    }
+    for(int i = 0; i < 1000; i++) {
+        arraylistAdd(lists[0], &i);
     }
     for(int i = 0; i < JOB; i++) {
         printf("list[%d] len is: %d\n", i, lists[i]->len);
