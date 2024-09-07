@@ -7,7 +7,8 @@ pub fn main() !void {
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
 
-    const file = try fs.cwd().openFile("tests/zig-zen.txt", .{});
+    // const file = try fs.cwd().openFile("tests/zig-zen.txt", .{});
+    const file = try fs.cwd().openFile("test2.txt", .{});
     defer file.close();
 
     var buf_reader = std.io.bufferedReader(file.reader());

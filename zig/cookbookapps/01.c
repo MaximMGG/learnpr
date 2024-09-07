@@ -5,19 +5,13 @@
 #include <stdlib.h>
 
 
-char readbuf[4096] = {0};
-int offset = 0;
-
 int readline(char *buf, int len, int fd) {
-    int read_bytes = 0;
-    if (offset == 4096) {
-        read_bytes = read(fd, readbuf, 4096);
-    }
+    int read_bytes = read(fd, buf, len);
 
     int cur_seek = 0;
     int newLine = 0;
     int read_len = read_bytes <= len ? read_bytes : len;
-    for(int i = 0; i < read_len; i++, newLine++, offset++) {
+    for(int i = 0; i < read_len; i++, newLine++) {
         if (buf[i] == '\n') {
             buf[i+1] = 0;
             break;
@@ -39,15 +33,15 @@ int main() {
     // if (!f)
     //     fprintf(stderr, "file not exist\n");
 
-    int fd = open("tests/zig-zen.txt", O_RDONLY);
-    // int fd = open("test.txt", O_RDONLY);
+    // int fd = open("tests/zig-zen.txt", O_RDONLY);
+    int fd = open("test2.txt", O_RDONLY);
     int lines = 0;
-    // char *buf = malloc(sizeof(char) * 264);
+    char *buf = malloc(sizeof(char) * 128);
     while(1) {
-        // memset(buf, 0, 264);
+        memset(buf, 0, 128);
         // fgets(buf, 512, f);
-        char buf[264] = {0};
-        int res = readline(buf, 264, fd);
+        // char buf[128] = {0};
+        int res = readline(buf, 128, fd);
         if (res == -1)
             break;
         printf("%d - %s", lines, buf);
@@ -55,7 +49,7 @@ int main() {
     }
     printf("Total lines %d\n", lines);
 
-    // free(buf);
+    free(buf);
     close(fd);
     return 0;
 }

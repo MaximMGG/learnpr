@@ -3,7 +3,8 @@
 
 int main() {
 
-    FILE *f = fopen("tests/zig-zen.txt", "r");
+    FILE *f = fopen("test2.txt", "r");
+    // FILE *f = fopen("tests/zig-zen.txt", "r");
     char buf[264] = {0};
     int lines = 0;
     while(!feof(f)) {
@@ -13,6 +14,7 @@ int main() {
     }
     printf("Total lines %d\n", lines);
 
+    fclose(f);
 
     return 0;
 }
