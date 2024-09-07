@@ -2,5 +2,6 @@
 *.out
 *.obj
 *.o
+*.txt
 
 zig-zen.txt
