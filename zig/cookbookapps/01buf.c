@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define READ_BUF 4096
+#define READ_BUF (4096)
 
 char readbuf[READ_BUF] = {0};
 int offset = 0;
@@ -13,6 +13,7 @@ int readline(char *buf, int len, int fd) {
     int read_bytes = 0;
     if (offset == READ_BUF || offset == 0) {
         read_bytes = read(fd, readbuf, READ_BUF);
+        offset = 0;
     }
     int i = 0;
     int start_offset = offset;
