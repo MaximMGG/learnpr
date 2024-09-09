@@ -11,6 +11,7 @@
 
 #define PROXY       "127.0.0.1"
 #define PROXYPORT   "9050"
+#define PROXYPORTNUM 9050
 
 typedef unsigned char int8;
 typedef unsigned short int16;
