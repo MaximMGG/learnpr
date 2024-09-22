@@ -94,3 +94,45 @@ test "@typeInfo" {
 test "@tagName" {
     try expect(mem.eql(u8, @tagName(Small.three), "three"));
 }
+
+const Color = enum { auto, off, on };
+
+test "enum literals" {
+    const color1: Color = .auto;
+    const color2 = Color.auto;
+    try expect(color1 == color2);
+}
+
+test "switch using enum literals" {
+    const color = Color.on;
+    const result = switch (color) {
+        .auto => false,
+        .on => true,
+        .off => false,
+    };
+    try expect(result);
+}
+
+const Number = enum(u8) {
+    one,
+    two,
+    three,
+    _,
+};
+
+test "switch on non-exhaustive enum" {
+    const number = Number.one;
+    const result = switch (number) {
+        .one => true,
+        .two, .three => false,
+        _ => false,
+    };
+
+    try expect(result);
+
+    const is_one = switch (number) {
+        .one => true,
+        else => false,
+    };
+    try expect(is_one);
+}
