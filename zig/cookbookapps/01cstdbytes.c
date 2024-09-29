@@ -3,7 +3,7 @@
 
 int main() {
 
-    str file = "test2.txt";
+    str file = "test3.txt";
     stream *st = createStream(FILE_STREAM, file);
 
     i8 b;
