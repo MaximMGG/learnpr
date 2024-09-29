@@ -8,7 +8,8 @@ int main() {
     i32 count = 0;
 
     while((s = st->nextStr(st)) != null) {
-        printf("%d - %s\n", count++, s);
+        count++;
+        printf("%d - %s\n", count, s);
     }
     printf("Total lines is: %d\n", count);
     destroyStream(st);
