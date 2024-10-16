@@ -26,4 +26,16 @@ main :: proc() {
         fmt.println(animal)
     }
 
+
+    Vector3 :: [3]f32
+    a := Vector3{1, 4, 9}
+    b := Vector3{2, 4, 8}
+    c := a + b
+    d := a * b
+    e := c != b
+    fmt.println(a)
+    fmt.println(b)
+    fmt.println(c)
+    fmt.println(d)
+    fmt.println(e)
 }
