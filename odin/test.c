@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 unsigned int getNum(unsigned int x) {
     if (x % 2 == 0) return x + 1;
@@ -7,13 +8,14 @@ unsigned int getNum(unsigned int x) {
 }
 
 int main() {
-    unsigned int x = 0;
-
-    while (x < 3333333) {
-        x = getNum(x);
-        x++;
-        printf("%d\n", x);
+    int *arr = malloc(sizeof(int) * 3333333);
+    for(int i = 0; i < 3333333; i++) {
+        arr[i] = i;
     }
+    for(int i = 0; i < 3333333; i++) {
+        printf("%d\n", arr[i]);
+    }
+    free(arr);
 
     return 0;
 }

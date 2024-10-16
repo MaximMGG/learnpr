@@ -8,11 +8,17 @@ fn getNum(x: u32) u32 {
     }
 }
 
-pub fn main() void {
-    var x: u32 = 0;
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var aloc = gpa.allocator();
+    var x = try aloc.alloc(i32, 3333333);
+    defer aloc.free(x);
 
-    while (x < 3333333) : (x += 1) {
-        x = getNum(x);
-        std.debug.print("{d}\n", .{x});
+    for (0..3333333) |i| {
+        x[i] = @intCast(i);
+    }
+
+    for (0..3333333) |i| {
+        std.debug.print("{d}\n", .{x[i]});
     }
 }

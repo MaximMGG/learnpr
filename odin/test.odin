@@ -15,11 +15,26 @@ getNum :: proc (x: u32) -> u32 {
 
 
 main :: proc () {
-    x: u32 = 0
+    y := make([dynamic]int, 0, 3333333)
+    defer delete(y)
 
-    for ;x < 3333333 ; x += 1 {
-        x = getNum(x)
-        fmt.printf("%d\n", x)
-    }
+ #no_bounds_check {
+    // for i in 0..<3333333 {
+    //     assign_at(&y, i, i)
+    // }
+    //
+
+     for i in 0..<3333333 {
+         y[i] = i
+     }
+
+     for i in 0..<3333333 {
+         fmt.println(y[i])
+     }
+
+    // for num in y {
+    //     fmt.println(num)
+    // }
+}
 
 }
