@@ -44,6 +44,34 @@ cross_3d :: proc(a, b: $T/[3]$E) -> T
 }
 
 
+foo :: proc(x: [$N]int) -> bool 
+where N > 2 {
+    fmt.println(#procedure, "was called with the parameter", x)
+    return true
+}
+
+bar :: proc(x: [$N]int) -> bool
+where 0 < N, N <= 2 {
+    fmt.println(#procedure, "was called with the parameter", x)
+    return false
+}
+
+baz :: proc{foo, bar}
+
+
+Foo :: struct($T: typeid, $N: int)
+where intrinsics.type_is_integer(T),
+N > 2 {
+    x: [N]T,
+    y: [N - 2]T,
+}
+
+call_path :: proc(loc := #caller_location) {
+    fmt.println(loc)
+    fmt.println(#procedure, "called by", loc.procedure)
+}
+
+
 main :: proc() {
     a := [2]int{1, 2}
     b := [2]int{5, -3}
@@ -52,6 +80,24 @@ main :: proc() {
     x := [3]f32{1, 4, 9}
     y := [3]f32{-5, 0, 3}
     fmt.println(cross_3d(x, y))
+
+    one := [3]int{1, 2, 3}
+    two := [2]int{4, 9}
+    ok_one := baz(one)
+    ok_two := baz(two)
+    assert(ok_one == true)
+    assert(ok_two == false)
+
+    T :: i32
+    N :: 5
+    f: Foo(T, N)
+    #assert(size_of(f) == (N+N-2)*size_of(T))
+
+    call_path()
+
+    file := #load("defer.odin", string)
+    fmt.println(file)
+
 }
 
 
