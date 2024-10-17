@@ -66,6 +66,15 @@ main :: proc() {
     case .D:
         fmt.println("Yes")
     }
+
+
+    enum_arr: [enum {Z, X, V}]int
+    enum_arr = #partial {
+        .Z = 44,
+    }
+
+    fmt.println(enum_arr)
+
 }
 
 
