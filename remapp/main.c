@@ -31,8 +31,8 @@ void remove_exe(char *path) {
     }
 }
 
-const char *exe_name[] = {".so", ".sh", ".clr"};
-#define EXE_NAME_LEN 3
+const char *exe_name[] = {".so", ".sh", ".clr", "remexe"};
+#define EXE_NAME_LEN 4
 
 int check_exe_name(const char *name) {
     char *f;
