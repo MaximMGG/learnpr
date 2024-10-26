@@ -117,7 +117,7 @@ int main() {
     float ver1[] = {
         0.5f, 0.7f, 0.0f,
         0.7f,-0.3f, 0.0f,
-       -0.6f,-0.5f, 0.0f
+       -0.6f,-0.5f, 0.0f,
     };
 
     unsigned int indices[] = {
@@ -126,6 +126,7 @@ int main() {
     };
 
     unsigned int ind2[] = {0, 1, 2};
+    unsigned int ind3[] = {0, 2, 3};
 
     unsigned int VBO, VAO, EBO;
     glGenBuffers(1, &VBO);
@@ -137,8 +138,6 @@ int main() {
     glGenBuffers(1, &VBO2);
     glGenBuffers(1, &EBO2);
     glGenVertexArrays(1, &VAO2);
-
-
 
     glBindVertexArray(VAO);
     glBindVertexArray(VAO2);
@@ -158,6 +157,7 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO2);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ind2), ind2, GL_STATIC_DRAW);
 
+
     //
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
@@ -173,7 +173,7 @@ int main() {
         glClearColor(0.2, 0.3, 0.3, 0.1);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
+       // glUseProgram(shaderProgram);
     //    glBindVertexArray(VAO);
         glUseProgram(shaderProgram2);
         glBindVertexArray(VAO2);
