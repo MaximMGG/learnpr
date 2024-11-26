@@ -1,11 +1,15 @@
 const std = @import("std");
 
-const BUF_LEN = 512;
-
 pub fn main() !void {
-    var absolute_path: [BUF_LEN]u8 = .{0} ** BUF_LEN;
-    _ = try std.posix.getcwd(&absolute_path);
-    std.debug.print("cwd -> {s}\n", .{absolute_path});
-    const dir = try std.fs.openDirAbsolute(&absolute_path, .{ .iterate = true });
-    std.debug.print("{any}\n", .{dir});
+//    const alloc = std.heap.page_allocator; 
+    const cur_dir = std.fs.cwd();
+    const f: std.fs.File = try cur_dir.openFile("reflect.zig", .{.mode = .read_only});
+    var buf: [1024:0]u8 = undefined;
+    const readbytes: usize = try f.read(&buf);
+
+    std.debug.print("{read bytes is: {d}\n}", .{readbytes});
+    std.debug.print("{s}\n", .{buf});
+
+    defer f.close();
+
 }
