@@ -32,6 +32,7 @@ int main() {
     const char *ex1 = "Hello, this is string for strchr\n";
     std::cout << "string after strchr: " << std::strchr(ex1, 'f');
 
+    //comment
 
 
 
