@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <unistd.h>
+#include <cstdlib>
 #include <cassert>
 
 int main() {
@@ -32,9 +34,15 @@ int main() {
     const char *ex1 = "Hello, this is string for strchr\n";
     std::cout << "string after strchr: " << std::strchr(ex1, 'f');
 
+    char *bu = new char[100] {0};
+
+    std::cout << "user name : " << getcwd(bu, 100);
+
+
+    delete [] bu;
+
+
     //comment
-
-
 
 
     return 0;

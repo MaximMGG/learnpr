@@ -1,0 +1,18 @@
+#include <cstring>
+#include <string>
+#include <iostream>
+
+
+int main() {
+
+    const char *test_msg = "ifj";
+
+    std::string tok {"ijasdlfij83820"};
+
+
+    std::cout << "After skiping > " << std::strspn(tok.c_str(), test_msg) << '\n';
+    std::cout << tok.substr(std::strspn(tok.c_str(), test_msg)) << '\n';
+
+
+    return 0;
+}
