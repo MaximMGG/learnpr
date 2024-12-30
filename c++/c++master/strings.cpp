@@ -41,6 +41,31 @@ int main() {
 
     delete [] bu;
 
+    std::cout << "strcat\n";
+
+    char msg[50] {"First "};
+    char msg2[50] {"second"};
+
+    std::strcat(msg, msg2);
+    std::cout << "First + second = " << msg << '\n';
+
+    std::cout << "==================\n";
+
+    const char *test1 {"will old space the replace"};
+    const char *test2 {"dkfj oioi build sky  kjdf"};
+    const char *test3 {"kj ieif lksmd is ;aof"};
+    const char *test4 {"ij  os kd blue aa "};
+    char *res = new char [20];
+
+    std::strncpy(res, std::strstr(test1, "the"), 4);
+    std::cout << res << '\n';
+    std::strncpy(res + std::strlen(res), std::strstr(test2, "sky"), 4);
+    std::cout << res << '\n';
+    std::strncpy(res + std::strlen(res), std::strstr(test3, "is"), 3);
+    std::cout << res << '\n';
+    std::strncpy(res + std::strlen(res), std::strstr(test4, "blue"), 4);
+
+    std::cout << res << '\n';
 
     //comment
 
