@@ -5,7 +5,7 @@ compile:
 
 build: main.asm
 	$(CC) main.asm
-	lc main.o -o main
+	ld main.o -o main
 
 once: main.asm
 	$(CC) main.asm
