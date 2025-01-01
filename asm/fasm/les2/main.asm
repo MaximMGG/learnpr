@@ -9,10 +9,28 @@ section '.bss' writable
 section '.text' executable
 
 _start:
-    mov     rax, 571
-    add     rax, 100
-    add     rax, 82937492
+
+    mov     rax, 234
     call    print_number
+    mov     rax, ' '
+    call    print_char
+    mov     rax, '*'
+    call    print_char
+    mov     rax, ' '
+    call    print_char
+    mov     rax, 1187
+    call    print_number
+    mov     rax, ' '
+    call    print_char
+    mov     rax, '='
+    call    print_char
+    mov     rax, ' '
+    call    print_char
+    mov     rax, 234
+    mov     rbx, 1187
+    mul     rbx
+    call    print_number
+
     call    print_line
     call    exit
 
