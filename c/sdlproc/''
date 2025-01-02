@@ -6,7 +6,6 @@
 #define HEIGHT 600
 #define COLOR_WHITE 0xFFFFFFFF
 #define COLOR_BLACK 0x00000000
-#define RAYS_NUMBER 100
 
 struct Circle {
     double x;
@@ -15,9 +14,7 @@ struct Circle {
 };
 
 struct Ray {
-    double x_start, y_start;
-    double angle;
-    double x_end, y_end;
+    double x, y;
 };
 
 
@@ -48,11 +45,8 @@ int MouseInCircle(struct Circle circle, int mx, int my) {
     return 0;
 }
 
-void generays_rays(struct Circle circle, struct Ray rays[RAYS_NUMBER]) {
-    for(int i = 0; i < RAYS_NUMBER; i++) {
-        double angle = (double) 360 / 100 * i;
+void rays(struct Circle circle, ) {
 
-    }
 }
 
 
@@ -99,7 +93,6 @@ int main() {
         FillCircle(surface, shadow_circle, COLOR_WHITE);
 
 
-        generays_rays(circle, NULL);
 
 
         SDL_UpdateWindowSurface(win);
