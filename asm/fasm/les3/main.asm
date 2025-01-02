@@ -12,10 +12,9 @@ section '.bss' writable
 section '.text' executable
 
 _start:
-
-    mov     rax, 571
-    mov     rbx, _buffer
-    mov     rcx, _buffer.size
+    mov     rdi, 571
+    mov     rsi, _buffer
+    mov     rdx, _buffer.size
     call    number_to_string
     mov     rax, _buffer
     call    print_string
@@ -36,57 +35,79 @@ section '.number_to_string' executable
 ; rcx = buffer.size
 
 number_to_string:
+    push    rbp
+    mov     rbp, rsp
     push    rax
     push    rbx
     push    rcx
     push    rdx
-    push    rsi
-    mov     rsi, rcx
+    sub     rbp, 8
+    mov     [rbp], rdx
+    mov     rax, rdi
+    mov     rbx, 10
     xor     rcx, rcx
-    .next_iter:
-        push    rbx
-        mov     rbx, 10
-        div     rbx
-        inc     rcx
-        pop     rbx
-        add     rdx, '0'
-        push    rdx
-        cmp     rax, 0
-        je      .next_step
-        jmp     .next_iter
-    .next_step:
-        mov     rdx, rcx
-        xor     rcx, rcx
-    .to_string:
-        cmp     rcx, rsi
-        je      .pop_iter
-        cmp     rcx, rdx
-        je      .close
-        pop     rax
-        mov     [rbx+rcx], rax
-        inc     rcx
-        jmp     .to_string
-    .pop_iter:
-        cmp     rcx, rdx
-        je      .close
-        pop     rax
-        inc     rcx
-        jmp     .pop_iter
+    xor     rdx, rdx
 
-    .close:
-        pop     rsi
-        pop     rdx
-        pop     rcx
-        pop     rbx
-        pop     rax
-        ret
+
+    .next_iter:
+        div     rbx
+        add     rdx, '0'
+        push     rdx
+        inc     rcx
+        xor     rdx, rdx
+        cmp     rax, 0
+        je      .to_string
+        cmp     rcx, rdi
+        jmp     .next_iter
+
+    .to_string:
+        xor     rdx, rdx
+        .to_string_loop:
+            cmp     rdx, rcx
+            je      .to_string_end
+            pop     rax
+            mov     [rsi+rdx], rax
+            inc     rdx
+        .to_string_end:
+
+    push    rdx
+    push    rcx
+    push    rbx
+    push    rax
+    mov     rsp, rbp
+    pop     rbp
+    ret
 
 section '.print_string' executable
+print_string:
+    push    rsi
+    push    rdx
 
+    mov     rsi, rax
+    xor     rcx, rcx
+    .str_len:
+    cmp     byte [rsi + rcx], byte 0
+    je      .end
+    inc     rcx
+    .end:
+    mov     rdx, rcx
+    mov     rax, 1
+    mov     rdi, 1
+    syscall
+    pop rdx
+    pop rsi
+
+section '.print_line' executable
+print_line:
+    mov     [_bss_char], 10
+    mov     rax, 1
+    mov     rdi, 1
+    mov     rsi, _bss_char
+    mov     rdx, 1
+    syscall
 
 
 section '.exit' executable
-
 exit:
     mov     rax, 60
     mov     rdi, 0
