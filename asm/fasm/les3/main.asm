@@ -41,23 +41,25 @@ number_to_string:
     push    rbx
     push    rcx
     push    rdx
-    sub     rbp, 8
-    mov     [rbp], rdx
+    mov     [rbp - 8], rsi
     mov     rax, rdi
     mov     rbx, 10
     xor     rcx, rcx
+    dec     rdx
+    mov     [rbp - 16], rdx
     xor     rdx, rdx
 
 
     .next_iter:
         div     rbx
         add     rdx, '0'
-        push     rdx
+        push    rdx
         inc     rcx
         xor     rdx, rdx
         cmp     rax, 0
         je      .to_string
-        cmp     rcx, rdi
+        cmp     rcx, [rbp - 16]
+        je      .to_string
         jmp     .next_iter
 
     .to_string:
@@ -66,9 +68,11 @@ number_to_string:
             cmp     rdx, rcx
             je      .to_string_end
             pop     rax
-            mov     [rsi+rdx], rax
+            mov     byte [rsi+rdx], al
             inc     rdx
         .to_string_end:
+            mov     [rsi + rdx], byte 0
+            mov     rax, rsi
 
     push    rdx
     push    rcx
