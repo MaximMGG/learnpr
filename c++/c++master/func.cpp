@@ -2,6 +2,29 @@
 //#include "headers/compare.h"
 
 
+constexpr int get_value(int multipler) {
+    return 3 * multipler;
+}
+
+
+void print_sum(int *a, int *b) {
+    std::cout << *a + *b << '\n';
+}
+
+
+void foo3(int a, int b) {
+    a += b;
+    std::cout << a << '\n';
+}
+
+
+void compute(int age = 32, double weight = 70.5, double distance = 4) {
+    std::cout << "Doint computations on age : " << age
+        << " weight : " << weight
+        << " distance : " << distance << '\n';
+}
+
+
 double min(double a, double b) {return a > b ? b : a;}
 
 
@@ -43,6 +66,17 @@ bool is_palindrome(unsigned long long int num) {
     return res == num;
 }
 
+double sum_m(const double array[][3], size_t size) {
+    double sum_t{};
+    for(int i = 0; i < size; i++) {
+        for(int j = 0; j < 3; j++) {
+            sum_t += *(*array + i) + j;
+        }
+
+    }
+    return sum_t;
+}
+
 
 
 int main() {
@@ -69,6 +103,28 @@ int main() {
     int x{3};
     int y{4};
     foo2(&x, &y);
+    const double d_arr[][3] {
+                {2.2, 2.2, 2.2},
+                {1.1, 1.1, 1.1},
+                {3.3, 3.3, 3.3}
+                            };
+
+    double d_arr_sum = sum_m(d_arr, 3);
+
+    std::cout << "d_arr_sum : " << d_arr_sum << '\n';
+
+    compute(111, 23.1);
+
+    compute();
+
+    print_sum(&res, &res2);
+
+    int aa {1};
+    int bb {2};
+
+    foo3(aa, bb);
+
+    std::cout << get_value(bb) << '\n';
 
     std::cout << x << '\n';
 
