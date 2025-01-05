@@ -4,7 +4,6 @@
 
 int main(int argc, char **argv) {
 
-
     if (argc < 4) {
         std::cerr << "argc les the 4, please try agane\n";
         return 1;
@@ -28,7 +27,5 @@ int main(int argc, char **argv) {
             std::cout << first_val << " / " << second_val << " = " << first_val / second_val << '\n'; 
         break;
     }
-
-
     return 0;
 }
