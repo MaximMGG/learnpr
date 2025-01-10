@@ -113,7 +113,7 @@ int main() {
     double val1 {10.0};
     double val2 {20.0};
 
-    double& res2 = max_ref(val1, val2);
+    //double& res2 = max_ref(val1, val2);
 
 
     return 0;
