@@ -28,11 +28,23 @@ template <> int hunt<const char *>(const char *val, const char **col, int size) 
 }
 
 
-template <typename Ret, typename T, typename P> Ret prob_max(T a, P b) {
-    return a > b ? (Ret)a : (Ret)b;
+template <typename T, typename P> auto prob_max(T a, P b) {
+    return a > b ? a : b;
 }
 
 
+
+template <typename T, typename P> std::string concat(T a, P b) {
+    return std::string(std::to_string(a) + std::to_string(b));
+}
+
+template <typename T, typename P> auto foo(T a, P p) -> decltype(a + p){
+    return a + p;
+}
+
+auto var(int a, int b) -> double {
+
+}
 
 
 int main() {
@@ -62,8 +74,12 @@ int main() {
 
     std::cout << hunt(bob.c_str(), names, 4) << '\n';
 
-    std::cout << prob_max<char>(bi, ad) << '\n';
+    std::cout << prob_max(bi, ad) << '\n';
 
+    int c {prob_max<char, char>(ad, bd)};
+    std::cout << char(c) << '\n';
+    auto p = foo(ai, bd);
+    std::cout << sizeof(p) << '\n';
 
     return 0;
 }
