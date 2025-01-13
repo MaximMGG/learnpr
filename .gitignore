@@ -5,3 +5,6 @@
 *.txt
 
 zig-zen.txt
+
+CMakeFiles/*
+
