@@ -1,4 +1,5 @@
 #include "../headers/config.h"
+#include "../headers/triangle_mesh.h"
 #include <GLFW/glfw3.h>
 
 #define WIDTH 640
@@ -10,15 +11,6 @@ unsigned int make_shader(const std::string& vertex_filepath, const std::string& 
 
 int main() {
 
-    std::ifstream file;
-    //std::stringstream bufferLines;
-    std::string line;
-
-
-    file.open("./src/shaders/vertex.txt");
-    while(std::getline(file, line)) {
-        std::cout << line << '\n';
-    }
 
     GLFWwindow *window;
 
@@ -26,6 +18,14 @@ int main() {
         std::cerr << "glfw can't be init\n";
         return 1;
     }
+
+
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+
+
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "My super window", NULL, NULL);
     glfwMakeContextCurrent(window);
@@ -39,9 +39,10 @@ int main() {
 
     std::cout << "Window init\n";
 
-
-
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+
+    TriangleMesh *triangle = new TriangleMesh();
+
 
     unsigned int shader = make_shader(
             "./src/shaders/vertex.txt",
@@ -53,11 +54,16 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader);
+
+        triangle->draw();
+
+
         glfwSwapBuffers(window);
 
     }
 
     glDeleteProgram(shader);
+    delete triangle;
     glfwTerminate();
     std::cout << "Terminated\n";
 
@@ -69,21 +75,26 @@ unsigned int make_shader(const std::string& vertex_filepath, const std::string& 
     std::vector<unsigned int> modules;
 
     modules.push_back(make_module(vertex_filepath, GL_VERTEX_SHADER));
-    modules.push_back(make_module(fragment_filepath, GL_VERTEX_SHADER));
+    modules.push_back(make_module(fragment_filepath, GL_FRAGMENT_SHADER));
 
     unsigned int shader = glCreateProgram();
     for(unsigned int shaderModule : modules) {
         glAttachShader(shader, shaderModule);
     }
     glLinkProgram(shader);
-    int success{};
 
+
+    //check the linking
+    int success{};
     glGetProgramiv(shader, GL_LINK_STATUS, &success);
     if (!success) {
         char errorLog[1024];
         glGetProgramInfoLog(shader, 1024, NULL, errorLog);
         std::cout << "Program linking got error:\n" << errorLog << '\n';
-        return 0;
+    }
+
+    for(unsigned int shaderModule : modules) {
+        glDeleteShader(shaderModule);
     }
 
     return shader;
@@ -102,7 +113,7 @@ unsigned int make_module(const std::string& filepath, unsigned int module_type) 
     }
     std::string shaderSource = bufferLines.str();
 
-    std::cout << shaderSource << '\n';
+    // std::cout << shaderSource << '\n';
 
     const char *shaderSrc = shaderSource.c_str();
     bufferLines.str("");
@@ -119,7 +130,6 @@ unsigned int make_module(const std::string& filepath, unsigned int module_type) 
         char errorLog[1024];
         glGetShaderInfoLog(shaderModule, 1024, NULL, errorLog);
         std::cout << "Shader Module compilation error:\n" << errorLog << '\n';
-        return 0;
     }
 
     return shaderModule;
