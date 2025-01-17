@@ -41,6 +41,12 @@ int main() {
 
     glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
 
+    int w, h;
+    // glfwGetFramebufferSize(window, &w, &h);
+    // std::cout << "widnow size : " << w << " " << h << '\n';
+
+
+
     TriangleMesh *triangle = new TriangleMesh();
 
 
@@ -49,8 +55,20 @@ int main() {
             "./src/shaders/fragment.txt"
             );
 
+    int last_w{}, last_h{};
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
+
+        glfwGetFramebufferSize(window, &w, &h);
+
+        if (last_w != w || last_h != h) {
+            last_w = w; 
+            last_h = h;
+            std::cout << "Width : " << w << " height : " << h << '\n';
+        }
+
+        glViewport(0, 0, w, h);
+
 
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shader);
