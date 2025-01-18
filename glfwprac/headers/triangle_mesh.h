@@ -7,5 +7,6 @@ class TriangleMesh {
         ~TriangleMesh();
 
     private:
-        unsigned int VBO, VAO, vertex_count;
+        unsigned int VAO, vertex_count;
+        std::vector<unsigned int>VBOs;
 };
