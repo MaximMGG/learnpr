@@ -1,19 +1,22 @@
 CC = g++
-.PHONY: default build run clean;
-SRC = headers/compare.cpp func.cpp
-OBJ = $(patsubst %.cpp, %.o, $(SRC))
+.PHONY: default build run clean
+FLAG = -std=c++20
+SECTION = section1-29
+PROGRAM = template
+SRC = $(SECTION)/$(PROGRAM).cpp
+OBJ = $(SRC:$(SECTION)/%.cpp=$(SECTION)/%.o)
 
 #OBJ = headers/compare.o func.o
 
 default: build run
 
 build: $(OBJ)
-	$(CC) -o main $^
+	$(CC) -o main $^ $(FALG)
 
 run:
 	./main
 
-%.o: %.cpp
+$(SECTION)/$(PROGRAM).o: $(SECTION)/$(PROGRAM).cpp
 	$(CC) -c $< -o $@
 
 clean:
