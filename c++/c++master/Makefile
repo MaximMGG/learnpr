@@ -1,8 +1,8 @@
 CC = g++
 .PHONY: default build run clean
 FLAG = -std=c++20
-SECTION = section1-29
-PROGRAM = template
+SECTION = section30
+PROGRAM = concepts
 SRC = $(SECTION)/$(PROGRAM).cpp
 OBJ = $(SRC:$(SECTION)/%.cpp=$(SECTION)/%.o)
 
@@ -17,9 +17,9 @@ run:
 	./main
 
 $(SECTION)/$(PROGRAM).o: $(SECTION)/$(PROGRAM).cpp
-	$(CC) -c $< -o $@
+	$(CC) $(FLAG) -c $< -o $@
 
 clean:
-	rm *.o headers/*.o main
+	rm $(SECTION)/*.o ./main
 
 
