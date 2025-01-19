@@ -2,7 +2,7 @@ CC = g++
 .PHONY: default build run clean
 FLAG = -std=c++20
 SECTION = section30
-PROGRAM = concepts
+PROGRAM = example
 SRC = $(SECTION)/$(PROGRAM).cpp
 OBJ = $(SRC:$(SECTION)/%.cpp=$(SECTION)/%.o)
 
