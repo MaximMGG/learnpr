@@ -1,25 +1,39 @@
 CC = g++
 .PHONY: default build run clean
-FLAG = -std=c++20
-SECTION = section30
-PROGRAM = example
-SRC = $(SECTION)/$(PROGRAM).cpp
+FLAG = -std=c++20 -g
+SECTION = section31
+PROGRAM = class
+#SRC = $(SECTION)/$(PROGRAM).cpp
+#SRC = $(SECTION)/class.cpp $(SECTION)/cylinder.cpp // the same shit!
+SRC = $(wildcard $(SECTION)/*.cpp)
 OBJ = $(SRC:$(SECTION)/%.cpp=$(SECTION)/%.o)
+
 
 #OBJ = headers/compare.o func.o
 
-default: build run
+default: tell build run
+
+
+tell:
+	echo $(SRC)
+
+debug: $(OBJ)
+	$(CC) -o $(PROGRAM) $^ $(FALG)
+	./$(PROGRAM)
 
 build: $(OBJ)
-	$(CC) -o main $^ $(FALG)
+	$(CC) -o $(PROGRAM) $^ $(FALG)
 
 run:
-	./main
+	./$(PROGRAM)
 
-$(SECTION)/$(PROGRAM).o: $(SECTION)/$(PROGRAM).cpp
+#$(SECTION)/$(PROGRAM).o: $(SECTION)/$(PROGRAM).cpp
+#	$(CC) $(FLAG) -c $< -o $@
+
+$(SECTION)/%.o: $(SECTION)/%.cpp
 	$(CC) $(FLAG) -c $< -o $@
 
 clean:
-	rm $(SECTION)/*.o ./main
+	rm $(SECTION)/*.o ./$(PROGRAM)
 
 
