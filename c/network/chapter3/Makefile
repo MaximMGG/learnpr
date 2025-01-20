@@ -11,13 +11,13 @@ OBJ_CLIENT = $(SRC_CLIENT:%.c=%.o)
 default: server client
 
 server: $(OBJ_SERVER)
-	gcc -o $(SERVER) $^
+	gcc -o $(SERVER) $^ -g
 
 client: $(OBJ_CLIENT)
-	gcc -o $(CLIENT) $^
+	gcc -o $(CLIENT) $^ -g
 
 %.o:%.c
-	gcc -o $@ -c $<
+	gcc -o $@ -c $< -g
 
 clean:
 	rm *.o $(SERVER) $(CLIENT)
