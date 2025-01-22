@@ -1,6 +1,18 @@
 #include "sock.h"
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
+
+
+
+void __to_upper(char *buf, int size) {
+    for(int i = 0; i < size; i++) {
+        buf[i] = toupper((int)buf[i]);
+    }
+}
+
+
+
 
 
 
@@ -90,10 +102,7 @@ int main() {
                         continue;
                     }
 
-                    int j;
-                    for(j = 0; j < bytes_received; j++) {
-                        read[j] = toupper(read[j]);
-                    }
+                    __to_upper(read, bytes_received);
                     send(i, read, bytes_received, 0);
 
                     printf("Sended %d bytes -> %s\n", bytes_received, read);

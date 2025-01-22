@@ -96,8 +96,8 @@ int main(int argc, char *argv[]) {
             }
             printf("Received (%d bytes): %.*s",
                     bytes_received, bytes_received, read);
-            not_recv = 1;
-            ones = 0;
+            // not_recv = 1;
+            // ones = 0;
         }
 
 
@@ -110,8 +110,9 @@ int main(int argc, char *argv[]) {
             if (not_recv) {
 #endif
                 char read[4096];
-                //if (!fgets(read, 4096, stdin)) break;
-                strcpy(read, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+                if (!fgets(read, 4096, stdin)) break;
+                //strcpy(read, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+                // strcpy(read, "laksdjfk");
                 printf("Sending: %s", read);
                 int bytes_sent = send(socket_peer, read, strlen(read), 0);
                 printf("Sent %d bytes.\n", bytes_sent);
@@ -122,7 +123,7 @@ int main(int argc, char *argv[]) {
                 // printf("Bytes received %d\n", bytes_recv);
                 // printf("%s\n", read);
 
-                not_recv = 0;
+                // not_recv = 0;
             }
         }
     } //end while(1)
