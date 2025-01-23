@@ -44,11 +44,8 @@ int main() {
     }
 
     fd_set reads;
-    fd_set writes;
     FD_ZERO(&reads);
-    FD_ZERO(&writes);
     FD_SET(sock_listen, &reads);
-    FD_SET(sock_listen, &writes);
     int max_socket = sock_listen;
 
     BOOL server_work = 1;
@@ -57,62 +54,50 @@ int main() {
     
     while(server_work) {
 
-        if (select(max_socket + 1, &reads, &writes, 0, NULL) < 0) {
+        int selected_socket = 0;
+
+        if ((selected_socket = select(max_socket + 1, &reads, NULL, 0, &timeout)) < 0) {
             fprintf(stderr, "select() failed %s\n", strerror(errno));
             close(sock_listen);
             return EXIT_FAILURE;
         }
 
-
         for(int i = 0; i <= max_socket; i++) {
-            char buf[1024] = {0};
             if (FD_ISSET(i, &reads)) {
                 if (i == sock_listen) {
+                    struct sockaddr_storage new_cli = {0};
+                    socklen_t cli_len = sizeof(new_cli);
 
-                    struct sockaddr_storage client_address = {0};
-                    socklen_t client_len = sizeof(client_address);
 
-                    int new_connection = accept(sock_listen, (struct sockaddr *)&client_address, &client_len);
+                    int new_connection = accept(sock_listen, (struct sockaddr *)&new_cli, &cli_len);
                     if (new_connection < 0) {
-                        fprintf(stderr, "select() failed %s\n", strerror(errno));
+                        fprintf(stderr, "accept() failed %s\n", strerror(errno));
+                        close(sock_listen);
                         return EXIT_FAILURE;
                     }
-
-                    char cl_host[512] = {0};
-                    if (getnameinfo((struct sockaddr *)&client_address, client_len, cl_host, 512, 0, 0, NI_NUMERICHOST)) {}
-                    printf("New connection %s\n", cl_host);
-
-
+                    char cli_name[1024];
+                    getnameinfo((struct sockaddr *)&new_cli, cli_len, cli_name, 1024, 0, 0, NI_NUMERICHOST);
+                    printf("New connection -> %s\n", cli_name);
                     FD_SET(new_connection, &reads);
-                    FD_SET(new_connection, &writes);
+
                     if (new_connection > max_socket) {
                         max_socket = new_connection;
-                    }
-                } else {
-                    int bytes = recv(i, buf, 1024, 0);
-                    printf("Data from socket %d -> %s\n", i, buf);
-                    if (bytes < 0) {
-                        printf("Problem to receiv data from socket - %d\n", i);
-                        close(i);
-                        FD_CLR(i, &reads);
-                        FD_CLR(i, &writes);
                         continue;
                     }
-                   
-                    for(int j = 0;j <= max_socket; j++) {
-                        if (FD_ISSET(j, &writes)) {
-                            if (i != j) {
-                                bytes = send(j, buf, strlen(buf), 0);
-                                printf("Sent to socket - %d -> %s\n", j, buf);
-                                if (bytes < 0) {
-                                    printf("Problem to send data to socket - %d", j);
-                                    close(j);
-                                    FD_CLR(j, &writes);
-                                    FD_CLR(j, &reads);
-                                    continue;
-                                }
-                            }
-                        }
+                } else {
+                    char msg[4096] = {0};
+                    int bytes = recv(i, msg, 4096, 0);
+                    if (bytes < 0) {
+                        fprintf(stderr, "recved less then 0 form socket %d\n", i);
+                        close(i);
+                        FD_CLR(i, &reads);
+                    }
+
+                    bytes = send(i, msg, strlen(msg), 0);
+                    if (bytes < 0) {
+                        fprintf(stderr, "send less then 0 bytes to socket %d\n", i);
+                        close(i);
+                        FD_CLR(i, &reads);
                     }
                 }
             }

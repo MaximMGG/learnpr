@@ -63,9 +63,7 @@ int main(int argc, char *argv[]) {
     printf("Connected.\n");
     printf("To send data, enter text followed by enter.\n");
 
-    int ones = 1;
-    int not_recv = 1;
-    while(ones) {
+    while(1) {
 
         fd_set reads;
         fd_set writes;
@@ -107,24 +105,22 @@ int main(int argc, char *argv[]) {
 #else
         if(FD_ISSET(socket_peer, &writes)) {
             //printf("Ready for sending\n");
-            if (not_recv) {
 #endif
-                char read[4096];
-                if (!fgets(read, 4096, stdin)) break;
-                //strcpy(read, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
-                // strcpy(read, "laksdjfk");
-                printf("Sending: %s", read);
-                int bytes_sent = send(socket_peer, read, strlen(read), 0);
-                printf("Sent %d bytes.\n", bytes_sent);
+            char read[4096];
+            if (!fgets(read, 4096, stdin)) break;
+            //strcpy(read, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+            // strcpy(read, "laksdjfk");
+            printf("Sending: %s", read);
+            int bytes_sent = send(socket_peer, read, strlen(read), 0);
+            printf("Sent %d bytes.\n", bytes_sent);
 
-                // memset(read, 0, 4096);
-                //
-                // int bytes_recv = recv(socket_peer, read, 4096, 0);
-                // printf("Bytes received %d\n", bytes_recv);
-                // printf("%s\n", read);
+            // memset(read, 0, 4096);
+            //
+            // int bytes_recv = recv(socket_peer, read, 4096, 0);
+            // printf("Bytes received %d\n", bytes_recv);
+            // printf("%s\n", read);
 
-                // not_recv = 0;
-            }
+            // not_recv = 0;
         }
     } //end while(1)
 
