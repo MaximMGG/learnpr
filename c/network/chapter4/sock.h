@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 
 #define ISVALIDSOCKET(s) ((s) >= 0)
