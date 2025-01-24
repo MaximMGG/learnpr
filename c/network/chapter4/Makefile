@@ -1,7 +1,7 @@
-CLIENT = upd_client
-SERVER = upd_server
-SRC_CLIENT = upd_client.c
-SRC_SERVER = upd_server.c
+CLIENT = udp_client
+SERVER = udp_server
+SRC_CLIENT = udp_client.c
+SRC_SERVER = udp_server.c
 OBJ_CLIENT = $(SRC_CLIENT:%.c=%.o)
 OBJ_SERVER = $(SRC_SERVER:%.c=%.o)
 
