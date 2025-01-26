@@ -1,6 +1,7 @@
 #include <iostream>
 
 
+
 class Dog {
     public:
         Dog(){}
@@ -8,6 +9,9 @@ class Dog {
             this->name = name;
             this->breed_param = breed_param;
             this->age = age;
+        }
+        Dog(const Dog& old) {
+
         }
         // Dog(const char *name, const char *breed_param, int age) {
         //     this->name = name;
