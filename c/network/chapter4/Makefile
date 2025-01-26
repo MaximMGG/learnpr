@@ -25,4 +25,4 @@ server_to_upper: $(OBJ_SERVER_TO_UPPER)
 	gcc -o $@ -c $< -g
 
 clean:
-	rm *.o $(CLIENT) $(SERVER)
+	rm *.o $(CLIENT) $(SERVER) $(SERVER_TO_UPPER)
