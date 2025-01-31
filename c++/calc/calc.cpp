@@ -17,6 +17,10 @@ int main() {
 
 
     c.pars_expression();
+
+    c.print_expression();
+
+    c.compute_expr();
     c.print_expression();
 
     return 0;

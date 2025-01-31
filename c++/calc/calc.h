@@ -153,11 +153,13 @@ class Compute {
                 if (j + 2 == tokens.size()) {
                     if (tokens[j].operation() == '*') {
                         tokens[i] = tokens[i] * tokens[j + 1];
+                        tokens.erase(tokens.begin() + 1);
+                        tokens.erase(tokens.begin() + 1);
                     } else if ( tokens[j].operation() == '/') {
                         tokens[i] = tokens[i] / tokens[j + 1];
+                        tokens.erase(tokens.begin() + 1);
+                        tokens.erase(tokens.begin() + 1);
                     }
-                    tokens.erase(tokens.begin() + 1);
-                    tokens.erase(tokens.begin() + 1);
                     return;
                 } else {
                     int mul_div = -1;
