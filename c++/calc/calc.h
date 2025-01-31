@@ -75,8 +75,8 @@ class Compute {
             m_expr_len = std::strlen(expression);
         }
 
-        int in_bracket = 0;
         void pars_expression() {
+            int in_bracket = 0;
             for(int i = 0; i < m_expr_len; i++) {
                 if (m_expression[i] >= '0' && m_expression[i] <= '9') {
                     Token tmp = create_numer(m_expression, i);
@@ -105,6 +105,28 @@ class Compute {
             } 
         }
 
+        void compute_expr() {
+            compute_expr_in_bracket();
+            if (tokens.size() == 1) return;
+            compute_expr_hight_preority();
+            if (tokens.size() == 1) return;
+
+            for(int i = 0, j = 1; ;) {
+                if (tokens.size() == 1) break;
+
+                if (tokens[j].operation() == '+') {
+                    tokens[i] = tokens[i] + tokens[j + 1];
+                } else {
+                    tokens[i] = tokens[i] - tokens[j + 1];
+                }
+                tokens.erase(tokens.begin() + j);
+                tokens.erase(tokens.begin() + j);
+            }
+
+        }
+
+
+
         void print_expression() {
             for(int i = 0; i < tokens.size(); i++) {
                 if (tokens[i].type() == TOKEN_NUMBER)
@@ -115,11 +137,131 @@ class Compute {
                     std::cout << tokens[i].operation() << ' ';
                 }
             }
+            std::cout << '\n';
         }
 
         ~Compute(){};
 
     private:
+
+//2 + 4 + ( 3 + 1 * 9 ) / 3
+//
+
+        void compute_expr_hight_preority() {
+            
+            for(int i = 0, j = 1; ;) {
+                if (j + 2 == tokens.size()) {
+                    if (tokens[j].operation() == '*') {
+                        tokens[i] = tokens[i] * tokens[j + 1];
+                    } else if ( tokens[j].operation() == '/') {
+                        tokens[i] = tokens[i] / tokens[j + 1];
+                    }
+                    tokens.erase(tokens.begin() + 1);
+                    tokens.erase(tokens.begin() + 1);
+                    return;
+                } else {
+                    int mul_div = -1;
+                    for(int k = 1; k < tokens.size(); k++) {
+                        if (tokens[k].operation() == '*' || tokens[k].operation() == '/') {
+                            mul_div = k;
+                            break;
+                        }
+                    }
+                    if (mul_div != -1) {
+                        if (tokens[mul_div].operation() == '*') {
+                            tokens[mul_div - 1] = tokens[mul_div - 1] * tokens[mul_div + 1];
+                        } else {
+                            tokens[mul_div - 1] = tokens[mul_div - 1] / tokens[mul_div + 1];
+                        }
+                        tokens.erase(tokens.begin() + mul_div);
+                        tokens.erase(tokens.begin() + mul_div);
+                    } else {
+                        return;
+                    }
+                }
+            }
+        }
+
+        void compute_expr_in_bracket() {
+            int b_start = -1;
+            int b_end = -1;
+            for(int i = 0; i < tokens.size(); i++) {
+                if (tokens[i].operation() == '(') {
+                    b_start = i;
+                }
+                if (tokens[i].operation() == ')') {
+                    b_end = i;
+                    break;
+                }
+            }
+            if (b_start == -1) return;
+
+            for(int i = b_start + 1, j = b_start + 2; j < b_end; ) {
+
+                if (j == b_end) {
+                    tokens.erase(tokens.begin() + b_start);
+                    tokens.erase(tokens.begin() + b_end);
+                    break;
+                }
+
+                if (j + 2 < tokens.size() && j + 2 < b_end) {
+                    if (tokens[j + 2].operation() == '*' || tokens[j + 2].operation() == '/') {
+                        i = j + 1;
+                        j += 2;
+                        if (tokens[i + 1].operation() == '*') {
+                            tokens[i] = tokens[i] * tokens[j];
+                        } else {
+                            tokens[i] = tokens[i] / tokens[j];
+                        }
+                        tokens.erase(tokens.begin() + i + 1);
+                        tokens.erase(tokens.begin() + i + 1);
+                        j = i + 1;
+                        b_end -= 2;
+                    } else {
+                        switch(tokens[j].operation()) {
+                            case '+': {
+                                tokens[i] = tokens[i] + tokens[j + 1];
+                            } break;
+                            case '-': {
+                                tokens[i] = tokens[i] - tokens[j + 1];
+                            } break;
+                            case '*': {
+                                tokens[i] = tokens[i] * tokens[j + 1];
+                            } break;
+                            case '/': {
+                                tokens[i] = tokens[i] / tokens[j + 1];
+                            } break;
+                        }
+                        tokens.erase(tokens.begin() + i + 1);
+                        tokens.erase(tokens.begin() + i + 1);
+                        j = i + 1;
+                        b_end -= 2;
+                    }
+                } else {
+                    switch(tokens[j].operation()) {
+                        case '+': {
+                            tokens[i] = tokens[i] + tokens[j + 1];
+                        } break;
+                        case '-': {
+                            tokens[i] = tokens[i] - tokens[j + 1];
+                        } break;
+                        case '*': {
+                            tokens[i] = tokens[i] * tokens[j + 1];
+                        } break;
+                        case '/': {
+                            tokens[i] = tokens[i] / tokens[j + 1];
+                        } break;
+                    }
+                    tokens.erase(tokens.begin() + i + 1);
+                    tokens.erase(tokens.begin() + i + 1);
+                    j = i + 1;
+                    b_end -= 2;
+                }
+            }
+            compute_expr_in_bracket();
+        }
+
+
 
         Token create_numer(const char *expr, int& i) {
 
@@ -127,10 +269,9 @@ class Compute {
             int buf_i = 0;
 
 
-            while(expr[i] != ' ') {
+            while(expr[i] != ' ' && expr[i] != '\n' && expr[i] != 0) {
                 buf[buf_i++] = expr[i++];
             }
-            i++;
 
             Token a{TOKEN_NUMBER, std::atof(buf), 0};
 

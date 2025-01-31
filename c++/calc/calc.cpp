@@ -10,7 +10,7 @@ int main() {
 
     char buf[512]{0};
 
-    std::cin >> buf;
+    std::cin.getline(buf, 512, '\n');
 
 
     Compute c(buf);
