@@ -82,6 +82,7 @@ class Compute {
                     Token tmp = create_numer(m_expression, i);
                     if (in_bracket > 0) tmp.in_bracket();
                     tokens.push_back(tmp);
+                    i--;
                 } else if ( m_expression[i] == '+' || 
                             m_expression[i] == '-' ||
                             m_expression[i] == '*' ||
@@ -89,7 +90,6 @@ class Compute {
                     Token tmp (TOKEN_OPERATION, 0, m_expression[i]);
                     if (in_bracket > 0) tmp.in_bracket();
                     tokens.push_back(tmp);
-                    i++;
                 } else if (m_expression[i] == '(') {
                     Token tmp (TOKEN_BRACKET, 0, '(');
                     if (in_bracket > 0) 
@@ -106,7 +106,9 @@ class Compute {
         }
 
         void compute_expr() {
-            compute_expr_in_bracket();
+            while(expr_has_bracket()) {
+                compute_expr_in_bracket();
+            }
             if (tokens.size() == 1) return;
             compute_expr_hight_preority();
             if (tokens.size() == 1) return;
@@ -184,6 +186,15 @@ class Compute {
             }
         }
 
+
+        bool expr_has_bracket() {
+            for(int i = 0; i < tokens.size(); i++) {
+                if (tokens[i].operation() == '(') return true;
+            }
+            return false;
+        }
+
+
         void compute_expr_in_bracket() {
             int b_start = -1;
             int b_end = -1;
@@ -198,69 +209,58 @@ class Compute {
             }
             if (b_start == -1) return;
 
-            for(int i = b_start + 1, j = b_start + 2; j < b_end; ) {
+            int i = b_start + 1;
+            int j = i + 1;
 
-                if (j == b_end) {
-                    tokens.erase(tokens.begin() + b_start);
-                    tokens.erase(tokens.begin() + b_end);
+            bool hight_prior = false;
+            do {
+                hight_prior = false;
+                for(int k = j; k < b_end; k += 2) {
+                    if (tokens[k].operation() == '*' || tokens[k].operation() == '/') {
+                        hight_prior = true;
+                        j = k;
+                    }
+                }
+
+                if (hight_prior) {
+                    if (tokens[j].operation() == '*') {
+                        tokens[j - 1] = tokens[j - 1] * tokens[j + 1];
+                    } else {
+                        tokens[j - 1] = tokens[j - 1] / tokens[j + 1];
+                    }
+                    tokens.erase(tokens.begin() + j);
+                    tokens.erase(tokens.begin() + j);
+                    b_end -= 2;
+                    i = b_start + 1;
+                    j = i + 1;
+                    continue;
+                } else {
                     break;
                 }
+            } while(hight_prior);
+            //2 * ( 10 )
 
-                if (j + 2 < tokens.size() && j + 2 < b_end) {
-                    if (tokens[j + 2].operation() == '*' || tokens[j + 2].operation() == '/') {
-                        i = j + 1;
-                        j += 2;
-                        if (tokens[i + 1].operation() == '*') {
-                            tokens[i] = tokens[i] * tokens[j];
-                        } else {
-                            tokens[i] = tokens[i] / tokens[j];
-                        }
-                        tokens.erase(tokens.begin() + i + 1);
-                        tokens.erase(tokens.begin() + i + 1);
-                        j = i + 1;
-                        b_end -= 2;
-                    } else {
-                        switch(tokens[j].operation()) {
-                            case '+': {
-                                tokens[i] = tokens[i] + tokens[j + 1];
-                            } break;
-                            case '-': {
-                                tokens[i] = tokens[i] - tokens[j + 1];
-                            } break;
-                            case '*': {
-                                tokens[i] = tokens[i] * tokens[j + 1];
-                            } break;
-                            case '/': {
-                                tokens[i] = tokens[i] / tokens[j + 1];
-                            } break;
-                        }
-                        tokens.erase(tokens.begin() + i + 1);
-                        tokens.erase(tokens.begin() + i + 1);
-                        j = i + 1;
-                        b_end -= 2;
-                    }
+            if (b_end - b_start < 3 ) {
+                tokens.erase(tokens.begin() + b_end);
+                tokens.erase(tokens.begin() + b_start);
+                return;
+            } 
+
+            while(b_end - b_start > 2) {
+                i = b_start + 1;
+                j = i + 1;
+
+                if (tokens[j].operation() == '+') {
+                    tokens[i] = tokens[i] + tokens[j + 1];
                 } else {
-                    switch(tokens[j].operation()) {
-                        case '+': {
-                            tokens[i] = tokens[i] + tokens[j + 1];
-                        } break;
-                        case '-': {
-                            tokens[i] = tokens[i] - tokens[j + 1];
-                        } break;
-                        case '*': {
-                            tokens[i] = tokens[i] * tokens[j + 1];
-                        } break;
-                        case '/': {
-                            tokens[i] = tokens[i] / tokens[j + 1];
-                        } break;
-                    }
-                    tokens.erase(tokens.begin() + i + 1);
-                    tokens.erase(tokens.begin() + i + 1);
-                    j = i + 1;
-                    b_end -= 2;
+                    tokens[i] = tokens[i] - tokens[j + 1];
                 }
+                tokens.erase(tokens.begin() + j);
+                tokens.erase(tokens.begin() + j);
+                b_end -= 2;
             }
-            compute_expr_in_bracket();
+            tokens.erase(tokens.begin() + b_end);
+            tokens.erase(tokens.begin() + b_start);
         }
 
 
@@ -271,7 +271,7 @@ class Compute {
             int buf_i = 0;
 
 
-            while(expr[i] != ' ' && expr[i] != '\n' && expr[i] != 0) {
+            while(expr[i] >= '0' && expr[i] <= '9') {
                 buf[buf_i++] = expr[i++];
             }
 
