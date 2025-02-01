@@ -27,10 +27,26 @@ std::vector<Layer*>& NeuralNetwork::getLayers() {
 
 void NeuralNetwork::printToConsole() {
     for(int i = 0; i < layers.size(); i++) {
-        Matrix *m
+        std::cout << "LAYER: " << i << '\n';
         if (i == 0) {
-            Matrix 
+            Matrix *m = this->layers[0]->matrixifyVals(); 
+            m->printToConsole();
+            delete m;
+        } else {
+            Matrix *m = this->layers[i]->matrixifyActivatedVals(); 
+            m->printToConsole();
+            delete m;
         }
-
     }
 }
+
+
+NeuralNetwork::~NeuralNetwork() {
+    for(int i = 0; i < weightMatrices.size(); i++) {
+        delete weightMatrices[i];
+    }
+    for(int i = 0; i < layers.size(); i++) {
+        delete layers[i];
+    }
+}
+

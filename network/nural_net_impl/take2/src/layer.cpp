@@ -7,6 +7,11 @@ Layer::Layer(int size) {
         this->neurons.push_back(n);
     }
 }
+Layer::~Layer() {
+    for(int i = 0; i < neurons.size(); i++) {
+        delete neurons[i];
+    }
+}
 
 void Layer::setVal(int i, double val) {
     neurons[i]->setVal(val);

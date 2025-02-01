@@ -146,9 +146,6 @@ class Compute {
 
     private:
 
-//2 + 4 + ( 3 + 1 * 9 ) / 3
-//
-
         void compute_expr_hight_preority() {
             
             for(int i = 0, j = 1; ;) {
@@ -271,7 +268,7 @@ class Compute {
             int buf_i = 0;
 
 
-            while(expr[i] >= '0' && expr[i] <= '9') {
+            while((expr[i] >= '0' && expr[i] <= '9') || expr[i] == '.') {
                 buf[buf_i++] = expr[i++];
             }
 
@@ -279,7 +276,6 @@ class Compute {
 
             return a;
         }
-
 
         char m_expression[512]{0};
         unsigned int m_expr_len = 0;

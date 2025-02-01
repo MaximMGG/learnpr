@@ -9,6 +9,7 @@ class NeuralNetwork {
     public:
 
         NeuralNetwork(std::vector<int> topology);
+        ~NeuralNetwork();
         void setCurrentInput(std::vector<double> input);
         void printToConsole();
 

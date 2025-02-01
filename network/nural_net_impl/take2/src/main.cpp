@@ -5,7 +5,6 @@
 
 int main() {
 
-
     std::vector<int> topology;
     topology.push_back(3);
     topology.push_back(2);
@@ -21,13 +20,13 @@ int main() {
 
     std::vector<Layer *> &layers = nn->getLayers();
 
-    for(int i = 0; i < layers.size(); i++) {
-        Matrix *m = layers[i]->matrixifyVals();
-        m->printToConsole();
-
-        delete m;
-    }
+    // for(int i = 0; i < layers.size(); i++) {
+    //     Matrix *m = layers[i]->matrixifyVals();
+    //     m->printToConsole();
+    //     delete m;
+    // }
     
+    nn->printToConsole();
     delete nn;
 
     return 0;
