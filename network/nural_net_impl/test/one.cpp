@@ -2,9 +2,9 @@
 #include <pthread.h>
 #include <vector>
 #include <cmath>
+#include "Matrix.hpp"
 
 #define E 2.71828
-
 
 
 class Neuron {
@@ -57,11 +57,19 @@ class Layer {
         }
 
         std::vector<Neuron>& getLayer() {return layer;}
+        Matrix<double> matrixFromLayer() {
+            Matrix<double> m (layer[0].getWeight().size(), layer.size());
+            for(int i = 0; i < layer[0].getWeight().size(); i++) {
+                for(int j = 0; j < layer.size(); j++) {
+                    //m.at(i, j) = 
+                }
+            }
+
+        }
 
     private:
         std::vector<Neuron> layer;
         int rows;
-
 };
 
 class Network {
