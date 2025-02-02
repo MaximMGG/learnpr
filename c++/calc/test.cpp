@@ -1,24 +1,35 @@
 #include <iostream>
-#include <vector>
+#include <cstdlib>
 
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc < 3) {
+        std::cout << "Usage: enter y = , x = \n";
+        return 1;
+    }
+    double mistake {0.0001};
 
-    std::vector<int> arr;
+    double x{std::stof(argv[1])};
+    double y{std::stof(argv[2])};
 
-    for(int i = 0; i < 10; i++) {
-        arr.push_back(i);
+    double A {10.1};
+
+    std::cout << "Entered value is : X - " << x << ", Y - " << y << '\n';
+    std::cout << "Started A - " << A << '\n';
+
+    while(true) {
+        double res = A * x;
+        if (res >= y - mistake && res <= y + mistake) {
+            break;
+        } else {
+            A = (((y - res) / x)) * 0.5 + A;
+        }
+
+        std::cout << "A - " << A << '\n';
     }
 
-    auto a = arr.begin();
-    a += 3;
-    arr.erase(a);
 
-    for(int i = 0; i < arr.size(); i++) {
-        std::cout << arr[i] << ' ';
-    }
-    std::cout << '\n';
-
+    std::cout << "Final result : " << y << " = " << A << " * " << x << '\n';
 
     return 0;
 }
