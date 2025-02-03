@@ -57,14 +57,15 @@ class Layer {
         }
 
         std::vector<Neuron>& getLayer() {return layer;}
+
         Matrix<double> matrixFromLayer() {
             Matrix<double> m (layer[0].getWeight().size(), layer.size());
             for(int i = 0; i < layer[0].getWeight().size(); i++) {
                 for(int j = 0; j < layer.size(); j++) {
-                    //m.at(i, j) = 
+                    m.at(i, j) = layer[i].getWeight()[j];
                 }
             }
-
+            return m;
         }
 
     private:
@@ -129,9 +130,12 @@ int main() {
 
     nn.activate();
 
+    Matrix<double> res = nn.getLayers()[0].matrixFromLayer();
+
+    res.print();
+
     std::cout << "first neuron : " << nn.getLayers()[1].getLayer()[0].getVal() << 
                 " second neuron : " << nn.getLayers()[1].getLayer()[1].getVal() << '\n';
-
 
     delete [] weights;
 
