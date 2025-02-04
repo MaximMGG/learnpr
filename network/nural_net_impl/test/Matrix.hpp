@@ -44,7 +44,7 @@ class Matrix {
         }
 
         Matrix operator*(Matrix &b) {
-            if (this->cols != b.rows || this->rows != b.cols) {
+            if (this->cols != b.rows && this->rows != b.cols) {
                 throw Matrix_error("rows not the same as cols");
             }
 
@@ -52,7 +52,7 @@ class Matrix {
 
             for(int i = 0; i < nm.rows; i++) {
                 for(int j = 0; j < nm.cols; j++) {
-                    double sum;
+                    double sum{0};
                     for(int k = 0; k < b.rows; k++) {
                         sum += this->at(i, k) * b.at(k, j);
                     }
