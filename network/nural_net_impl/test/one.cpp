@@ -32,6 +32,7 @@ class Neuron {
 
     private:
         double val;
+        std::vector<double> mistakes;
         std::vector<double> weight;
         double activate{0.5};
 };

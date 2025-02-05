@@ -62,6 +62,19 @@ class Matrix {
             return nm;
         }
 
+
+        Matrix<T> transporent() {
+            Matrix<T> m (this->cols, this->rows);
+
+            for(int i = 0; i < this->rows; i++) {
+                for(int j = 0; j < this->cols; j++) {
+                    m.at(j, i) = this->at(i, j);
+                }
+            }
+
+            return m;
+        }
+
         void print() {
             std::cout << '/';
             for(int i = 0; i < rows; i++) {

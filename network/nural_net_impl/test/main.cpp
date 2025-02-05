@@ -3,27 +3,19 @@
 
 int main() {
 
-    double arr1[] {
-        1, 3, 7,
-        3, 4, 1,
-        6, 1, 2
+    double arr[9] {
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
     };
 
-    double arr2[] {
-        1,
-        3,
-        2
-    };
 
-    Matrix<double> a1 (3, 3, arr1);
-    Matrix<double> a2 (3, 1, arr2);
+    Matrix<double> e(3, 3, arr);
 
-    a1.print();
-    a2.print();
-    Matrix res = a1 * a2;
-
-    res.print();
-
+    e.print();
+    std::cout << "Transporent\n";
+    Matrix<double> m = e.transporent();
+    m.print();
 
     return 0;
 }
