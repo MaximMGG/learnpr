@@ -7,12 +7,12 @@ int main(int argc, char **argv) {
         std::cout << "Usage: enter y = , x = \n";
         return 1;
     }
-    double mistake {0.0001};
+    double mistake {0.01};
 
     double x{std::stof(argv[1])};
     double y{std::stof(argv[2])};
 
-    double A {10.1};
+    double A {10.00001};
 
     std::cout << "Entered value is : X - " << x << ", Y - " << y << '\n';
     std::cout << "Started A - " << A << '\n';
