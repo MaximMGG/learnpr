@@ -1,10 +1,13 @@
 package one
 
+
 import "core:fmt"
 import "core:os"
 import "core:mem"
 import "core:c"
 import "base:runtime"
+
+import "foo"
 
 // foreign import stdlib {
 //     "clib",
