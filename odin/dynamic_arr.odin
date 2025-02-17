@@ -2,6 +2,7 @@ package dynamic_arr
 
 import "core:fmt"
 import "core:slice"
+import sa "core:container/small_array"
 
 
 main :: proc() {
@@ -44,6 +45,8 @@ main :: proc() {
     fmt.eprintln("Val:", val)
     fmt.println("===============One============")
     one()
+    fmt.println("===============small_array_prac============")
+    small_array_prac()
 
 }
 
@@ -70,4 +73,15 @@ one :: proc() {
     defer delete(f)
 
 
+}
+
+
+small_array_prac :: proc() {
+    x: sa.Small_Array(8, int)
+    fmt.println(sa.len(x), sa.cap(x))
+    sa.append(&x, 7, 8, 21312314)
+    fmt.println(sa.len(x), sa.cap(x))
+    fmt.println(x)
+    fmt.println(x.data)
+    fmt.println(sa.slice(&x))
 }
