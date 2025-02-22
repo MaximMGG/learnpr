@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:os"
 import "core:mem"
 import "core:strings"
+import "core:c"
 
 main :: proc() {
     f, f_err := os.open("./word.txt", os.O_RDONLY)
@@ -15,38 +16,39 @@ main :: proc() {
     defer os.close(f)
     buf: [512]u8
 
-    os.read(f, buf[:])
+    read_bytes, _ := os.read(f, buf[:])
+    fmt.println("Read bytes:", read_bytes)
 
-    p: ^u8 = &buf[0]
 
-    fmt.println(cstring(p))
+    pos: int = 0
 
+    for pos <= read_bytes {
+        s := get_line(buf[:], &pos, read_bytes)
+        fmt.printf("%s\n", cstring(raw_data(s)))
+    }
 }
 
-get_key_val :: proc(buf: []u8, len: int, pos: int) -> (k, v: string) {
+
+get_line :: proc(buf: []u8, pos: ^int, buf_size: int) -> string{
     tmp_b: [512]u8
     tmp_i := 0
-    for i := pos; i < len; i += 1 {
-        if buf[i] == ' ' && tmp_i == 0 {
-            continue
-        }
 
-        if buf[i] == '-' && tmp_i == 0 {
-            continue
-        }
-
-        if buf[i] == ' ' && tmp_i != 0 && k == "" {
-            k = strings.string_from_ptr(cast(^u8)&tmp_b[0], tmp_i)
-            tmp_i = 0
-            continue
-        }
-
-        if buf[i] == ' ' && tmp_i != 0 && v == "" {
-
-        }
-        tmp_b[tmp_i] = buf[i]
-
+    if pos^ >= buf_size {
+        pos^ += 1
+        return ""
     }
 
-    return k, v
+    for i := pos^; i < buf_size; i += 1 {
+        if (buf[i] == '\n') {
+            pos^ = i + 1
+            break
+        }
+        tmp_b[tmp_i] = buf[i]
+        tmp_i += 1
+    }
+
+    a: string = strings.string_from_ptr(&tmp_b[0], tmp_i)
+
+    return a
 }
+
