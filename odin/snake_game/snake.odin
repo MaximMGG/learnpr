@@ -1,6 +1,8 @@
 package snake
 
 import rl "vendor:raylib"
+import "core:math"
+import "core:fmt"
 
 WIDTH :: 1000
 HEIGHT :: 1000
@@ -19,6 +21,8 @@ tick_timer: f32 = TICK_RATE
 move_direction: Vec2i
 game_over: bool
 food_pos: Vec2i
+max_count: int
+cur_count: int
 
 place_food :: proc() {
     occupied: [GRID_WIDTH][GRID_WIDTH]bool
@@ -59,6 +63,7 @@ restart :: proc() {
 main :: proc() {
     rl.SetConfigFlags({.VSYNC_HINT})
     rl.InitWindow(WIDTH, HEIGHT, "Snake")
+    rl.InitAudioDevice()
 
     restart()
 
@@ -67,19 +72,32 @@ main :: proc() {
     body_sprite := rl.LoadTexture("./media/body.png")
     tail_sprite := rl.LoadTexture("./media/tail.png")
 
+
+    eat_sound := rl.LoadSound("./media/eat.wav")
+    crash_sound := rl.LoadSound("./media/crash.wav")
+
+
     for !rl.WindowShouldClose() {
 
         if rl.IsKeyDown(.UP) {
-            move_direction = {0, -1}
+            if move_direction != {0, 1} {
+                move_direction = {0, -1}
+            }
         }
         if rl.IsKeyDown(.DOWN) {
-            move_direction = {0, 1}
+            if move_direction != {0, -1} {
+                move_direction = {0, 1}
+            }
         }
         if rl.IsKeyDown(.LEFT) {
-            move_direction = {-1, 0}
+            if move_direction != {1, 0} {
+                move_direction = {-1, 0}
+            }
         }
         if rl.IsKeyDown(.RIGHT) {
-            move_direction = {1, 0}
+            if move_direction != {-1, 0} {
+                move_direction = {1, 0}
+            }
         }
 
         if game_over {
@@ -98,6 +116,7 @@ main :: proc() {
 
             if head_pos.x < 0 || head_pos.y < 0 || head_pos.x >= GRID_WIDTH || head_pos.y >= GRID_WIDTH {
                 game_over = true
+                rl.PlaySound(crash_sound)
             }
 
 
@@ -106,16 +125,20 @@ main :: proc() {
 
                 if cur_pos == head_pos {
                     game_over = true
+                    rl.PlaySound(crash_sound)
                 }
 
                 snake[i] = next_part_pos
                 next_part_pos = cur_pos
             }
 
+
             if head_pos == food_pos {
                 snake_length += 1
                 snake[snake_length - 1] = next_part_pos
+                cur_count += 1
                 place_food()
+                rl.PlaySound(eat_sound)
             }
 
 
@@ -147,15 +170,40 @@ main :: proc() {
 
         for i in 0..<snake_length {
             part_sprite := body_sprite
+            dir: Vec2i
 
             if i == 0 {
+                dir = snake[i] - snake[i + 1]
                 part_sprite = head_sprite
             } else if i == snake_length - 1 {
                 part_sprite = tail_sprite
+                dir = snake[i - 1] - snake[i]
+            } else {
+                dir = snake[i - 1] - snake[i]
             }
 
 
-            rl.DrawTextureV(part_sprite, {f32(snake[i].x) * CELL_SIZE, f32(snake[i].y) * CELL_SIZE}, rl.WHITE)
+            rot := math.atan2(f32(dir.y), f32(dir.x)) * math.DEG_PER_RAD
+
+            source := rl.Rectangle {
+                0, 0, f32(part_sprite.width), f32(part_sprite.height)
+            }
+
+            dest := rl.Rectangle {
+                f32(snake[i].x) * CELL_SIZE + CELL_SIZE * 0.5,
+                f32(snake[i].y) * CELL_SIZE + CELL_SIZE * 0.5,
+                CELL_SIZE, CELL_SIZE
+            }
+
+            rl.DrawTexturePro(
+                part_sprite, 
+                source, 
+                dest, 
+                {CELL_SIZE, CELL_SIZE} * 0.5, 
+                rot, 
+                rl.WHITE)
+            //rl.DrawTexture(part_sprite, {f32(snake[i].x) * CELL_SIZE, f32(snake[i].y) * CELL_SIZE}, rot, 1, rl.WHITE)
+            //rl.DrawTextureV(part_sprite, {f32(snake[i].x) * CELL_SIZE, f32(snake[i].y) * CELL_SIZE}, rl.WHITE)
 
 
             // head_rect := rl.Rectangle{
@@ -169,17 +217,36 @@ main :: proc() {
         }
 
 
+
         if game_over {
+            if cur_count > max_count {
+                max_count = cur_count
+                cur_count = 0
+            }
+            count_msg := fmt.ctprintf("Max score: %d", max_count)
+
             rl.DrawText("Game Over!", 4, 4, 25, rl.RED)
             rl.DrawText("Press Enter to play again", 4, 30, 15, rl.BLACK)
+            rl.DrawText(count_msg, 4, 70, 10, rl.WHITE)
         }
 
+        count_str := fmt.ctprintf("Score: %d", cur_count)
+        rl.DrawText(count_str, 250, 5, 10, rl.GRAY)
+        
 
         rl.EndMode2D()
         rl.EndDrawing()
 
         free_all(context.temp_allocator)
     }
+    rl.UnloadTexture(head_sprite)
+    rl.UnloadTexture(food_sprite)
+    rl.UnloadTexture(body_sprite)
+    rl.UnloadTexture(tail_sprite)
+
+    rl.UnloadSound(eat_sound)
+    rl.UnloadSound(crash_sound)
 
     rl.CloseWindow()
+    rl.CloseAudioDevice()
 }
