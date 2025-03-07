@@ -4,6 +4,7 @@
 *.o
 
 zig-zen.txt
+*/.zig-cache/*
 
 CMakeFiles/*
 
