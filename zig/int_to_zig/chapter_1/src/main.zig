@@ -18,6 +18,9 @@ pub fn main() !void {
     // try stdout.print("Age: {d}\n", .{age});
     try arrays(stdout);
     try blocks(stdout);
+    try strings(stdout);
+    try types(stdout);
+    try strings_func(stdout);
 }
 
 fn arrays(w: anytype) !void {
@@ -90,4 +93,105 @@ fn blocks(w: anytype) !void {
         break :make_arr .{ a, b, c, d };
     };
     try w.print("{any}\n", .{arr});
+}
+
+fn strings(w: anytype) !void {
+    try w.print("Strings\n", .{});
+    const string_object_c: []const u8 = "I am string object const";
+    //var buf: [100]u8 = .{0} ** 100;
+    const string_object_v: []u8 = @constCast("I am string object variable");
+    const string_literal = "I am a string literal";
+    //string_object_v[10] = 'Q';
+    try w.print("{s} - {any}\n", .{ string_object_c, @TypeOf(string_object_c) });
+    try w.print("{s} - {any}\n", .{ string_object_v, @TypeOf(string_object_v) });
+    //try w.print("{s} - {any}\n", .{ buf, @TypeOf(buf) });
+    try w.print("{s} - {any}\n", .{ string_literal, @TypeOf(string_literal) });
+
+    const bytes = [_]u8{ 0x48, 0x65, 0x6c, 0x6c, 0x6f };
+    try w.print("{s}\n", .{bytes});
+
+    const string_example = "This is an example";
+
+    try w.print("Bytes that represent this object {p}\n", .{&string_example});
+
+    for (string_example) |byte| {
+        try w.print("0x{X} ", .{byte});
+    }
+    try w.print("\n", .{});
+}
+
+fn types(w: anytype) !void {
+    try w.print("types\n", .{});
+    const simplr_array = [_]i32{ 1, 2, 3, 4 };
+    const string_obj: []const u8 = "A string literal";
+    try w.print("Type 1: {}\n", .{@TypeOf(simplr_array)});
+    try w.print("Type 2: {}\n", .{@TypeOf("A string literal a")});
+    try w.print("Type 3: {}\n", .{@TypeOf(&simplr_array)});
+    try w.print("Type 4: {}\n", .{@TypeOf(string_obj)});
+    try w.print("Type 5: {}\n", .{@TypeOf(string_obj.ptr)});
+
+    var u8str = try std.unicode.Utf8View.init("アメリカ");
+    var iterator = u8str.iterator();
+    while (iterator.nextCodepointSlice()) |codepoint| {
+        try w.print("got codepoint {}\n", .{std.fmt.fmtSliceHexUpper(codepoint)});
+    }
+    try w.print("{s}\n", .{u8str.bytes});
+}
+
+//std.mem.eql();
+//std.mem.splitScalar();
+//std.mem.splitSequence();
+//std.mem.startsWith();
+//std.mem.EndsWith();
+//std.mem.trim();
+//std.mem.conat();
+//std.mem.count();
+//std.mem.replace();
+
+fn strings_func(w: anytype) !void {
+    try w.print("String funcs\n", .{});
+    try w.print("std.mem.eql()\n", .{});
+
+    const name_p: []const u8 = "Peter";
+    try w.print("{any}\n", .{std.mem.eql(u8, name_p, "Peter")});
+
+    const list: []const u8 = "Many, one, two, bob, never";
+
+    try w.print("std.mem.splitScalar()\n", .{});
+    var it = std.mem.splitScalar(u8, list, ',');
+    while (it.next()) |val| {
+        try w.print("{s}\n", .{val});
+    }
+    try w.print("std.mem.splitSequence()\n", .{});
+
+    var it2 = std.mem.splitSequence(u8, list, ", ");
+    while (it2.next()) |val| {
+        try w.print("{s}\n", .{val});
+    }
+    try w.print("std.mem.startsWith()\n", .{});
+    if (std.mem.startsWith(u8, list, "one")) {
+        try w.print("Starts with one\n", .{});
+    } else if (std.mem.startsWith(u8, list, "Many")) {
+        try w.print("Starts with Many\n", .{});
+    } else {
+        try w.print("Hz\n", .{});
+    }
+    try w.print("std.mem.endsWith()\n", .{});
+    if (std.mem.endsWith(u8, list, "never")) {
+        try w.print("Ends with never\n", .{});
+    } else {
+        try w.print("HZZ\n", .{});
+    }
+    try w.print("std.mem.concat()\n", .{});
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    const for_concat_1 = "First string";
+    const for_concat_2 = "Second string";
+    const for_concat_3 = "Therd string";
+    const for_concat_4 = "Fource string";
+    const super_string = try std.mem.concat(allocator, u8, &[_][]const u8{ for_concat_1, " ", for_concat_2, " ", for_concat_3, " ", for_concat_4 });
+    try w.print("{s}\n", .{super_string});
+    allocator.free(super_string);
 }
