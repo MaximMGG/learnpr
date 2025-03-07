@@ -14,6 +14,16 @@ pub fn main() !void {
 
     const buffer = try allocator.alloc(u64, n);
     const slice = buffer[0..];
+
+    slice[4] = 33;
+
+    for (slice, 0..) |d, i| {
+        if (i == 7) {
+            //    slice[i] = 111;
+        }
+        std.debug.print("{d} - index {d}\n", .{ d, i });
+    }
+
     for (slice, 0..) |d, i| {
         std.debug.print("{d} - index {d}\n", .{ d, i });
     }

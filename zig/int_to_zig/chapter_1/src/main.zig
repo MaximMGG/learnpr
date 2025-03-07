@@ -17,6 +17,7 @@ pub fn main() !void {
     // _ = age;
     // try stdout.print("Age: {d}\n", .{age});
     try arrays(stdout);
+    try blocks(stdout);
 }
 
 fn arrays(w: anytype) !void {
@@ -62,4 +63,31 @@ fn arrays(w: anytype) !void {
     try w.print("{any}\n", .{slice_vs});
     try w.print("Type of slice_vs -> {any}\n", .{@TypeOf(slice_vs)});
     try w.print("{d}\n", .{slice_vs[0]});
+}
+
+fn blocks(w: anytype) !void {
+    try w.print("Blocks\n", .{});
+
+    const sum = one: {
+        var i: i32 = 0;
+        super_loop: for (0..100) |index| {
+            i += @intCast(index);
+            if (i >= 66 and i <= 80) {
+                break :super_loop;
+            }
+        }
+        i *= 2;
+        break :one i;
+    };
+    try w.print("{d}\n", .{sum});
+
+    const arr: [4]i32 = make_arr: {
+        const a: i32 = 3;
+        const b: i32 = 7;
+        const c: i32 = 8;
+        const d: i32 = 99;
+
+        break :make_arr .{ a, b, c, d };
+    };
+    try w.print("{any}\n", .{arr});
 }
