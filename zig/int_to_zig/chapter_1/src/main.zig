@@ -16,11 +16,15 @@ pub fn main() !void {
 
     // _ = age;
     // try stdout.print("Age: {d}\n", .{age});
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
     try arrays(stdout);
     try blocks(stdout);
     try strings(stdout);
     try types(stdout);
-    try strings_func(stdout);
+    try strings_func(stdout, allocator);
 }
 
 fn arrays(w: anytype) !void {
@@ -148,7 +152,7 @@ fn types(w: anytype) !void {
 //std.mem.count();
 //std.mem.replace();
 
-fn strings_func(w: anytype) !void {
+fn strings_func(w: anytype, allocator: std.mem.Allocator) !void {
     try w.print("String funcs\n", .{});
     try w.print("std.mem.eql()\n", .{});
 
@@ -184,9 +188,6 @@ fn strings_func(w: anytype) !void {
     }
     try w.print("std.mem.concat()\n", .{});
 
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-
     const for_concat_1 = "First string";
     const for_concat_2 = "Second string";
     const for_concat_3 = "Therd string";
@@ -194,4 +195,34 @@ fn strings_func(w: anytype) !void {
     const super_string = try std.mem.concat(allocator, u8, &[_][]const u8{ for_concat_1, " ", for_concat_2, " ", for_concat_3, " ", for_concat_4 });
     try w.print("{s}\n", .{super_string});
     allocator.free(super_string);
+
+    try w.print("std.mem.trim()\n", .{});
+
+    const string_with_space = " string with space  ";
+    const string_afeter_trem = std.mem.trim(u8, string_with_space, "s ");
+    try w.print("\"{s}\"\n", .{string_afeter_trem});
+
+    try w.print("std.mem.count()\n", .{});
+    var count_s: i32 = 0;
+    count_s = @intCast(std.mem.count(u8, "This is super string for count \"up\" includes ups, upaps", "up"));
+    try w.print("Pattern \"up\", occured {d} tymes in string\n", .{count_s});
+    count_s = @intCast(std.mem.count(u8, "This is super string for count \"up\" includes ups, upaps", "is"));
+    try w.print("Pattern \"is\", occured {d} tymes in string\n", .{count_s});
+
+    try w.print("std.mem.replace()\n", .{});
+    const string_for_rpalce = "I think then word cat need to replace, then cat will became Bambucha)";
+    //var buf: [500]u8 = .{0} ** 500;
+    var buf: []u8 = try allocator.alloc(u8, 500);
+    try w.print("{any}\n", .{@TypeOf(buf)});
+    @memset(buf, 0);
+    _ = std.mem.replace(u8, string_for_rpalce, "cat", "Bambucha", buf[0..]);
+    try w.print("String before replace:\n{s}\nString after replace:\n{s}\n", .{ string_for_rpalce, buf });
+    allocator.free(buf);
+}
+
+test "string test" {
+    const allocator = std.testing.allocator;
+    const output = std.io.getStdOut().writer();
+
+    try strings_func(output, allocator);
 }
