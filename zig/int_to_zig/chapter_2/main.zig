@@ -1,12 +1,16 @@
 const std = @import("std");
 const User = @import("user.zig");
 const m = std.math;
+const atom = std.atomic;
+const expect = std.testing.expect;
 
 const stdout = std.io.getStdOut().writer();
 const Role = enum { SE, DPE, DE, DA, PM, PO, KS };
 
 pub fn main() !void {
     try stdout.print("Start chapter 2\n", .{});
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
     errdefer {
         std.debug.print("So, error here\n", .{});
     }
@@ -42,6 +46,8 @@ pub fn main() !void {
     add2(&number);
     try stdout.print("{d}\n", .{number});
     try struct_example();
+    try struct_cast_examle(allocator);
+    try cast_examples();
 }
 
 fn print_char(str: []const u8) !void {
@@ -163,19 +169,89 @@ const Vec3 = struct {
         const zd = m.pow(f64, self.z - other.z, 2.0);
         return m.sqrt(xd + yd + zd);
     }
+
+    pub fn twice(self: *Vec3) void {
+        self.x *= 2.0;
+        self.y *= 2.0;
+        self.z *= 2.0;
+    }
 };
 
 fn struct_example() !void {
     // const user: User.User = undefined;
     // _ = user;
-    const user: User.User = User.User.init(1, "Pedro", "pedro@gmail.com");
+    var user: User.User = User.User.init(1, "Pedro", "pedro@gmail.com");
     try user.print_name();
+
+    user.change_id(9);
+    try stdout.print("new id {d}\n", .{user.id});
+
     const f = .{ 11.2, 11.0, 0 };
 
     try stdout.print("{any}\n", .{@TypeOf(.{ @as(f32, 34.1), @as(u32, 44), @as(f64, 11.9) })});
     try stdout.print("{any}\n", .{@TypeOf(f)});
 
-    const v1: Vec3 = .{ .x = 12.1, .y = 12.2, .z = 12.3 };
+    var v1: Vec3 = .{ .x = 12.1, .y = 12.2, .z = 12.3 };
     const v2: Vec3 = .{ .x = 33.1, .y = 34.7, .z = 111.0 };
+
     try stdout.print("{d}\n", .{v1.distance(v2)});
+
+    v1.twice();
+    try stdout.print("{any}\n", .{@as(*[3]f64, @ptrCast(&v1))});
+}
+
+const Full_name = struct {
+    name: []const u8,
+    id: u64,
+    email: []const u8 = undefined,
+    allocator: std.mem.Allocator,
+};
+
+const Just_name = struct {
+    name: []const u8,
+
+    pub fn init(allocator: std.mem.Allocator, name: []const u8) anyerror!*Just_name {
+        const full_n: *Full_name = try allocator.create(Full_name); //{ .name = name, .id = 9999, .allocator = allocator };
+        full_n.name = name;
+        full_n.id = 999;
+        full_n.allocator = allocator;
+        //var full_n: Full_name = Full_name{ .name = name, .id = 99999 };
+
+        return (@as(*Just_name, @ptrCast(full_n)));
+    }
+    pub fn deinit(self: *Just_name) void {
+        const full_n: *Full_name = @ptrCast(self);
+        const allocator = full_n.allocator;
+        allocator.destroy(full_n);
+    }
+
+    pub fn print_info(self: *Just_name) !void {
+        const full_n: *Full_name = @ptrCast(self);
+        try stdout.print("Name: {s}, id: {d}\n", .{ full_n.name, full_n.id });
+    }
+};
+
+fn struct_cast_examle(allocator: std.mem.Allocator) !void {
+    var jn: *Just_name = try Just_name.init(allocator, "Asher");
+    defer jn.deinit();
+    try jn.print_info();
+}
+
+fn cast_examples() !void {
+    const f: f32 = 3.71;
+    const a: i32 = @bitCast(f);
+    const f2: f32 = @bitCast(a);
+
+    try stdout.print(
+        \\Before casting {d}
+        \\After casting to int {d}
+        \\After casting back to float {d}
+        \\
+    , .{ f, a, f2 });
+
+    const bytes align(@alignOf(u32)) = [_]u8{ 0x12, 0x12, 0x12, 0x12 };
+
+    const u32_ptr: *const u32 = @ptrCast(&bytes);
+    try expect(@TypeOf(u32_ptr) == *const u32);
+    try stdout.print("{d}\n", .{u32_ptr.*});
 }

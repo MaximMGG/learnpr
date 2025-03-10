@@ -13,4 +13,8 @@ pub const User = struct {
     pub fn print_name(self: User) !void {
         try stdout.print("User name: {s}\n", .{self.name});
     }
+
+    pub fn change_id(self: *User, new_id: u64) void {
+        self.id = new_id;
+    }
 };
