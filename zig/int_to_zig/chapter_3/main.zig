@@ -30,6 +30,8 @@ pub fn main() !void {
         }
     }
     stack_example();
+    try alloc_example();
+    try alloc_and_read();
 }
 
 fn add(x: u8, y: u8) u8 {
@@ -40,4 +42,34 @@ fn add(x: u8, y: u8) u8 {
 fn stack_example() void {
     const r = add(5, 27);
     _ = r;
+}
+
+fn alloc_example() !void {
+    // var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    // const allocator = gpa.allocator();
+    const c_alloc = std.heap.c_allocator;
+    const name = "Pedro";
+    const info = try std.fmt.allocPrint(c_alloc, "This is {s}", .{name});
+    defer c_alloc.free(info);
+
+    try stdout.print("{s}\n", .{info});
+}
+
+fn alloc_and_read() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    const buf = try allocator.alloc(u8, 50);
+    defer allocator.free(buf);
+    setval(u8, buf, @as(u8, 0));
+    @memset(buf, 0);
+    const stdin = std.io.getStdIn().reader();
+    _ = try stdin.readUntilDelimiterOrEof(buf, '\n');
+    try stdout.print("{s}\n", .{buf});
+}
+
+fn setval(comptime T: type, buf: []T, val: T) void {
+    for (0..buf.len) |i| {
+        buf[i] = val;
+    }
 }
