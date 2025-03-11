@@ -4,15 +4,10 @@ const base64 = @import("Base64.zig");
 const stdout = std.io.getStdOut().writer();
 
 pub fn main() !void {
-    const b64 = base64.Base64.init();
-    try stdout.print("{c}\n", .{b64._char_at(3)});
-}
+    var memmory_buffer: [1000]u8 = undefined;
+    var fba = std.heap.FixedBufferAllocator.init(&memmory_buffer);
+    const allocator = fba.allocator();
 
-fn _calc_encode_length(input: []const u8) !usize {
-    if (input.len < 3) {
-        return @as(usize, 4);
-    }
-
-    const output: usize = try std.math.divCeil(usize, input.len, 3);
-    return output * 3;
+    const text = "Testing some more stuff";
+    const etext = "";
 }
