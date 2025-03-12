@@ -66,9 +66,44 @@ pub fn main() !void {
         std.debug.print("{any}\n", .{tmp_u.*});
     }
 
-    @"u3"[0].id = 100;
-
     optional();
 }
 
-fn optional() void {}
+fn optional() void {
+    var num: ?u32 = 0;
+    num = null;
+
+    num = return_null(4) orelse 12;
+    std.debug.print("{d}\n", .{num.?});
+    num = return_null(5) orelse 12;
+    std.debug.print("{d}\n", .{num.?});
+
+    num = return_null(4);
+    if (num) |not_null_num| {
+        std.debug.print("{d}\n", .{not_null_num});
+    } else {
+        std.debug.print("num is null\n", .{});
+    }
+
+    num = return_null(5);
+
+    if (num) |not_null_num| {
+        std.debug.print("{d}\n", .{not_null_num});
+    } else {
+        std.debug.print("num is null\n", .{});
+    }
+
+    const num2 = return_null(5) orelse blk: {
+        const i: u32 = 33;
+        break :blk i * 4;
+    };
+    std.debug.print("num2: {d}\n", .{num2});
+}
+
+fn return_null(num: u32) ?u32 {
+    if (num % 2 == 0) {
+        return num % 2;
+    } else {
+        return null;
+    }
+}
