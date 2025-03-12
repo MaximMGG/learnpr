@@ -21,7 +21,7 @@ pub const Base64 = struct {
         }
 
         const output: usize = try std.math.divCeil(usize, input.len, 3);
-        return output * 3;
+        return output * 4;
     }
     fn _calc_decode_length(input: []const u8) !usize {
         if (input.len < 4) {
@@ -48,7 +48,7 @@ pub const Base64 = struct {
         if (input.len == 0) {
             return "";
         }
-        const n_out = try _calc_decode_length(input);
+        const n_out = try _calc_encode_length(input);
         var out = try allocator.alloc(u8, n_out);
         var buf = [3]u8{ 0, 0, 0 };
         var count: u8 = 0;
@@ -65,22 +65,24 @@ pub const Base64 = struct {
                 iout += 4;
                 count = 0;
             }
-            if (count == 1) {
-                out[iout] = self._char_at(buf[0] >> 2);
-                out[iout + 1] = self._char_at((buf[0] & 0x03) << 4);
-                out[iout + 2] = '=';
-                out[iout + 3] = '=';
-            }
-            if (count == 2) {
-                out[iout] = self._char_at(buf[0] >> 2);
-                out[iout + 1] = self._char_at((buf[0] & 0x03) << 4 + (buf[1] >> 4));
-                out[iout + 2] = self._char_at((buf[1] & 0x0f) << 2);
-                out[iout + 3] = '=';
-                iout += 4;
-            }
-            return out;
         }
+
+        if (count == 1) {
+            out[iout] = self._char_at(buf[0] >> 2);
+            out[iout + 1] = self._char_at((buf[0] & 0x03) << 4);
+            out[iout + 2] = '=';
+            out[iout + 3] = '=';
+        }
+        if (count == 2) {
+            out[iout] = self._char_at(buf[0] >> 2);
+            out[iout + 1] = self._char_at((buf[0] & 0x03) << 4) + (buf[1] >> 4);
+            out[iout + 2] = self._char_at((buf[1] & 0x0f) << 2);
+            out[iout + 3] = '=';
+            iout += 4;
+        }
+        return out;
     }
+
     pub fn decode(self: Base64, allocator: std.mem.Allocator, input: []const u8) ![]u8 {
         if (input.len == 0) {
             return "";

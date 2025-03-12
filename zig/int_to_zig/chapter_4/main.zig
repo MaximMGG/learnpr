@@ -11,8 +11,8 @@ pub fn main() !void {
     const text = "Testing some more stuff";
     const etext = "VGVzdGluZyBzb21lIG1vcmUgc3R1ZmY=";
     const b64 = base64.Base64.init();
-    const encoded_text = b64.encode(allocator, text);
-    const decoded_text = b64.decode(allocator, encoded_text);
+    const encoded_text = try b64.encode(allocator, text);
+    const decoded_text = try b64.decode(allocator, encoded_text);
 
     try stdout.print("Basic text: {s}\n", .{text});
     try stdout.print("Basic etext: {s}\n", .{etext});
