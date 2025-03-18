@@ -23,6 +23,9 @@ pub export fn main(argc: c_int, argv: [*]const [*:0]const u8) c_int {
         return 1;
     }
 
+    var buf: [4096]u8 = undefined;
+    _ = c.setvbuf(c.stdout, @ptrCast(buf[0..buf.len].ptr), c._IOFBF, buf.len);
+
     const repeats: c_int = c.atoi(argv[1]);
 
     var space_time: c.clock_t = c.clock();

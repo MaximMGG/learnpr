@@ -25,6 +25,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    char buf[4096] = {0};
+    setvbuf(stdout, buf, _IOFBF, 4096);
+
     int repeat = atoi(argv[1]);
 
 
