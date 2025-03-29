@@ -19,7 +19,7 @@ int main() {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    if (getaddrinfo("127.0.0.1", "7000", &hints, &con) == -1) {
+    if (getaddrinfo("192.168.0.1", "1900", &hints, &con) == -1) {
         ERR();
         return 1;
     }
