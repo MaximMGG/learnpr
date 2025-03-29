@@ -7,6 +7,7 @@ const stdout = std.io.getStdOut().writer();
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
+    var msg: [1024]u8 = .{0} ** 1024;
 
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
@@ -16,11 +17,17 @@ pub fn main() !void {
     }
     const port = 80;
     const site_name = args[1];
+    if (args.len == 3) {
+        _ = try std.fmt.bufPrint(msg[0..], "GET /{s} HTTP/1.1\r\nHost: {s}\r\n\r\n", .{args[2][0..], site_name});
+    } else {
+        _ = try std.fmt.bufPrint(msg[0..], "GET / HTTP/1.1\r\nHost: {s}\r\n\r\n", .{site_name});
+    }
+
     if (net.isValidHostName(site_name)) {
         var stream = try net.tcpConnectToHost(allocator, site_name, port);
         try stdout.print("Connected to {s}\n", .{site_name});
 
-        _ = try stream.write("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+        _ = try stream.write(msg[0..]);
 
         var buf: [1024]u8 = undefined;
         @memset(buf[0..], 0);
