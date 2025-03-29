@@ -17,6 +17,13 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    char connect_buf[1024] = {0};
+
+    if (argc == 3) {
+        sprintf(connect_buf, "GET /%s HTTP/1.1\r\nHost: %s\r\nContent-Type: text/plain\r\n", argv[2], argv[1]);
+    } else {
+        sprintf(connect_buf, "GET / HTTP/1.1\r\nHost: %s\r\n\r\n", argv[1]);
+    }
 
     struct addrinfo hints, *res;
     memset(&hints, 0, sizeof(hints));
@@ -41,7 +48,7 @@ int main(int argc, char **argv) {
 
     int bytes = 0;
 
-    bytes = send(con_sock, GET_MSG, strlen(GET_MSG), 0);
+    bytes = send(con_sock, connect_buf, strlen(connect_buf), 0);
     if (bytes < 0) {
         fprintf(stderr, "send error\n");
         close(con_sock);

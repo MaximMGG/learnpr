@@ -33,7 +33,7 @@ pub fn main() !void {
         @memset(buf[0..], 0);
         var bytes: usize = 2;
         while(true) {
-            bytes = try stream.read(buf[0..]);
+            bytes = try stream.readAtLeast(buf[0..], 1024);
             try stdout.print("Read {d} bytes\n", .{bytes});
             try stdout.print("{s}\n", .{buf});
             @memset(buf[0..], 0);
