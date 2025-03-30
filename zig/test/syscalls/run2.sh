@@ -3,7 +3,7 @@
 
 ./print_c $1 > print_c.txt
 ./args_print $1 > args_print.txt
-./args_print $1 > args_print2.txt
+./args_print2 $1 > args_print2.txt
 
 
 echo "Print C"
