@@ -4,6 +4,12 @@ const posix = std.posix;
 
 
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    var pool: std.Thread.Pool = undefined;
+    try std.Thread.Pool.init(&pool, .{.allocator = allocator, .n_jobs = 64});
+
     const address = try net.Address.parseIp("127.0.0.1", 5882);
 
     const tpe: u32 = posix.SOCK.STREAM;
@@ -13,121 +19,77 @@ pub fn main() !void {
 
     try posix.setsockopt(listener, posix.SOL.SOCKET, posix.SO.REUSEADDR, &std.mem.toBytes(@as(c_int, 1)));
     try posix.bind(listener, &address.any, address.getOsSockLen());
-
-
-    try printAddress(listener);
-
-
     try posix.listen(listener, 128);
-    var buf: [128]u8 = undefined;
+
 
     while(true) {
         var client_address: net.Address = undefined;
         var client_address_len: posix.socklen_t = @sizeOf(net.Address);
-
         const socket = posix.accept(listener, &client_address.any, &client_address_len, 0) catch |err| {
-            std.debug.print("error accept: {}\n", .{err});
+            std.debug.print("Error accept {}\n", .{err});
             continue;
         };
-        defer posix.close(socket);
 
-        std.debug.print("{} connected\n", .{client_address});
+        const client = Client{.socket = socket, .address = client_address};
+        try pool.spawn(Client.handle, .{client});
+    }
+}
 
+const Client = struct {
+    socket: posix.socket_t,
+    address: net.Address,
+
+    fn handle(self: Client) void {
+        defer posix.close(self.socket);
+        self._handle() catch |err| switch(err) {
+            error.Close => {},
+            error.WouldBlock => {},
+            else => std.debug.print("[{any}] client handle error: {}\n", .{self, err}),
+        };
+
+    }
+
+    fn _handle(self: Client) !void {
+        const socket = self.socket;
+        std.debug.print("[{}] connected\n", .{self.address});
 
         const timeout = posix.timeval{.sec = 2, .usec = 500_000};
         try posix.setsockopt(socket, posix.SOL.SOCKET, posix.SO.RCVTIMEO, &std.mem.toBytes(timeout));
         try posix.setsockopt(socket, posix.SOL.SOCKET, posix.SO.SNDTIMEO, &std.mem.toBytes(timeout));
 
-        const stream = net.Stream{.handle = socket};
-
-        // const read = posix.read(socket, &buf) catch |err| {
-        //     std.debug.print("error reading: {}\n", .{err});
-        //     continue;
-        // };
-        const read = try stream.read(&buf);
-        if (read == 0) {
-            continue;
-        }
-
-        // write(socket, "Hello (and goodbye)\n") catch |err| {
-        //     std.debug.print("error writing {}\n", .{err});
-        // };
+        var buf: [1024]u8 = undefined;
+        var reader = Reader{.pos = 0, .buf = &buf, .socket = socket};
         
-        try stream.writeAll(buf[0..read]);
-        // write(socket, buf[0..read]) catch |err| {
-        //     std.debug.print("error writing: {}\n", .{err});
-        // };
-     }
-}
-
-fn write(socket: posix.socket_t, msg: []const u8) !void {
-    var pos: usize = 0;
-    while(pos < msg.len) {
-        const written = try posix.write(socket, msg[pos..]);
-        if (written == 0) {
-            return error.Close;
+        while(true) {
+            const msg = try reader.readMessage();
+            std.debug.print("[{}] sent: {s}\n", .{self.address, msg});
         }
-        pos += written;
+
+
     }
-
-}
-
-fn printAddress(socket: posix.socket_t) !void {
-    var address: net.Address = undefined;
-    var len: posix.socklen_t = @sizeOf(net.Address);
-
-    try posix.getsockname(socket, &address.any, &len);
-    std.debug.print("{}\n", .{address});
-}
-
-fn writeMessage(socket: posix.socket_t, msg: []const u8) !void {
-    var buf: [4]u8 = undefined;
-    std.mem.writeInt(u32, &buf, @intCast(msg.len), .little);
-
-    var vec = [2]posix.iovec_const{
-        .{.len = 4, .base = &buf},
-        .{.len = msg.len, .base = msg.ptr},
-    };
-
-    try writeAllVectored(socket, &vec);
-}
-
-fn writeAllVectored(socket: posix.socket_t, vec: []posix.iovec_const) !void {
-    var i: usize = 0;
-    while(true) {
-        var n = try posix.writev(socket, vec[i..]);
-        while(n >= vec[i].len) {
-            n -= vec[i].len;
-            i += 1;
-            if (i >= vec.len) return;
-        }
-        vec[i].base += 1;
-        vec[i].len -= n;
-    }
-}
-
+};
 
 const Reader = struct {
-    buf: []u8,
+    buf: []u8 = undefined,
+    socket: posix.socket_t,
     pos: usize = 0,
     start: usize = 0,
-    socket: posix.socket_t,
 
     fn readMessage(self: *Reader) ![]u8 {
         var buf = self.buf;
+
         while(true) {
             if (try self.bufferedMessage()) |msg| {
                 return msg;
             }
-        }
 
-        const pos = self.pos;
-        const n = try posix.read(self.socket, buf[pos..]);
-        if (n == 0) {
-            return error.Closed;
+            const pos = self.pos;
+            const n = try posix.read(self.socket, buf[pos..]);
+            if (n == 0) {
+                return error.Close;
+            }
+            self.pos += n;
         }
-
-        self.pos += n;
 
     }
 
@@ -136,22 +98,24 @@ const Reader = struct {
         const pos = self.pos;
         const start = self.start;
 
-        std.debug.assert(pos >= start);
+        std.debug.assert(pos >= start); 
         const unprocessed = buf[start..pos];
-
         if (unprocessed.len < 4) {
             self.ensureSpace(4 - unprocessed.len) catch unreachable;
             return null;
         }
 
         const message_len = std.mem.readInt(u32, unprocessed[0..4], .little);
+
         const total_len = message_len + 4;
         if (unprocessed.len < total_len) {
             try self.ensureSpace(total_len);
             return null;
         }
+
         self.start += total_len;
         return unprocessed[4..total_len];
+
     }
 
     fn ensureSpace(self: *Reader, space: usize) error{BufferTooSmall}!void {
@@ -159,16 +123,17 @@ const Reader = struct {
         if (buf.len < space) {
             return error.BufferTooSmall;
         }
+
         const start = self.start;
         const spare = buf.len - start;
         if (spare >= space) {
             return;
         }
-
         const unprocessed = buf[start..self.pos];
         std.mem.copyForwards(u8, buf[0..unprocessed.len], unprocessed);
         self.start = 0;
         self.pos = unprocessed.len;
+
     }
 
 };

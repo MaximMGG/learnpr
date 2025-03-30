@@ -25,27 +25,24 @@ pub fn main() !void {
 
     if (net.isValidHostName(site_name)) {
         var stream = try net.tcpConnectToHost(allocator, site_name, port);
-        try stdout.print("Connected to {s}\n", .{site_name});
+        defer stream.close();
+        const timeval = std.posix.timeval{.sec = 1.0, .usec = 100_000};
+        try std.posix.setsockopt(
+                    stream.handle, 
+                    std.posix.SOL.SOCKET, 
+                    std.posix.SO.RCVTIMEO, 
+                    &std.mem.toBytes(timeval));
 
+        try stdout.print("Connected to {s}\n", .{site_name});
         _ = try stream.write(msg[0..]);
 
-        var buf: [1024]u8 = undefined;
-        @memset(buf[0..], 0);
-        var bytes: usize = 2;
-        while(true) {
-            bytes = try stream.readAtLeast(buf[0..], 1024);
-            try stdout.print("Read {d} bytes\n", .{bytes});
-            try stdout.print("{s}\n", .{buf});
-            @memset(buf[0..], 0);
-            if (bytes < buf.len) {
-                break;
-            }
-        }
+        const res = try stream.reader().readAllAlloc(allocator, 40960);
+        defer allocator.free(res);
 
-        defer stream.close();
+        try stdout.print("Received {d} bytes\n{s}", .{res.len, res});
+
     } else {
         try stdout.print("Host name is not valid, try agane\n", .{});
         return;
     }
-
 }

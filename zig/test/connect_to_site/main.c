@@ -40,6 +40,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+    setsockopt(con_sock, SOL_SOCKET, SOCK_NONBLOCK, NULL, 0);
+
     if (connect(con_sock, res->ai_addr, res->ai_addrlen) == -1) {
         fprintf(stderr, "connect error\n");
         close(con_sock);
