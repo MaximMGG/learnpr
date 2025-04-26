@@ -1,1 +1,0 @@
-savedcmd_/home/maxim/learnpr/c/youtube/silent/Module.symvers :=  scripts/mod/modpost -M -m -a      -o /home/maxim/learnpr/c/youtube/silent/Module.symvers -T /home/maxim/learnpr/c/youtube/silent/modules.order -i Module.symvers -e 
