@@ -1,0 +1,1 @@
+savedcmd_/home/maxim/learnpr/c/youtube/silent/silent.mod := printf '%s\n'   silent.o | awk '!x[$$0]++ { print("/home/maxim/learnpr/c/youtube/silent/"$$0) }' > /home/maxim/learnpr/c/youtube/silent/silent.mod

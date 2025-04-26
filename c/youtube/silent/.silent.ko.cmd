@@ -1,0 +1,1 @@
+savedcmd_/home/maxim/learnpr/c/youtube/silent/silent.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/maxim/learnpr/c/youtube/silent/silent.ko /home/maxim/learnpr/c/youtube/silent/silent.o /home/maxim/learnpr/c/youtube/silent/silent.mod.o
