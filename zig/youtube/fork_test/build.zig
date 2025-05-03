@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
+    exe.linkLibC();
 
     b.installArtifact(exe);
     const run_cmd = b.addRunArtifact(exe);
