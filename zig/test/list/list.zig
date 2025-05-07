@@ -1,5 +1,7 @@
 const std = @import("std");
 
+
+
 pub fn List(T: type) type {
     return struct {
         const Self = @This();
@@ -16,6 +18,18 @@ pub fn List(T: type) type {
         pub fn deinit(self: *Self) void {
             self.items.len = self.capasity;
             self.allocator.free(self.items);
+        }
+
+        pub fn remove(self: *Self, index: usize) !void {
+            if (index >= self.items.len) {
+                return error.IndexOutOfItemsLen;
+            }
+            var tmp_buf: [self.items.len - 1]T = undefined;
+            @memcpy(tmp_buf[0..index], self.items[0..index]);
+            @memcpy(tmp_buf[0..self.items.len - 1], self.items[(index + 1)..self.items.len]);
+            @memset(self.items[0..self.items.len], 0);
+            @memcpy(self.items[0..self.items.len - 1], tmp_buf[0..self.items.len - 1]);
+            self.items.len -= 1;
         }
 
         pub fn append(self: *Self, item: T) !void {
