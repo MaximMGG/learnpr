@@ -1,6 +1,6 @@
 const std = @import("std");
 const pg = @cImport({
-    @cInclude("libpq-fe.h");
+    @cInclude("postgresql/libpq-fe.h");
 });
 
 
@@ -26,7 +26,7 @@ fn cleanup(conn: *pg.PGconn) void {
 pub fn main() !void {
     std.debug.print("Zig posgtres test\n", .{});
 
-    const conn = pg.PQconnectdb("dbname=testdb user=maximhrunenko password=17TypeofMG").?;
+    const conn = pg.PQconnectdb("dbname=testdb user=maxim password=maxim").?;
     cleanup(conn);
 
     const create_table_query = "CREATE TABLE names (id INT PRIMARY KEY, name VARCHAR(128));";
