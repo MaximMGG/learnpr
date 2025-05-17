@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "ssl_app",
-        .root_source_file = b.path("ssl_app.zig"),
+        .root_source_file = b.path("main.zig"),
         .target = target,
         .optimize = optimize
     });
