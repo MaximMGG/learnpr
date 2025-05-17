@@ -27,7 +27,6 @@ fn inc_host_port(ip: *u8, port: *u16) bool {
         }
     }
     return true;
-
 }
 
 pub fn main() !void {
