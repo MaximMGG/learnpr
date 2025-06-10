@@ -19,7 +19,6 @@ pub fn main() !void {
     _ = c.attroff(c.COLOR_PAIR(1));
     _ = c.getch();
     _ = c.endwin();
-
 }
 
 fn print_in_middle(_win: ?*c.WINDOW, starty: c_int, startx: c_int, _width: c_int, string: []const u8) void {
