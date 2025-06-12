@@ -14,17 +14,17 @@ pub fn main() !void {
     _ = c.cbreak();
     _ = c.noecho();
 
-    my_wins[0] = c.newwin(lines, cols, y, x);
-    my_wins[0] = c.newwin(lines, cols, y + 1, x + 5);
-    my_wins[0] = c.newwin(lines, cols, y + 2, x + 10);
+    my_wins[0] = c.newwin(lines, cols, y, x) orelse return error.NewwinError;
+    my_wins[1] = c.newwin(lines, cols, y + 1, x + 5) orelse return error.NewwinError;
+    my_wins[2] = c.newwin(lines, cols, y + 2, x + 10) orelse return error.NewwinError;
 
     while(i < 3) : (i += 1) {
         _ = c.box(my_wins[i], 0, 0);
     }
 
-    panels[0] = c.new_panel(my_wins[0]);
-    panels[1] = c.new_panel(my_wins[1]);
-    panels[2] = c.new_panel(my_wins[2]);
+    panels[0] = c.new_panel(my_wins[0]) orelse return error.NewpanelError;
+    panels[1] = c.new_panel(my_wins[1]) orelse return error.NewpanelError;
+    panels[2] = c.new_panel(my_wins[2]) orelse return error.NewpanelError;
 
     c.update_panels();
 

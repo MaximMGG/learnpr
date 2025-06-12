@@ -13,7 +13,7 @@ pub fn build(b: *std.Build) void {
     });
 
     exe.linkLibC();
-    //exe.linkSystemLibrary("ncurses");
+    exe.linkSystemLibrary("ncurses");
     exe.linkSystemLibrary("panel");
     const run_exe = b.addRunArtifact(exe);
     const run_step = b.step("run", "run cur aplication");
