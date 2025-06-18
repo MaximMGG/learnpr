@@ -66,6 +66,10 @@ void clear_screen(const sdl_t *sdl, const config_t config) {
     SDL_RenderClear(sdl->renderer);
 }
 
+void update_screen(sdl_t *sdl, config_t config) {
+    SDL_RenderPresent(sdl->renderer);
+}
+
 int main(int argc, char **argv) {
     sdl_t sdl = {0};
     config_t config = {0};
@@ -80,12 +84,12 @@ int main(int argc, char **argv) {
 
     clear_screen(&sdl, config);
 
-    SDL_Event ev;
     while(true) {
-        while(SDL_PollEvent(&ev)) {
+        //Delay
+        SDL_Delay(16);
 
-        }
-
+        //Update window with changes
+        update_screen(&sdl, config);
     }
 
     final_cleanup(sdl);
