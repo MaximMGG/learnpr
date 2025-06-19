@@ -60,6 +60,8 @@ bool init_chip8(chip8_t *chip) {
 }
 
 bool set_config_from_args(config_t *config, const int argc, const char **argv) {
+    (void)argc;
+    (void)argv;
     *config = (config_t){
             .window_width = 64, 
             .window_height = 32, 
@@ -82,6 +84,7 @@ void final_cleanup(const sdl_t sdl) {
 }
 
 void clear_screen(const sdl_t *sdl, const config_t config) {
+    (void)config;
     const uint8_t r = (uint8_t)(config.bg_color >> 24);
     const uint8_t g = (uint8_t)(config.bg_color >> 16);
     const uint8_t b = (uint8_t)(config.bg_color >> 8);
@@ -91,6 +94,7 @@ void clear_screen(const sdl_t *sdl, const config_t config) {
 }
 
 void update_screen(sdl_t *sdl, config_t config) {
+    (void)config;
     SDL_RenderPresent(sdl->renderer);
 }
 
@@ -104,11 +108,20 @@ void handle_input(chip8_t *chip8) {
                 return;
             } break;
             case SDL_KEYDOWN: {
+                switch(ev.key.keysym.sym) {
+                    case SDLK_ESCAPE: {
+                        chip8->state = QUIT;
+                        return;
+                    } break;
+                }
 
             } break;
             case SDL_KEYUP: {
 
             } break;
+            default: {
+
+            }
         }
 
     }
