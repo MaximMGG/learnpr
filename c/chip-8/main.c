@@ -24,7 +24,16 @@ typedef enum {
 
 typedef  struct {
     emu_state state;
-
+    uint8_t rum[4096];
+    bool display[64*32];    // Emulate original CHIP8 resolution pixels
+    uint16_t stack[12];     // Subroutine stack
+    uint8_t V[16];          // Data registers V0-VF
+    uint16_t I;             // Index register
+    uint16_t PC;            // Program Counter
+    uint8_t delay_timer;    // Decrements at 60hz when > 0
+    uint8_t sound_timer;    // Decrements at 60hz and palys tone when > 0
+    bool keypad[16];        // Hexadecimal keypad 0x0-0xF
+    char *rom_name;         // Currently running ROM
 }chip8_t;
 
 bool init_sdl(sdl_t *sdl, const config_t config) {
@@ -53,8 +62,18 @@ bool init_sdl(sdl_t *sdl, const config_t config) {
 }
 
 
-bool init_chip8(chip8_t *chip) {
+bool init_chip8(chip8_t *chip, const char *rom_name) {
+    (void) rom_name;
+    const uint32_t entry_point = 0x200;
+
+
+    // Load font
+
+    // Load ROM
+
+    // Load chip8 machine defaults
     chip->state = RUNNING;
+    chip->PC = entry_point;
 
     return true;
 }
@@ -141,7 +160,7 @@ int main(int argc, char **argv) {
     }
 
     chip8_t chip8 = {0};
-    if (!init_chip8(&chip8)) {
+    if (!init_chip8(&chip8, "")) {
         exit(EXIT_FAILURE);
     }
 
