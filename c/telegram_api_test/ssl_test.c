@@ -14,8 +14,9 @@
     "{\"chat_id\": \"%s\", \"text\": \"%s\"}"
 
 #define TEST_REQUEST "POST /bot7822096798:AAEBztEDKoWcYQnn-UgEBu8Kn7Uiywr3dmk/sendMessage HTTP/1.1\r\n"\
-    "Host: api.telegram.org\r\nContent-Type: application/json\r\n\r\n"\
-    "{\"chat_id\": \"719439900\", \"text\": \"Greatings!!!\"}"
+    "Host: api.telegram.org\r\nContent-Type: application/json\r\nContent-Length: %d\r\n\r\n%s"
+
+#define CONTENT  "{\"chat_id\": \"719439900\", \"text\": \"Greatings!!!\"}"
 
 int main() {
 
@@ -69,7 +70,10 @@ int main() {
 
     //int message_len = sprintf(request_buf, REQUEST, TOKEN, "sendMessage", CHAT_ID, message);
     //int write_bytes = SSL_write(ssl, request_buf, strlen(request_buf));
-    int write_bytes = SSL_write(ssl, TEST_REQUEST, strlen(TEST_REQUEST));
+    int content_len = strlen(CONTENT);
+    int m_len = sprintf(request_buf, TEST_REQUEST, content_len, CONTENT);
+    printf("%s\n", request_buf);
+    int write_bytes = SSL_write(ssl, request_buf, strlen(request_buf));
     printf("Write bytes: %d\n", write_bytes);
 
     char response_buf[4096] = {0};
