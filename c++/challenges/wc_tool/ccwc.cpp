@@ -1,16 +1,33 @@
 #include <cctype>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <cctype>
+#include <locale>
+#include <codecvt>
 
 int get_count_of_chars(const char *file_name) {
+    std::wfstream f(file_name);
 
+    std::wstring l;
+
+    f.imbue(std::locale(f.getloc(), new std::codecvt_utf8_utf16<wchar_t>));
+    if (f.is_open()) {
+        int char_count{};
+        while(!f.eof()) {
+            std::getline(f, l);
+            char_count += l.size();
+            char_count++;
+        }
+        f.close();
+        return char_count - 1;
+    }
+
+    return -1;
 }
 
-int get_count_of_words(const char *file_name) {
-    std::ifstream f;
-    f.open(file_name);
+int get_count_of_words(std::ifstream& f) {
     if (f.is_open()) {
 
         int words_count{};
@@ -51,10 +68,7 @@ int get_count_of_words(const char *file_name) {
 
 }
 
-int get_count_of_lines(const char *file_name) {
-
-    std::ifstream f;
-    f.open(file_name, std::ios_base::in);
+int get_count_of_lines(std::ifstream& f) {
 
     int line_count{};
     char buf[512];
@@ -66,17 +80,13 @@ int get_count_of_lines(const char *file_name) {
         line_count++;
     }
 
-    f.close();
     return line_count;
 }
 
-int get_count_of_chars(const char *file_name) {
+int get_count_of_bytes(std::ifstream& f) {
 
-    std::ifstream f;
-    f.open(file_name, std::ios_base::in | std::ios_base::ate);
     std::streampos file_end;
     file_end = f.tellg();
-    f.close();
 
     return int(file_end);
 }
@@ -84,18 +94,45 @@ int get_count_of_chars(const char *file_name) {
 
 int main(int argc, char **argv) {
 
-    if (argc > 1) {
-        if (std::strcmp(argv[1], "-c") == 0) {
-            std::cout << "File size: " << get_count_of_chars(argv[2]) << '\n';
-        } else if (std::strcmp(argv[1], "-l") == 0) {
-            std::cout << "count of lines: " << get_count_of_lines(argv[2]) << '\n';
-        } else if (std::strcmp(argv[1], "-w") == 0) {
-            std::cout << "Words: " << get_count_of_words(argv[2]) << '\n';
-        }
-    } else {
-
+    if (argc == 1) {
+        std::cerr << "Usage [ccwc] [-flag] (optional) [file_name]\n";
+        return 1;
     }
 
+    if (argc > 2) {
+        if (argv[1][0] != '-') {
+            std::cerr << "Usage [ccwc] [-flag] (optional) [file_name]\n";
+            return 1;
+        }
+
+        if (std::strcmp(argv[1], "-c") == 0) {
+            std::ifstream f;
+            f.open(argv[2], std::ios_base::in | std::ios_base::ate);
+            std::cout << std::setw(10) << get_count_of_bytes(f) << " " << argv[2] << '\n';
+            f.close();
+        } else if (std::strcmp(argv[1], "-l") == 0) {
+            std::ifstream f;
+            f.open(argv[2], std::ios_base::in);
+            std::cout << std::setw(10) << get_count_of_lines(f) << " " << argv[2] << '\n';
+            f.close();
+        } else if (std::strcmp(argv[1], "-w") == 0) {
+            std::ifstream f;
+            f.open(argv[2], std::ios_base::in);
+            std::cout << std::setw(10) << get_count_of_words(f) << " " << argv[2] << '\n';
+            f.close();
+        } else if (std::strcmp(argv[1], "-m") == 0) {
+            std::cout << std::setw(10) << get_count_of_chars(argv[2]) << " " << argv[2] << '\n';
+        }
+    } else {
+        std::ifstream f;
+        f.open(argv[1], std::ios_base::in);
+        std::cout << std::setw(10) << get_count_of_lines(f);
+        f.seekg(0, std::ios_base::beg);
+        std::cout << std::setw(10) << get_count_of_words(f);
+        f.seekg(0, std::ios_base::beg);
+        std::cout << std::setw(10) << get_count_of_bytes(f) << " " << argv[2] << '\n';
+        f.close();
+    }
 
     return 0;
 }
