@@ -28,44 +28,21 @@ int get_count_of_chars(const char *file_name) {
 }
 
 int get_count_of_words(std::ifstream& f) {
-    if (f.is_open()) {
-
-        int words_count{};
-        char buf[512] = {0};
-
-        while(true) {
-            if (f.eof()) {
-                break;
-            }
-            f.getline(buf, 512, '\n');
-            if (std::strlen(buf) == 1) {
-                std::memset(buf, 0, 512);
+    std::string s;
+    int words_count{};
+    while(std::getline(f, s)) {
+        int i{};
+        while(i < s.size()) {
+            if (std::isspace(s[i])) {
+                i++;
                 continue;
             }
-
-            int word_len{};
-            for(int i = 0; i < std::strlen(buf); i++) {
-                if (buf[i] == ' ') {
-                    if (word_len == 1) {
-                        if (std::isalpha(buf[i - 1])) {
-                            words_count++;
-                        }
-                    }
-                    word_len = 0;
-                }
-                word_len++;
-            }
             words_count++;
-            word_len = 0;
-            std::memset(buf, 0, 512);
-
+            while(i < s.size() && !std::isspace(s[i]))
+                i++;
         }
-
-        return words_count;
-    } else {
-        return -1;
     }
-
+    return words_count++;
 }
 
 int get_count_of_lines(std::ifstream& f) {
