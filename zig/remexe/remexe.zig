@@ -20,11 +20,10 @@ fn iterate_throuth_dir(allocator: std.mem.Allocator, dir: std.fs.Dir, path: []co
     while(try it.next()) |entry| {
         switch(entry.kind) {
             .directory => {
-                if (std.mem.indexOfScalar(u8, entry.name, '.')) |index| {
-                    if (index == 0) {
-                        continue;
-                    }
+                if (entry.name[0] == '.') {
+                    continue;
                 }
+
                 var sub_dir = try dir.openDir(entry.name, .{.iterate = true});
                 defer sub_dir.close();
                 const new_path = try std.mem.concat(allocator, u8, &[_][]const u8{path,"/", entry.name});
@@ -40,6 +39,8 @@ fn iterate_throuth_dir(allocator: std.mem.Allocator, dir: std.fs.Dir, path: []co
                         try stdout.print("Deleting executable {s}\n", .{entry.name});
                         try dir.deleteFile(entry.name);
                     }
+                } else {
+                    f.close();
                 }
             },
             else => {continue;}
