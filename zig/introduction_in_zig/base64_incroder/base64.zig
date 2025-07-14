@@ -55,7 +55,7 @@ pub const Base64 = struct {
         }
         return multiple_groups;
     }
-    fn encode(self: Base64, input: []const u8, allocator: std.mem.Allocator) ![]u8 {
+    pub fn encode(self: Base64, input: []const u8, allocator: std.mem.Allocator) ![]u8 {
         if (input.len == 0) {
             return "";
         }
@@ -70,28 +70,61 @@ pub const Base64 = struct {
             count += 1;
             if (count == 3) {
                 output[output_index] = self._char_at(tmp_buf[0] >> 2);
-                output[output_index + 1] = self._char_at(((tmp_buf[0] & 0x03) << 4) + tmp_buf[1] >> 4);
-                output[output_index + 2] = self._char_at(((tmp_buf[1] & 0x0f) << 2) + tmp_buf[6] >> 6);
-                output[output_index + 3] = self._char_at(tmp_buf[2] & 0x03);
+                output[output_index + 1] = self._char_at(((tmp_buf[0] & 0x03) << 4) + (tmp_buf[1] >> 4));
+                output[output_index + 2] = self._char_at(((tmp_buf[1] & 0x0f) << 2) + (tmp_buf[2] >> 6));
+                output[output_index + 3] = self._char_at(tmp_buf[2] & 0x3F);
                 output_index += 4;
                 count = 0;
             }
         }
         if (count == 1) {
             output[output_index] = self._char_at(tmp_buf[0] >> 2);
-            output[output_index + 1] = self._char_at((tmp_buf[1] & 0x03) << 4);
+            output[output_index + 1] = self._char_at((tmp_buf[0] & 0x03) << 4);
             output[output_index + 2] = '=';
             output[output_index + 3] = '=';
             output_index += 4;
         }
         if (count == 2) {
             output[output_index] = self._char_at(tmp_buf[0] >> 2);
-            output[output_index + 1] = self._char_at(((tmp_buf[0] & 0x03) << 4) + tmp_buf[1] >> 4);
+            output[output_index + 1] = self._char_at(((tmp_buf[0] & 0x03) << 4) + (tmp_buf[1] >> 4));
             output[output_index + 2] = self._char_at((tmp_buf[1] & 0x0f) << 2);
             output[output_index + 3] = '=';
             output_index += 4;
         }
 
+        return output;
+    }
+
+    pub fn decode(self: Base64, input: []const u8, allocator: std.mem.Allocator) ![]u8 {
+        if (input.len == 0) {
+            return "";
+        }
+
+        const n_output = try _calc_decode_len(input);
+        var tmp_buf = [4]u8{0, 0, 0, 0};
+        var output = try allocator.alloc(u8, n_output);
+        for(0..output.len) |i| {
+            output[i] = 0;
+        }
+        //@memset(output, 0);
+        var count: u8 = 0;
+        var output_index: usize = 0;
+
+        for(0..input.len) |i| {
+            tmp_buf[count] = self._char_index(input[i]);
+            count += 1;
+            if (count == 4) {
+                output[output_index] = (tmp_buf[0] << 2) + (tmp_buf[1] >> 4);
+                if (tmp_buf[2] != 64) {
+                    output[output_index + 1] = (tmp_buf[1] << 4) + (tmp_buf[2] >> 2);
+                }
+                if (tmp_buf[3] != 64) {
+                    output[output_index + 2] = (tmp_buf[2] << 6) + tmp_buf[3];
+                }
+                output_index += 3;
+                count = 0;
+            }
+        }
         return output;
     }
     
