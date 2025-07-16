@@ -6,18 +6,17 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
-    var list = try std.ArrayList(u32).initCapacity(allocator, 100);
-    list.items.len = list.capacity;
+    var list = try std.ArrayList(u8).initCapacity(allocator, 100);
     defer list.deinit();
 
-    for(list.items, 0..list.capacity) |*item, i| {
-        //try list.append(@as(u32, @intCast(i + 123)));
-        item.* = @as(u32, @intCast(i + 111));
-        list.items.len += 1;
-    }
+    try list.append('H');
+    try list.append('e');
+    try list.append('l');
+    try list.append('l');
+    try list.append('o');
+
+    try list.appendSlice(" World!");
 
 
-    for(list.items) |i| {
-        std.debug.print("{d}\n", .{i});
-    }
+    std.debug.print("{s}\n", .{list.items});
 }
