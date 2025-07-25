@@ -3,12 +3,12 @@ package main
 import "core:fmt"
 
 main :: proc() {
-    fmt.println("Hello world")
-    a: i32 = 0
-    for i in 0 ..< 10 {
-        a += i32(i)
+    acum: int = 0
+
+    for i in 0..<100000 {
+        acum += int(i)
     }
 
-    fmt.printf("%d\n", a)
+    fmt.println(acum)
 }
 
