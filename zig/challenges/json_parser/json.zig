@@ -1,69 +1,99 @@
 const std = @import("std");
 
-const json_obj_type = enum {
-    NUMBER, STRING, BOOL, ARRAY, OBJ, NULL
+
+const json_obj_val_type = enum {
+    NUMBER, STRING, BOOL, NULL, ARRAY, OBJ
 };
 
-const json_array = union(json_obj_type) {
-    NUMBER: ?f64,
-    STRING: ?[]u8,
-    BOOL: ?bool,
-    ARRAY: ?*json_array,
-    OBJ: ?*json_obj,
-    NULL: *usize
-};
 
 pub const json_obj = struct {
     key: []const u8 = undefined,
-    val: union(json_obj_type) {
+    arr_key: u32 = undefined,
+
+    val: union(json_obj_val_type) {
         NUMBER: f64,
         STRING: []u8,
         BOOL: bool,
-        ARRAY: json_array,
-        OBJ: *json_obj,
-        NULL: ?*usize
+        NULL: ?*usize,
+        ARRAY: *json_obj,
+        OBJ: *json_obj
     },
 
-    content: []json_obj = undefined,
-    size: u32,
-    allocator: std.mem.Allocator,
+    content: std.ArrayList(*json_obj) = undefined,
 
-    fn check_size(self: *json_obj) !void {
-        if (self.size == self.content.len) {
-            var new_cont = try self.allocator.alloc(json_obj, self.size * 2);
-            @memcpy(new_cont[0..self.size], self.content);
-            self.allocator.free(self.content);
-            self.content = new_cont;
-        }
-    }
+    allocator: std.mem.Allocator,
 
     fn skip_spaces(json: []const u8, i: *usize) void {
         while(json[i.*] == ' ' or json[i.*] == '\n') : (i.* += 1) {}
     }
 
     fn create_array(self: *json_obj, json: []u8, i: *usize) !void {
+        skip_spaces(json, i);
 
+        switch(json[i.*]) {
+            '{' => {
+
+            },
+            '"' => {
+
+            },
+            '0'...'9' => {
+
+            },
+            't' or 'f' => {
+
+            },
+            'n' => {
+
+            },
+            else => {
+                return error.IncorrectJson;
+            }
+        }
     }
 
     fn create_number(self: *json_obj, json: []u8, i: *usize) !void {
+        var buf: [128]u8 = .{0} ** 128;
+        var buf_i: usize = 0;
 
+        while((json[i.*] >= '0' and json[i.*] <= '9') or json[i.*] == '.') : (i.* += 1) {
+            buf[buf_i] = json[i.*];
+            buf_i += 1;
+        }
+
+        self.val.NUMBER = try std.fmt.parseFloat(f64, buf[0..buf_i]);
     }
 
     fn create_string(self: *json_obj, json: []u8, i: *usize) !void {
+        var buf: [512]u8 = .{0} ** 512;
+        var buf_i: usize = 0;
 
+        while(json[i.*] != '"') : (i.* += 1) {
+            buf[buf_i] = json[i.*];
+            buf_i += 1;
+        }
+        i.* += 1;
+
+        self.val.STRING = try self.allocator.dupe(buf[0..buf_i]);
     }
 
-    fn create_bool(self: *json_obj, json: []u8, i: *usize) !void {
-
+    fn create_bool(self: *json_obj, json: []u8, i: *usize) void {
+        if (json[i.*] == 't') {
+            self.val.BOOL = true;
+            i.* += 4;
+        } else if (json[i.*] == 'f') {
+            self.val.BOOL = false;
+            i.* += 5;
+        }
     }
 
     fn create_json_obj(self: *json_obj, json: []u8, i: *usize) !void {
         skip_spaces(json, &i);
         if (json[i] != '{') return error.IncorrectJson;
         i += 1;
-        skip_spaces(json, &i);
 
         while(i != json.len) : (i += 1){
+            skip_spaces(json, &i);
             if (json[i] != '"') return error.IncorrectJson;
             var buf: [512]u8 = .{0} ** 512;
             var buf_i: usize = 0;
@@ -80,49 +110,42 @@ pub const json_obj = struct {
 
             switch(json[i]) {
                 '{' => {
-                   try tmp.create_json_obj(json, i);
-                   self.content[self.size] = tmp;
-                   try self.check_size();
+                    try tmp.create_json_obj(json, i);
+                    try self.content.append(tmp);
                 },
                 '[' => {
                     try tmp.create_array(json, i);
-                    self.content[self.size] = tmp;
-                    try self.check_size();
+                    try self.content.append(tmp);
                 },
                 '"' => {
                     try tmp.create_string(json, i);
-                    self.content[self.size] = tmp;
-                    try self.check_size();
+                    try self.content.append(tmp);
                 },
                 '0'...'9' => {
                     try tmp.create_number(json, i);
-                    self.content[self.size] = tmp;
-                    try self.check_size();
+                    try self.content.append(tmp);
                 },
                 't' or 'f' => {
-                    try tmp.create_bool(json, i);
-                    self.content[self.size] = tmp;
-                    try self.check_size();
+                    tmp.create_bool(json, i);
+                    try self.content.append(tmp);
                 },
                 'n' => {
                     tmp.val.NULL = null;
-                    self.content[self.size] = tmp;
-                    try self.check_size();
+                    try self.content.append(tmp);
                 },
                 else => {
                     return error.IncorrectJson;
                 }
             }
-        }
-        if (json[i] != ',') {
-            return;
+            if (json[i.*] != ',') {break;}
+            else continue;
         }
     }
 
     pub fn init(allocator: std.mem.Allocator, json: []const u8) !json_obj {
         var main: *json_obj = try allocator.create(json_obj);
         main.key = "";
-        main.content = try allocator.alloc(json_obj, 10);
+        main.content = std.ArrayList(*json_obj).init(allocator);
         main.allocator = allocator;
 
         var i: usize = 0;
