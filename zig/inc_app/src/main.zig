@@ -4,7 +4,7 @@ const c = @cImport({
 });
 
 const PATH_TO_FILE = "/home/{s}/.config/incfile.inc";
-const incFile: std.fs.File = undefined;
+var incFile: std.fs.File = undefined;
 
 fn checkIncFile() !void {
     const allocator = std.heap.page_allocator;
@@ -18,7 +18,7 @@ fn checkIncFile() !void {
     const path = try std.fmt.bufPrint(&buf, PATH_TO_FILE, .{user});
 
     if (std.posix.access(path, std.c.F_OK)) {
-        incFile = try std.fs.openFileAbsolute(path, .{.mode = .read_wirte});
+        incFile = try std.fs.openFileAbsolute(path, .{.mode = .read_write});
         return;
     } else |_| {
         incFile = try std.fs.createFileAbsolute(path, .{});
@@ -26,17 +26,33 @@ fn checkIncFile() !void {
 }
 
 
-fn readIncFile(allocator: std.mem.Allocator) !std.HashMap(*item) {
+fn readIncFile(allocator: std.mem.Allocator) !std.ArrayList(item) {
+    var items = std.ArrayList(item).init(allocator);
     const f_stat = try incFile.stat();
     if (f_stat.size == 0) {
         return error.IncFileEmpty;
     } 
 
     const r = incFile.reader();
+    while(r.readStruct(item)) |it| {
+        try items.append(it);
+    } else |_| {
+    }
+
+    return items;
+}
+
+fn writeIncFile(items: *std.ArrayList(item)) !void {
+    try incFile.setEndPos(0);
+    const writer = incFile.writer();
+
+    for(items.items) |i| {
+        try writer.writeStruct(i);
+    }
 }
 
 
-const item = struct {
+const item = extern struct {
     name: [64]u8,
     current_consumption: u32,
     limit: u32,
@@ -61,7 +77,22 @@ pub fn main() !void {
 
     }
 
-
     _ = c.endwin();
+}
+
+test "test read write sturct" {
+    try checkIncFile();
+    const allocator = std.testing.allocator;
+    var items = std.ArrayList(item).init(allocator);
+    defer items.deinit();
+    var i: item = .{.name = undefined, .current_consumption = 999, .limit = 1000, .difference = 1};
+    std.mem.copyForwards(u8, &i.name, "Bob");
+    try items.append(i);
+    try writeIncFile(&items);
+    incFile.close();
+    try checkIncFile();
+    try readIncFile(allocator);
+
+    incFile.close();
 }
 
