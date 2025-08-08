@@ -75,6 +75,9 @@ fn prepareDefNameString() !void {
 }
 
 pub fn main() !void {
+
+    const allocator = std.heap.page_allocator;
+
     _ = c.initscr() orelse return error.InitScrFailed;
     _ = c.noecho();
     _ = c.raw();
@@ -89,11 +92,40 @@ pub fn main() !void {
     var cursore: usize = 0;
     _ = &cursore;
     try prepareDefNameString();
+    var item_buf: [512]u8 = .{0} ** 512;
+    const item_list = try readIncFile(allocator);
 
     while(ch != c.KEY_F(1)) : (ch = c.getch()) {
         _ = c.clear();
         _ = c.mvprintw(0, 0, "%s", def_name.ptr);
 
+        for(item_list.items, 0..) |it, i| {
+            if (i == cursore) {
+                _ = c.attron(c.A_REVERSE);
+                const item_str = try it.toString(&item_buf);
+                _ = c.mvprintw(i + 1, 0, "%s", item_str.ptr);
+                @memset(&item_buf, 0);
+                _ = c.attroff(c.A_REVERSE);
+            } else {
+                const item_str = try it.toString(&item_buf);
+                _ = c.mvprintw(i + 1, 0, "%s", item_str.ptr);
+                @memset(&item_buf, 0);
+            }
+        }
+
+        switch(ch) {
+            'j' => {
+                if (cursore < item_list.items.len) {
+                    cursore += 1;
+                }
+            },
+            'k' => {
+                if (cursore > 0) {
+                    cursore -= 1;
+                }
+            },
+            else => {}
+        }
 
         _ = c.refresh();
     }
