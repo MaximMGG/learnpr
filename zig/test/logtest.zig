@@ -8,6 +8,7 @@ pub fn main() !void {
     defer logger.deinit();
 
 
-    try logger.log(.ERROR, "Tets log {d}", .{0});
+    try logger.log(.ERROR, @src(), "Tets log {d}", .{0});
+    try logger.log(.WARN, @src(), "Test log2 {d}", .{0});
 
 }

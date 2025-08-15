@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Logger = std.filelog.Logger;
 const c = @cImport({
     @cInclude("ncurses.h");
 });
@@ -74,6 +75,8 @@ fn prepareDefNameString() !void {
 pub fn main() !void {
 
     const allocator = std.heap.page_allocator;
+    var logger = try Logger.init("inc.log");
+    defer logger.deinit();
 
     _ = c.initscr() orelse return error.InitScrFailed;
     _ = c.noecho();
@@ -89,27 +92,29 @@ pub fn main() !void {
     var cursore: usize = 0;
     _ = &cursore;
     try prepareDefNameString();
-    var item_buf: [512]u8 = .{0} ** 512;
+    try logger.log(.INFO, @src(), "prepareDefNameString", .{});
+    //var item_buf: [512]u8 = .{0} ** 512;
     var item_list = try readIncFile(allocator);
+    try logger.log(.INFO, @src(), "readIncFile", .{});
     defer item_list.deinit();
 
     while(ch != c.KEY_F(1)) : (ch = c.getch()) {
         _ = c.clear();
         _ = c.mvprintw(0, 0, "%s", def_name.ptr);
 
-        for(item_list.items, 0..) |*it, i| {
-            if (i == cursore) {
-                _ = c.attron(c.A_REVERSE);
-                const item_str = try it.toString(&item_buf);
-                _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
-                @memset(&item_buf, 0);
-                _ = c.attroff(c.A_REVERSE);
-            } else {
-                const item_str = try it.toString(&item_buf);
-                _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
-                @memset(&item_buf, 0);
-            }
-        }
+        // for(item_list.items, 0..item_list.items.len) |*it, i| {
+        //     if (i == cursore) {
+        //         _ = c.attron(c.A_REVERSE);
+        //         const item_str = try it.toString(&item_buf);
+        //         _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
+        //         @memset(&item_buf, 0);
+        //         _ = c.attroff(c.A_REVERSE);
+        //     } else {
+        //         const item_str = try it.toString(&item_buf);
+        //         _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
+        //         @memset(&item_buf, 0);
+        //     }
+        // }
 
         _ = c.mvprintw(c.LINES - 1, 0, "Press h for help");
 
@@ -123,6 +128,9 @@ pub fn main() !void {
                 if (cursore > 0) {
                     cursore -= 1;
                 }
+            },
+            'q' => {
+                break;
             },
             else => {}
         }
