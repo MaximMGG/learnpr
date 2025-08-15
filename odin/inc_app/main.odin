@@ -10,6 +10,9 @@ WINDOW :: struct {
 
 }
 
+int :: proc() {
+
+}
 
 foreign ncurses {
     initscr :: proc() -> ^WINDOW ---

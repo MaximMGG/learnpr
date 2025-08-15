@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const c = @cImport({
     @cInclude("ncurses.h");
 });
@@ -30,10 +31,6 @@ fn checkIncFile() !void {
 
 fn readIncFile(allocator: std.mem.Allocator) !std.ArrayList(item) {
     var items = std.ArrayList(item).init(allocator);
-    const f_stat = try incFile.stat();
-    if (f_stat.size == 0) {
-        return error.IncFileEmpty;
-    } 
 
     const r = incFile.reader();
     while(r.readStruct(item)) |it| {
@@ -93,25 +90,28 @@ pub fn main() !void {
     _ = &cursore;
     try prepareDefNameString();
     var item_buf: [512]u8 = .{0} ** 512;
-    const item_list = try readIncFile(allocator);
+    var item_list = try readIncFile(allocator);
+    defer item_list.deinit();
 
     while(ch != c.KEY_F(1)) : (ch = c.getch()) {
         _ = c.clear();
         _ = c.mvprintw(0, 0, "%s", def_name.ptr);
 
-        for(item_list.items, 0..) |it, i| {
+        for(item_list.items, 0..) |*it, i| {
             if (i == cursore) {
                 _ = c.attron(c.A_REVERSE);
                 const item_str = try it.toString(&item_buf);
-                _ = c.mvprintw(i + 1, 0, "%s", item_str.ptr);
+                _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
                 @memset(&item_buf, 0);
                 _ = c.attroff(c.A_REVERSE);
             } else {
                 const item_str = try it.toString(&item_buf);
-                _ = c.mvprintw(i + 1, 0, "%s", item_str.ptr);
+                _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
                 @memset(&item_buf, 0);
             }
         }
+
+        _ = c.mvprintw(c.LINES - 1, 0, "Press h for help");
 
         switch(ch) {
             'j' => {
