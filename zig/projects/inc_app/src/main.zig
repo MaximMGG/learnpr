@@ -1,6 +1,5 @@
 const std = @import("std");
 const builtin = @import("builtin");
-const Logger = std.filelog.Logger;
 const c = @cImport({
     @cInclude("ncurses.h");
 });
@@ -73,72 +72,12 @@ fn prepareDefNameString() !void {
 }
 
 pub fn main() !void {
-
     const allocator = std.heap.page_allocator;
-    var logger = try Logger.init("inc.log");
-    defer logger.deinit();
 
-    _ = c.initscr() orelse return error.InitScrFailed;
-    _ = c.noecho();
-    _ = c.raw();
-    _ = c.keypad(c.stdscr, true);
-    _ = c.start_color();
+    _ = c.initscr();
 
-    _ = c.init_pair(1, c.COLOR_RED, c.COLOR_BLACK);
-    _ = c.init_pair(2, c.COLOR_GREEN, c.COLOR_BLACK);
 
-    _ = c.refresh();
-    var ch: c_int = 0;
-    var cursore: usize = 0;
-    _ = &cursore;
-    try prepareDefNameString();
-    try logger.log(.INFO, @src(), "prepareDefNameString", .{});
-    //var item_buf: [512]u8 = .{0} ** 512;
-    var item_list = try readIncFile(allocator);
-    try logger.log(.INFO, @src(), "readIncFile", .{});
-    defer item_list.deinit();
 
-    while(ch != c.KEY_F(1)) : (ch = c.getch()) {
-        _ = c.clear();
-        _ = c.mvprintw(0, 0, "%s", def_name.ptr);
-
-        // for(item_list.items, 0..item_list.items.len) |*it, i| {
-        //     if (i == cursore) {
-        //         _ = c.attron(c.A_REVERSE);
-        //         const item_str = try it.toString(&item_buf);
-        //         _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
-        //         @memset(&item_buf, 0);
-        //         _ = c.attroff(c.A_REVERSE);
-        //     } else {
-        //         const item_str = try it.toString(&item_buf);
-        //         _ = c.mvprintw(@intCast(i + 1), 0, "%s", item_str.ptr);
-        //         @memset(&item_buf, 0);
-        //     }
-        // }
-
-        _ = c.mvprintw(c.LINES - 1, 0, "Press h for help");
-
-        switch(ch) {
-            'j' => {
-                if (cursore < item_list.items.len) {
-                    cursore += 1;
-                }
-            },
-            'k' => {
-                if (cursore > 0) {
-                    cursore -= 1;
-                }
-            },
-            'q' => {
-                break;
-            },
-            else => {}
-        }
-
-        _ = c.refresh();
-    }
-
-    _ = c.endwin();
 }
 
 test "test read write sturct" {
