@@ -52,6 +52,7 @@ int main() {
 
     int width = 256;
     int height = 256;
+    setbuf(stdout, NULL);
 
     printf("P3\n%d %d\n255\n", width, height);
     buf_writer bw = buf_writer_init(STDOUT_FILENO);

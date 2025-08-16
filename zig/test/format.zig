@@ -19,8 +19,10 @@ fn parse_cmd(comptime fmt: []const u8, args: anytype) !void {
     start_i += end_i + 1;
     end_i = start_i;
     end_i += std.mem.indexOfNone(u8, fmt, "0123456789") orelse return;
+    end_i += 1;
     a2.* = try std.fmt.parseInt(i32, fmt[start_i..end_i], 10);
-    a3.* = fmt[end_i..end_i+1][0];
+    start_i += end_i + 1;
+    a3.* = fmt[end_i..][0];
 }
 
 pub fn main() !void {
@@ -28,7 +30,7 @@ pub fn main() !void {
     var a1: i32 = 0;
     var a2: i32 = 0;
     var cmd: u8 = 0;
-    const fmt = "2,4q";
+    const fmt = "23,412i";
 
     try parse_cmd(fmt, .{&a1, &a2, &cmd});
 
