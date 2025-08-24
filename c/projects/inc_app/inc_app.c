@@ -59,7 +59,6 @@ list *read_inc_file() {
 
     list *l = list_create(STRUCT);
     expends_t e = {0};
-    l->data_size = sizeof(e);
     struct iovec io[1] = {0};
     io[0].iov_base = &e;
     io[0].iov_len = sizeof(e);
@@ -101,6 +100,7 @@ void show_help() {
     mvwprintw(help_window, 6, 1, "Pres l for set limit");
     mvwprintw(help_window, 7, 1, "Pres i for increase current expands");
     mvwprintw(help_window, 8, 1, "Pres a to extract to file");
+    mvwprintw(help_window, 9, 1, "Pres r to raname expand");
     wrefresh(help_window);
 
     wgetch(help_window);
@@ -211,12 +211,16 @@ int main() {
                 snprintf(buf, 64, "Delete %s?(y/n)", tmp->name);
                 str answer = read_input(buf);
                 if (answer[0] == 'y') {
-                    if (line == l->len - 1) {
+                    list_remove(l, line);
+                    log(INFO, "Line %d l->len %d", line, l->len);
+                    if (line == l->len) {
                         line--;
                     }
-                    list_remove(l, line);
+                    log(INFO, "Remove expend %s", tmp->name);
+                    dealloc(answer);
                     dealloc(tmp);
                 } else {
+                    dealloc(answer);
                     continue;
                 }
             } break;
@@ -226,20 +230,40 @@ int main() {
                 u32 new_lim_n = atol(new_lim);
                 tmp->limit = new_lim_n;
                 tmp->dif = tmp->limit - tmp->cur_exp;
+                dealloc(new_lim);
+            } break;
+            case 'r': {
+                expends_t *tmp = list_get(l, line);
+                str new_name = read_input("Enter new name");
+                strncpy(tmp->name, new_name, 32);
+                dealloc(new_name);
             } break;
         }
 
-        for(i32 i = 0; i < l->len; i++) {
+        i32 offset = 0;
+        if (line - (LINES - 10) > 0) {
+            offset = line - (LINES - 10);
+        }
+
+        i32 y = 1;
+        u64 total_expension = 0;
+        u64 total_limit = 0;
+        i64 total_difference = 0;
+        for(i32 i = offset; i < l->len; i++, y++) {
             expends_t *tmp = list_get(l, i);
+            total_expension += tmp->cur_exp;
+            total_limit += tmp->limit;
+            total_difference += tmp->dif;
 
             if (line == i) {
                 attron(A_REVERSE);
-                mvprintw(i + 1, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
+                mvprintw(y, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
                 attroff(A_REVERSE);
             } else {
-                mvprintw(i + 1, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
+                mvprintw(y, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
             }
         }
+        mvprintw(y, 0, "%-30s %-30lu %-30lu %-30ld", "TOTAL", total_expension, total_limit, total_difference);
 
         refresh();
         ch = getch();
