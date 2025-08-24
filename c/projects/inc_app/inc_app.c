@@ -118,26 +118,24 @@ str read_input(str input_name) {
     i32 ch;
     byte in[33] = {0};
     i32 len = 0;
-    wmove(input, 1, len + 1);
+    i32 x = 1;
+    wmove(input, 1, 1);
 
-    while(ch != '\n') {
-        mvwprintw(input, 1, 1, "%s", in);
-        if (len == 32) {
-            break;
-        }
+    while((ch = wgetch(input)) != '\n') {
         if (ch == 127) {
-            if (len > 0) {
-                len--;
-            }
-            in[len - 1] = ' ';
+            len--;
+            in[len] = 0;
+            x--;
+            mvwaddch(input, 1, x, ' ');
+            wmove(input, 1, x);
+            wrefresh(input);
             continue;
         }
-        in[len] = ch;
-        len++;
 
-        wmove(input, 1, len + 1);
-        ch = wgetch(input);
-        log(INFO, "CH from input %d", ch);
+        in[len++] = ch;
+        mvwaddch(input, 1, x, ch);
+        x++;
+        wrefresh(input);
     }
 
     wborder(input, ' ',' ',' ',' ',' ',' ',' ',' ');
@@ -186,6 +184,7 @@ int main() {
             } break;
             case 'i': {
                 str r = read_input("test");
+                log(INFO, "Str from read_input %s", r);
                 dealloc(r);
             } break;
 

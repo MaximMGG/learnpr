@@ -236,3 +236,10 @@
 2025-08-24 12:13:32 [INFO] inc_app.c:140 read_input CH from input 100
 2025-08-24 12:13:32 [INFO] inc_app.c:140 read_input CH from input 102
 2025-08-24 12:13:32 [INFO] inc_app.c:140 read_input CH from input 127
+2025-08-24 12:41:49 [INFO] inc_app.c:151 main Init ncurses funcs
+2025-08-24 12:41:49 [INFO] inc_app.c:26 check_inc_log Check ing log
+2025-08-24 12:41:51 [INFO] inc_app.c:195 main ch == i
+2025-08-24 12:41:57 [INFO] inc_app.c:187 main Str from read_input kdiald ka
+2025-08-24 12:41:57 [INFO] inc_app.c:195 main ch == q
+2025-08-24 12:41:57 [INFO] inc_app.c:55 cleanup Cleanup
+2025-08-24 12:41:57 [INFO] inc_app.c:201 main Finish app work
