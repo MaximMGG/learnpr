@@ -171,6 +171,7 @@ void extract_to_file(list *l, str file_name) {
     }
     writer_print(w, "%-30s %-30lu %-30lu %-30ld\n", "TOTAL", total_expension, total_limit, total_difference);
 
+    log(INFO, "Extrancs to file %s", file_name);
     writer_flush(w);
     writer_destroy(w);
 
