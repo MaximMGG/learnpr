@@ -15,7 +15,7 @@ i32 inc_fd;
 
 const str def_msg[32] = {"Name", "Current expends", "Limit", "Difference"};
 typedef struct {
-    str name[32];
+    i8 name[32];
     u32 cur_exp;
     u32 limit;
     i32 dif;
@@ -74,6 +74,8 @@ list *read_inc_file() {
 
 
 void write_inc_file(list *l) {
+
+    truncate(PATH_TO_INC_LOG, 0);
 
     struct iovec io[1] = {0};
 
@@ -162,16 +164,15 @@ int main() {
     list *l = read_inc_file();
 
     while(ch != KEY_F(1) && ch != 'q') {
+        clear();
+        attron(A_BOLD);
         mvprintw(0, 0, "%-30s %-30s %-30s %-30s", def_msg[0], def_msg[1], def_msg[2], def_msg[3]);
-
-
-
+        attroff(A_BOLD);
         switch(ch) {
             case 'j': {
                 if (line < l->len - 1) {
                     line++;
                 }
-
             } break;
             case 'k': {
                 if (line > 0) {
@@ -183,22 +184,72 @@ int main() {
                 refresh();
             } break;
             case 'i': {
-                str r = read_input("test");
-                log(INFO, "Str from read_input %s", r);
+                str r = read_input("Enter sum");
+                u32 sum = atol(r);
                 dealloc(r);
+                expends_t *tmp = list_get(l, line);
+                tmp->cur_exp += sum;
+                tmp->dif = tmp->limit - tmp->cur_exp;
             } break;
+            case 'c': {
+                str name = read_input("Enter expand name");
+                str limit = read_input("Enter limits");
+                expends_t tmp = {0};
+                strncpy(tmp.name, name, 32);
+                tmp.limit = atol(limit);
+                list_append(l, alloc_copy(&tmp, sizeof(expends_t)));
+                dealloc(name);
+                dealloc(limit);
+            } break;
+            case 'd': {
+                if (l->len == 0) {
+                    continue;
+                }
 
+                expends_t *tmp = list_get(l, line);
+                byte buf[64] = {0};
+                snprintf(buf, 64, "Delete %s?(y/n)", tmp->name);
+                str answer = read_input(buf);
+                if (answer[0] == 'y') {
+                    if (line == l->len - 1) {
+                        line--;
+                    }
+                    list_remove(l, line);
+                    dealloc(tmp);
+                } else {
+                    continue;
+                }
+            } break;
+            case 'l': {
+                expends_t *tmp = list_get(l, line);
+                str new_lim = read_input("Enter new limit");
+                u32 new_lim_n = atol(new_lim);
+                tmp->limit = new_lim_n;
+                tmp->dif = tmp->limit - tmp->cur_exp;
+            } break;
+        }
+
+        for(i32 i = 0; i < l->len; i++) {
+            expends_t *tmp = list_get(l, i);
+
+            if (line == i) {
+                attron(A_REVERSE);
+                mvprintw(i + 1, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
+                attroff(A_REVERSE);
+            } else {
+                mvprintw(i + 1, 0, "%-30s %-30d %-30d %-30d", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
+            }
         }
 
         refresh();
         ch = getch();
         log(INFO, "ch == %c", ch);
-        clear();
     }
 
     endwin();
-    cleanup(l);
+    write_inc_file(l);
     log(INFO, "Finish app work");
 
+    cleanup(l);
     return 0;
 }
