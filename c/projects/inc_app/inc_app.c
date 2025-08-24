@@ -1,6 +1,7 @@
 #include <cstdext/core.h>
 #include <cstdext/io/logger.h>
 #include <cstdext/container/list.h>
+#include <cstdext/io/writer.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ncurses.h>
@@ -147,6 +148,36 @@ str read_input(str input_name) {
     return alloc_copy(in, len + 1);
 }
 
+void extract_to_file(list *l, str file_name) {
+    i32 fd = open(file_name, O_CREAT | O_RDWR, S_IWUSR | S_IRUSR);
+    if (fd < 0) {
+        log(ERROR, "Can't create file %s", file_name);
+    }
+
+    writer *w = writer_create(fd, null, 0);
+
+    writer_print(w, "%-30s %-30s %-30s %-30s\n", def_msg[0], def_msg[1], def_msg[2], def_msg[3]);
+    i8 buf[128] = {0};
+    u64 total_expension = 0;
+    u64 total_limit = 0;
+    i64 total_difference = 0;
+
+    for(i32 i = 0; i < l->len; i++) {
+        expends_t *tmp = list_get(l, i);
+        total_expension += tmp->cur_exp;
+        total_limit += tmp->limit;
+        total_difference += tmp->dif;
+        writer_print(w, "%-30s %-30d %-30d %-30d\n", tmp->name, tmp->cur_exp, tmp->limit, tmp->dif);
+    }
+    writer_print(w, "%-30s %-30lu %-30lu %-30ld\n", "TOTAL", total_expension, total_limit, total_difference);
+
+    writer_flush(w);
+    writer_destroy(w);
+
+    close(fd);
+
+}
+
 
 int main() {
     log_set_opt(DEF_OPTION, LOG_TYPE_FILE, "inc_app.log");
@@ -238,6 +269,11 @@ int main() {
                 strncpy(tmp->name, new_name, 32);
                 dealloc(new_name);
             } break;
+            case 'a': {
+                str file_name = read_input("Enter file name for extraction");
+                extract_to_file(l, file_name);
+                dealloc(file_name);
+            } break;
         }
 
         i32 offset = 0;
@@ -249,6 +285,15 @@ int main() {
         u64 total_expension = 0;
         u64 total_limit = 0;
         i64 total_difference = 0;
+
+        for(i32 i = 0; i < offset; i++) {
+            expends_t *tmp = list_get(l, i);
+            total_expension += tmp->cur_exp;
+            total_limit += tmp->limit;
+            total_difference += tmp->dif;
+        }
+
+        
         for(i32 i = offset; i < l->len; i++, y++) {
             expends_t *tmp = list_get(l, i);
             total_expension += tmp->cur_exp;
