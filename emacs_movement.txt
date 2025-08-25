@@ -1,0 +1,39 @@
+[C-v] move page buffer down
+[M-v] move page buffer up
+[C-l] redisplea whole the text
+
+[C-f]	Move forward a character
+[C-b]	Move backward a character
+
+[M-f]	Move forward a word
+[M-b]	Move backward a word
+
+[C-n]	Move to next line
+[C-p]	Move to previous line
+
+[C-a]	Move to beginning of line
+[C-e]	Move to end of line
+
+[M-a]	Move back to beginning of sentence
+[M-e]	Move forward to end of sentence
+[M-<] move cursore to the begging of the whole text
+[M->] move cursore to the end of the whole text
+[C-u] <number> <command> do <number> type <command> command (for example C-u 8 C-f move curesore 8 tymes forward)
+[C-g] exit from command
+[C-x 1] kill other wondow exept window in which curesor
+[<DEL>] Delete the character just before the cursor
+[C-d] Delete the next character after the cursor
+
+[M-<DEL>] Kill the word immediately before the cursor
+[M-d] Kill the next word after the cursor
+
+[C-k] Kill from the cursor position to end of line
+[M-k] Kill to the end of the current sentence
+
+[C-<SPC>] Create mark to highlight segment of text
+[C-w] Kill whole segment between C-<SPC> hightlights points
+[C-y] insert copyed or killed text
+[C-/] undo
+
+
+
