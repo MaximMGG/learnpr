@@ -1,5 +1,0 @@
-Name                           Current expends                Limit                          Difference                    
-Car                            3730                           4500                           770                           
-Closes                         100                            4000                           3900                          
-Cafe                           0                              4000                           0                             
-TOTAL                          3830                           12500                          4670                          

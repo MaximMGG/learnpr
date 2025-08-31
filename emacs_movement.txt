@@ -35,5 +35,24 @@
 [C-y] insert copyed or killed text
 [C-/] undo
 
+[C-x C-f] Find file
+[C-x C-s] Save buffer to file
+[C-x s]	Save some buffers to their files
+[C-x C-b] List buffers
+[C-x b] Switch buffer
+[C-x C-c] Quit Emacs
+[C-x 1]	Delete all but one window
+[C-x u]	Undo
+[C-s] search forward
+[C-r] search backwards
+[C-x 2] split window horisontaly
+[C-x 3] split window verticaly
+[C-x o] switch betwean windows
+[C-x 4 C-f] open search file window, open new window in vertical split mode
+[C-x 5 2] See a new frame appear on your screen.
+[C-x 5 0] This removes the selected frame.
+
+
+
 
 

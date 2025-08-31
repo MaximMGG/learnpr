@@ -1,4 +1,5 @@
 #include <cstdext/core.h>
+#include <libpq/libpq.h>
 #include <cstdext/io/logger.h>
 #include <cstdext/container/list.h>
 #include <cstdext/io/writer.h>

@@ -154,6 +154,7 @@ pub const json_obj = struct {
     }
 
     pub fn deinit(self: *json_obj) void {
+        _ = self;
 
     }
 };
