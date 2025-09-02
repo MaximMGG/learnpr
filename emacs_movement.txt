@@ -14,8 +14,8 @@
 [C-a]	Move to beginning of line
 [C-e]	Move to end of line
 
-[M-a]	Move back to beginning of sentence
-[M-e]	Move forward to end of sentence
+[M-A]	Move back to beginning of sentence
+[M-e] Move forward to end of sentence
 [M-<] move cursore to the begging of the whole text
 [M->] move cursore to the end of the whole text
 [C-u] <number> <command> do <number> type <command> command (for example C-u 8 C-f move curesore 8 tymes forward)
@@ -31,7 +31,7 @@
 [M-k] Kill to the end of the current sentence
 
 [C-<SPC>] Create mark to highlight segment of text
-[C-w] Kill whole segment between C-<SPC> hightlights points
+[C-w] kill whole segment between C-<SPC> hightlights points
 [C-y] insert copyed or killed text
 [C-/] undo
 

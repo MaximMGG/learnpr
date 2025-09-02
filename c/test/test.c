@@ -12,14 +12,12 @@ int main() {
     setenv("TZ", "Europe/Kyiv", 1);
     tzset();
 
-
     time_t timer;
     struct tm *local, *utc;
     time(&timer);
 
     local = localtime(&timer);
     utc = gmtime(&timer);
-
 
     strftime(buf, 128, "%Y-%m-%d %H:%M:%S %Z", local);
     printf("Local time: %s\n", buf);

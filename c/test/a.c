@@ -1,20 +1,25 @@
 #include <fcntl.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <cstdext/io/reader.h>
+#include <fcntl.h>
 #include <cstdext/core.h>
+#include <cstdext/io/writer.h>
+#include <unistd.h>
 
 
 int main() {
-  int fd = open("struct_read_write.c", O_RDWR | O_CREAT, 0666);
-  reader *r = reader_create(fd, null, 0);
+    printf("%d\n", (int)1 << 13);
+    printf("%s\n", "Hello");
 
-  while(!r->end_of_read) {
-    str res = reader_read_str(r);
-    printf("%s\n", res);
-    dealloc(res);
-  }
-  close(fd);
-  reader_destroy(r);
-  return 0;
+    i32 fd = open("Test.txt", O_CREAT | O_RDWR, 0666);
+
+    writer *w = writer_create(fd, null, 0);
+
+    writer_write(w, "OIJOIJOIJ");
+    writer_destroy(w);
+
+    read(fd, null, 10);
+
+    close(fd);
+
+    return 0;
 }
