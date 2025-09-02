@@ -13,9 +13,7 @@ int main() {
     str res = reader_read_str(r);
     printf("%s\n", res);
     dealloc(res);
-    
   }
-
   close(fd);
   reader_destroy(r);
   return 0;
