@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <cstdext/io/writer.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+
 typedef struct {
   char *city;
   float teperature;
@@ -417,3 +424,36 @@ Measure measurs[] = {
 {"Zanzibar City", 26.0},
 {"Zürich", 9.3}};
 
+
+
+void *do_job(void *_w) {
+  writer *w = (writer *) w;
+  for (int i = 0; i < 10000; i++) {
+    for (int j = 0; j < sizeof(measurs) / sizeof(Measure); j++) {
+      float t = (char)rand() % 100;
+      writer_print(w, "%s, %.2f\n", measurs[i].city, measurs[i].teperature + t);
+    }
+  }
+
+
+  return null;  
+}
+
+int main() {
+  int fd = open("measures.txt", O_CREAT | O_RDWR, S_IWUSR | S_IRUSR);
+  if (fd < 0) {
+    fprintf(stderr, "Cant create file\n");
+    return 1;    
+  }
+
+  writer *w = writer_create(fd, null, 0);
+  for(int j = 0; j < 100000; j++) {
+    for (int i = 0; i < sizeof(measurs) / sizeof(Measure); i++) {
+      float t = (char)rand() % 100;
+      writer_print(w, "%s, %.2f\n", measurs[i].city, measurs[i].teperature + t);
+    }
+  }
+  
+  writer_destroy(w);
+  close(fd);
+}  
