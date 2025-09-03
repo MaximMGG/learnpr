@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 
 
 typedef struct {
@@ -425,6 +426,7 @@ Measure measurs[] = {{"Abha", 18.0},
 
 
 int main() {
+  clock_t start = clock();  
   int fd = open("measures2.txt", O_CREAT | O_RDWR,
                 S_IWUSR | S_IRUSR | S_IRGRP | S_IWGRP);
   writer *w = writer_create(fd, null, 0);
@@ -437,5 +439,8 @@ int main() {
 
   writer_destroy(w);
   close(fd);
+  clock_t end = clock();
+  printf("%ld\n", end - start);  
+  
   return 0;
 }

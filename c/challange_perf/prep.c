@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 
 #define TASK_PER_THREAD 2500
@@ -442,6 +443,7 @@ void *do_job(void *_w) {
 }
 
 int main() {
+  clock_t start = clock();  
   int fd = open("measures.txt", O_CREAT | O_RDWR,
                 S_IWUSR | S_IRUSR | S_IRGRP | S_IWGRP);
   if (fd < 0) {
@@ -459,4 +461,6 @@ int main() {
   }
 
   close(fd);
+  clock_t end = clock();
+  printf("%ld\n", (end - start) / CLOCKS_PER_SEC);  
 }
