@@ -1,13 +1,8 @@
+#include <stdio.h>
 #include <cstdext/io/writer.h>
 #include <fcntl.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-
-
-#define TASK_PER_THREAD 2500
-#define THREAD_COUNTER 4
+#include <stdlib.h>
 
 
 typedef struct {
@@ -427,36 +422,20 @@ Measure measurs[] = {{"Abha", 18.0},
                      {"Zanzibar City", 26.0},
                      {"Zürich", 9.3}};
 
-void *do_job(void *_w) {
-  i32 fd = *(i32 *)_w;
+
+
+int main() {
+  int fd = open("measures2.txt", O_CREAT | O_RDWR,
+                S_IWUSR | S_IRUSR | S_IRGRP | S_IWGRP);
   writer *w = writer_create(fd, null, 0);
-  for (int i = 0; i < TASK_PER_THREAD; i++) {
-    for (int j = 0; j < sizeof(measurs) / sizeof(Measure); j++) {
+  for (int i = 0; i < 10000; i++) {
+    for(int j = 0; j < sizeof(measurs) / sizeof(Measure); j++) {
       float t = (char)rand() % 100;
       writer_print(w, "%s, %.2f\n", measurs[j].city, measurs[j].teperature + t);
-    }
+    }      
   }
 
   writer_destroy(w);
-  return null;
-}
-
-int main() {
-  int fd = open("measures.txt", O_CREAT | O_RDWR,
-                S_IWUSR | S_IRUSR | S_IRGRP | S_IWGRP);
-  if (fd < 0) {
-    fprintf(stderr, "Cant create file\n");
-    return 1;
-  }
-
-  pthread_t workers[THREAD_COUNTER] = {0};
-  for (i32 i = 0; i < THREAD_COUNTER; i++) {
-    pthread_create(&workers[i], null, do_job, &fd);
-  }
-
-  for (i32 i = 0; i < THREAD_COUNTER; i++) {
-    pthread_join(workers[i], null);
-  }
-
   close(fd);
+  return 0;
 }
