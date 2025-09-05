@@ -5,10 +5,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdatomic.h>
 
 
 #define TASK_PER_THREAD 2500
 #define THREAD_COUNTER 4
+
+_Atomic int count = 0;
 
 
 typedef struct {
@@ -431,13 +434,15 @@ Measure measurs[] = {{"Abha", 18.0},
 void *do_job(void *_w) {
   i32 fd = *(i32 *)_w;
   writer *w = writer_create(fd, null, 0);
-  for (int i = 0; i < TASK_PER_THREAD; i++) {
+  while (true) {
     for (int j = 0; j < sizeof(measurs) / sizeof(Measure); j++) {
       float t = (char)rand() % 100;
       writer_print(w, "%s, %.2f\n", measurs[j].city, measurs[j].teperature + t);
+      if (count == 1000000000)
+        break;
+      count++;
     }
   }
-
   writer_destroy(w);
   return null;
 }
