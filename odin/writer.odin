@@ -3,7 +3,7 @@ package writer
 import "core:io"
 import "core:bufio"
 import "core:os"
-
+import "core:fmt"
 
 main :: proc() {
 
@@ -15,5 +15,4 @@ main :: proc() {
 
     bufio.writer_write_string(&writer, s)
     bufio.writer_flush(&writer)
-
 }
