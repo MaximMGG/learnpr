@@ -6,7 +6,6 @@ import "core:os"
 import "core:fmt"
 
 main :: proc() {
-
     s: string = "Hello world!\n"
     stream := os.stream_from_handle(os.stdout)
     writer: bufio.Writer
