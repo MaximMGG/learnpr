@@ -3,6 +3,8 @@
 *.obj
 *.o
 
+*.*~
+
 zig-zen.txt
 */.zig-cache/*
 .zig-cache
