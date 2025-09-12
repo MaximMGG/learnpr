@@ -2,6 +2,7 @@ package procidure
 
 import "core:fmt"
 import "core:bytes"
+import "core:math"
 
 
 write_message :: proc(message: string, label: string = "Info") {
@@ -24,6 +25,7 @@ clone :: proc(s: []byte, allocator := context.allocator, loc := #caller_location
 }
 
 main :: proc() {
+    defer fmt.println("In the begging of main")
     write_message("Message")
     my_proc(7, c = "IJIJIJ")
 
@@ -74,6 +76,10 @@ main :: proc() {
     }
 
     aliasing_example(&couple_data, couple_data.person_1)
+
+    fmt.println("Len of [2]f32", length([2]f32{3.1,4.3}))
+    fmt.println("Len of [3]f32", length([3]f32{1.3, 4.5, 9.9}))
+
     
 }
 
@@ -133,4 +139,29 @@ do_stuff :: proc() {
     }
 
     print_message("HELLO FROM HELL")
+}
+
+length :: proc {
+    length_float2,
+    length_float3,
+}
+
+
+length_float2 :: proc(v: [2]f32) -> f32 {
+    return math.sqrt(v.x * v.x + v.y * v.y)
+}
+
+length_float3 :: proc(v: [3]f32) -> f32 {
+    return math.sqrt(v.x * v.x + v.y * v.y * v.z * v.z)
+}
+
+@init
+startup :: proc() {
+    fmt.println("Programm starting")
+}
+
+
+@fini
+shutdown :: proc() {
+    fmt.println("Programm shutting down")
 }
