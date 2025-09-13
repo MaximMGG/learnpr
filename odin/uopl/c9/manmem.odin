@@ -1,0 +1,1 @@
+Compile command: odin run manmem.odin -file -vet-style
