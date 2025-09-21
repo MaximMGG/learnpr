@@ -31,6 +31,13 @@ main :: proc() {
     prealloc_dun_arr()
     jeck()
     arr_experiment()
+    new_arr()
+
+
+    b := make([dynamic]int, allocator = context.temp_allocator)
+
+
+    free_all(context.temp_allocator)
 }
 
 prealloc_dun_arr :: proc() {
@@ -112,5 +119,23 @@ print_info :: proc(arr: [dynamic]int) {
     fmt.println("len: %v", len(arr))
     fmt.println("cap: %v", cap(arr))
     fmt.println("data: %p", raw_data(arr))
+    
+}
+
+
+new_arr :: proc() {
+    arr := new([dynamic]int)
+
+    for i in 0..<100 {
+	append(arr, i)
+    }
+
+    fmt.println(len(arr))
+    fmt.println(cap(arr))
+
+    fmt.println(arr)
+
+
+    free(arr)
     
 }
