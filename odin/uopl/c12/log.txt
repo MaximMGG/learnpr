@@ -1,0 +1,2 @@
+[INFO ] --- [2025-09-22 18:55:13] [impl_context.odin:55:some_work()] Some work beggins here
+[INFO ] --- [2025-09-22 18:55:13] [impl_context.odin:59:some_end_work()] Some work ends here
