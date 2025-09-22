@@ -4,12 +4,15 @@ package strings_example
 import "core:fmt"
 import "core:strings"
 import "core:unicode/utf8"
+import vmem "core:mem/virtual"
 
 
 main :: proc() {
     //one()
     //two()
-    three()
+    //three()
+    //four()
+    five()
 }
 
 
@@ -96,4 +99,54 @@ three :: proc() {
     fmt.println(str)
     strings.builder_destroy(&b)
 
+}
+
+make_some_string :: proc() -> [dynamic]string {
+    strs: [dynamic]string
+
+    strs_add :: proc(strs: ^[dynamic]string, s: string) {
+	append(strs, strings.clone(s))
+    }
+
+    strs_add(&strs, "Hellope!")
+    strs_add(&strs, "Hi!")
+    strs_add(&strs, "Dynamiclly allocated!")
+    strs_add(&strs, "Not constat any more!")
+    strs_add(&strs, "Dynamic")
+    return strs
+}
+
+
+four :: proc() {
+    strs := make_some_string()
+
+    for s in strs {
+	delete(s)
+    }
+
+    delete(strs)
+
+    fmt.println("Probably got here!")
+}
+
+
+make_some_strings2 :: proc() -> ([dynamic]string, vmem.Arena) {
+    arena: vmem.Arena
+    strs: [dynamic]string
+    arena_allocator := vmem.arena_allocator(&arena)
+    append(&strs, "Hellope!")
+    append(&strs, "Hi!")
+    append(&strs, strings.clone("Dynamiclly allocated", arena_allocator))
+    append(&strs, "Constant!")
+    append(&strs, strings.clone("Dynamic!", arena_allocator))
+
+    return strs, arena
+}
+
+five :: proc() {
+    strs, strs_arena := make_some_strings2()
+
+    vmem.arena_destroy(&strs_arena)
+    delete(strs)
+    fmt.println("Probablly got here2!")
 }

@@ -1,0 +1,36 @@
+package cube
+
+import "core:fmt"
+import "core:io"
+import "core:os"
+
+
+NB_COLS :: 161
+NB_ROWS :: 38
+
+screen := [NB_ROWS][NB_COLS]u8{0..<NB_ROWS = {0..<NB_COLS = ' '}}
+buffer := [3 + NB_ROWS * (NB_COLS + 1)]u8{}
+
+
+
+display_screen :: proc() {
+
+}
+
+
+main :: proc() {
+    fmt.1print("\x1B[2J\x1B[?25h")
+    
+    w := io.Writer{}
+
+    io.write
+
+    buffer[0] = '\x1B'
+    buffer[1] = '['
+    buffer[2] = 'H'
+
+    for {
+
+    }
+
+}
