@@ -7,18 +7,27 @@ import SDL_Image "vendor:sdl2/image"
 
 WINDOW_FALGS :: SDL.WINDOW_SHOWN
 RENDER_FALGS :: SDL.RENDERER_ACCELERATED
-TARGET_DT :: 1000 / 60
+TARGET_DELTA_TIME :: f64(1000) / f64(60)
 WINDOW_WIDTH :: 1600
 WINDOW_HEIGHT :: 960
 PLAYER_SPEED : f64 : 500
-LASER_SPEED : f64 : 800
+//LASER
+LASER_SPEED : f64 : 700
+NUM_OF_LASERS :: 100
+LASER_COOLDOWN_TIMER : f64 : 50
 
 Game :: struct {
     perf_frequency:   f64,
     renderer:         ^SDL.Renderer,
 
+    //player
     player:           Entity,
-    laser:            Entity,
+    player_tex:       ^SDL.Texture,
+    
+    //laser:            Entity,
+    lasers:           [NUM_OF_LASERS]Entity,
+    laser_tex:        ^SDL.Texture,
+    laser_cooldown:   f64,
 
     left:             bool,
     right:            bool,
@@ -29,7 +38,6 @@ Game :: struct {
 
 
 Entity :: struct {
-    tex: ^SDL.Texture,
     dest: SDL.Rect,
     health: int ,
 }
@@ -107,27 +115,33 @@ main :: proc() {
 	}
 	
 
-	SDL.RenderCopy(game.renderer, game.player.tex, nil, &game.player.dest)
+	SDL.RenderCopy(game.renderer, game.player_tex, nil, &game.player.dest)
 
-	if game.fire && game.laser.health == 0 {
-	    game.laser.dest.x = game.player.dest.x + 30
-	    game.laser.dest.y = game.player.dest.y
-	    game.laser.health = 1
-	}
-	 
-	if game.laser.dest.x > WINDOW_WIDTH {
-	    game.laser.health = 0
+	if game.fire && !(game.laser_cooldown > 0) {
+	    reload : for &laser in game.lasers {
+		if laser.dest.x > WINDOW_WIDTH {
+		    laser.dest.x = game.player.dest.x + 30
+		    laser.dest.y = game.player.dest.y
+
+		    game.laser_cooldown = LASER_COOLDOWN_TIMER
+
+		    break reload
+		}
+	    }
 	}
 
-	if game.laser.health > 0 {
-	    game.laser.dest.x += i32(get_delta_motion(LASER_SPEED))
-	    SDL.RenderCopy(game.renderer, game.laser.tex, nil, &game.laser.dest)
+	for &laser in game.lasers {
+	    if laser.dest.x < WINDOW_WIDTH {
+		laser.dest.x += i32(get_delta_motion(LASER_SPEED))
+		SDL.RenderCopy(game.renderer, game.laser_tex, nil, &laser.dest)
+	    }
 	}
 	
-	
+	game.laser_cooldown -= get_delta_motion(LASER_SPEED)
+
 	end = get_time()
 
-	for end - start < TARGET_DT {
+	for end - start < TARGET_DELTA_TIME {
 	    end = get_time()
 	}
 
@@ -160,29 +174,40 @@ create_entityes :: proc() {
 
     destination.w /= 10
     destination.h /= 10
-
+    
+    game.player_tex = player_texture
+    
     game.player = Entity {
-	tex = player_texture,
 	dest = destination,
 	health = 10,
     }
 
     laser_texture := SDL_Image.LoadTexture(game.renderer, "bullet_red_2.png")
     assert(laser_texture != nil, SDL.GetErrorString())
-    SDL.QueryTexture(laser_texture, nil, nil, &destination.w, &destination.h)
 
-    destination.w /= 3
-    destination.h /= 3
 
-    game.laser = Entity {
-	tex = laser_texture,
-	dest = destination,
-	health = 0,
-    }
+    laser_w: i32
+    laser_h: i32
     
+    SDL.QueryTexture(laser_texture, nil, nil, &laser_w, &laser_h)
+    game.laser_tex = laser_texture
+
+    for index in 0..<NUM_OF_LASERS {
+	d := SDL.Rect{
+	    x = WINDOW_WIDTH + 20,
+	    y = 0,
+	    w = laser_w / 3,
+	    h = laser_h / 3,
+	}
+	
+	game.lasers[index] = Entity {
+	     dest = d,
+	    health = 0,
+	}	
+    }
 
 }
 
 get_delta_motion :: proc(speed: f64) -> f64 {
-    return speed * (f64(TARGET_DT) / 1000)
+    return speed * (TARGET_DELTA_TIME / 1000)
 }
