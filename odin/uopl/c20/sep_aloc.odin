@@ -10,7 +10,7 @@ Person :: struct {
     age: int,
 }
 
-NUM_ELEMS :: 10000
+NUM_ELEMS :: 100000
 NUM_TEST_ITERS :: 10
 
 make_person :: proc() -> Person {
@@ -34,13 +34,17 @@ benchmark_scattered_array :: proc() -> f64 {
     age_sum: int
     start := time.now()
     for i in 0..<NUM_TEST_ITERS {
-	for &p in people {
-	    age_sum += p.age
-	}
+        for &p in people {
+            age_sum += p.age
+        }
     }
     end := time.now()
+    for i in people {
+        free(i)
+    }
     fmt.println("Scattered array age sum:", f32(age_sum)/(NUM_TEST_ITERS*NUM_ELEMS))
 
+    delete(people)
     return time.duration_milliseconds(time.diff(start, end))
 }
 
@@ -61,11 +65,14 @@ benchmark_tight_array :: proc() -> f64 {
     }
     end := time.now()
     fmt.println("Tight array age sum:", f32(age_sum)/(NUM_TEST_ITERS*NUM_ELEMS))
+    delete(people)
     return time.duration_milliseconds(time.diff(start, end))
 }
 
 main :: proc() {
     time_scattered := benchmark_scattered_array()
     time_tight := benchmark_tight_array()
+    fmt.println("Scattered:", time_scattered)
+    fmt.println("Tight:", time_tight)
     fmt.printfln("Cache friendly method is %.2f times faster", time_scattered/time_tight)
 }
