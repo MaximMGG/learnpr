@@ -1,0 +1,8 @@
+{
+	"ODIN_OS": "Linux",
+	"ODIN_ARCH": "amd64",
+	"ODIN_ENDIAN": "Little",
+	"ODIN_VENDOR": "odin",
+	"ODIN_ROOT": "/home/maximhrunenko/prog/odin/",
+	"ODIN_DEBUG": false
+}

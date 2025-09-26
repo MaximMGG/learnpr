@@ -5,7 +5,7 @@ import "core:mem"
 
 
 main :: proc() {
-
+n
     dyn := make([dynamic]int, 5, 5)
 
     defer delete(dyn)
