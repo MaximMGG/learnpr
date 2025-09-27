@@ -1,12 +1,12 @@
 APP = app
-SRC = main.c
+SRC = main.c 
 OBJ = $(SRC:%.c=%.o)
 
 default: build run
 
 
 build:
-	gcc -o $(APP) main.c -lGL -lglfw -lcext
+	gcc -o $(APP) main.c -lGL -lglfw -lcext -lGLEW
 
 run:
 	./$(APP)

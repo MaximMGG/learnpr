@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <GLFW/glfw3.h>
-#include <GL/gl.h>
 #include <stdlib.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GLFW/glfw3.h>
 #include <cstdext/io/logger.h>
 
 #define WIDTH 640
@@ -14,7 +15,9 @@ int main() {
     log(FATAL, "glfwInit fail");
     return EXIT_FAILURE;
   }
-  log(INFO, "glfwInit");  
+  log(INFO, "glfwInit");
+
+
 
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "TEST WINDOW", NULL, NULL);
 
@@ -25,6 +28,14 @@ int main() {
   log(INFO, "CreateWindow");
 
   glfwMakeContextCurrent(window);
+  if (glewInit() != GLEW_OK) {
+    log(FATAL, "glewInit error");
+    return EXIT_FAILURE;
+  }
+  log(INFO, "glewInit");
+
+  log(INFO, "GL Version %s", glGetString(GL_VERSION));
+  
 
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -40,6 +51,7 @@ int main() {
     glfwPollEvents();
   }
 
+  log(INFO, "We are DONE");  
   glfwDestroyWindow(window);
   glfwTerminate();  
 
