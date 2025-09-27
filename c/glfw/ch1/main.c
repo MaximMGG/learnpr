@@ -11,6 +11,22 @@
 #define WIDTH 640
 #define HEIGHT 480
 
+#define ASSERT(x) if (!(x)) __debugbreak();
+
+static void GLClearError() {
+  while(glGetError());
+}
+
+static bool GLLogCall() {
+  u32 gl_err;
+  while((gl_err = glGetError()) != GL_NO_ERROR) {
+    fprintf(stderr, "[OpenGL Error] (0x%X)\n", gl_err);
+    return false;
+  }
+  return true;
+}
+
+
 typedef struct {
   str VertexSource;
   str FragmentSource;
@@ -25,7 +41,6 @@ static ShaderProgramSource ParseShader(str file) {
   str_buf *sb[2] = {str_buf_create(), str_buf_create()};
 
   u32 type;
-
   ShaderType st = NONE;
   
   str line;
@@ -148,8 +163,8 @@ int main() {
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
-
+    GLClearError();
+    glDrawElements(GL_TRIANGLES, 6, GL_INT, null);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
