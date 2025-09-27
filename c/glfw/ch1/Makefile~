@@ -1,0 +1,7 @@
+CC = gcc
+NAME = app
+SRC = main.c
+OBJ= main.o
+
+
+default: build run
