@@ -125,6 +125,8 @@ int main() {
   log(INFO, "CreateWindow");
 
   glfwMakeContextCurrent(window);
+  //glfwSwapInterval(1);
+  
   if (glewInit() != GLEW_OK) {
     log(FATAL, "glewInit error");
     return EXIT_FAILURE;
@@ -147,7 +149,7 @@ int main() {
   
   u32 buffer;
   GLCall(glGenBuffers(1, &buffer));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer);)
   GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW));
 
   GLCall(glEnableVertexAttribArray(0));
@@ -163,14 +165,43 @@ int main() {
   
   u32 shader = CreateShader(source.VertexSource, source.FragmentSource);
   GLCall(glUseProgram(shader));
-    
+
+  GLCall(i32 location = glGetUniformLocation(shader, "u_Color"));
+  ASSERT(location != -1);
+  GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f));
+
+  GLCall(glUseProgram(0));
+  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+  
+  f32 r = 0.0;
+  f32 increment = 0.05;
+  
   while(!glfwWindowShouldClose(window)) {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
+    
+    GLCall(glUseProgram(shader));
+    GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+    
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
+    
+    GLCall(glEnableVertexAttribArray(0));
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(f32) * 2, (ptr)0));
+    
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+    
+    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null));
 
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, null));
+    if (r > 1.0f) {
+      increment = -0.05f;
+    } else if (r < 0.0f) {
+      increment = 0.05f;
+    }
+    r += increment;
     
     glfwSwapBuffers(window);
     glfwPollEvents();
+    usleep(50000);
   }
 
   log(INFO, "We are DONE");
