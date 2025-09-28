@@ -27,6 +27,7 @@ static bool GLLogCall(const str func, const int line) {
     fprintf(stderr, "[OpenGL Error] (0x%X): %s:%d\n", gl_err, func, line);
     return false;
   }
+
   return true;
 }
 
@@ -139,6 +140,9 @@ int main() {
   log(INFO, "glewInit");
 
   log(INFO, "GL Version %s", glGetString(GL_VERSION));
+
+
+
 
   float positions[] = {
    -0.5f, -0.5f, // 0
