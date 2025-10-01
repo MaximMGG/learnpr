@@ -10,6 +10,8 @@
 #include "renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
+#include "VertexBufferLayout.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -102,8 +104,6 @@ int main() {
   //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  
-
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "TEST WINDOW", NULL, NULL);
 
   if (window == NULL) {
@@ -123,9 +123,6 @@ int main() {
 
   log(INFO, "GL Version %s", glGetString(GL_VERSION));
 
-
-
-
   float positions[] = {
    -0.5f, -0.5f, // 0
     0.5f, -0.5f, // 1
@@ -141,16 +138,17 @@ int main() {
   GLCall(glGenVertexArrays(1, &vao));
   GLCall(glBindVertexArray(vao));
   
+  VertexArray va = VertexArrayCreate();
   VertexBuffer vb = VertexBufferCreate(positions, sizeof(positions));
 
-  GLCall(glEnableVertexAttribArray(0));
-  GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(f32) * 2, (ptr)0));
+  VertexBufferLayout vbl = VertexBufferLayoutCreate();
+  VertexBufferLayoutPushf32(&vbl, 2, false);
+  VertexArrayAddBuffer(&va, &vb, &vbl);
 
   IndexBuffer ib = IndexBufferCreate(indeces, sizeof(indeces) / sizeof(u32));
   
   ShaderProgramSource source = ParseShader("./res/shaders/Basic.glsl");
 
-  
   u32 shader = CreateShader(source.VertexSource, source.FragmentSource);
   GLCall(glUseProgram(shader));
 
@@ -172,8 +170,7 @@ int main() {
     GLCall(glUseProgram(shader));
     GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
 
-    GLCall(glBindVertexArray(vao));
-    // VertexBufferBind(&vb);
+    VertexArrayBind(&va);
     IndexBufferBind(&ib);
     
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null));
@@ -192,6 +189,8 @@ int main() {
 
   VertexBufferDestroy(&vb);
   IndexBufferDestroy(&ib);
+  VertexArrayDestroy(&va);
+  VertexBufferLayoutDestroy(&vbl);
   log(INFO, "We are DONE");
   GLCall(glDeleteProgram(shader));
   glfwDestroyWindow(window);
