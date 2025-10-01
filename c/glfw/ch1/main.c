@@ -7,30 +7,12 @@
 #include <cstdext/core.h>
 #include <cstdext/io/reader.h>
 #include <cstdext/core/string.h>
+#include "renderer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 #define WIDTH 640
 #define HEIGHT 480
-
-#define GLCall(x) GLClearError(); \
-  x;\
-  ASSERT(GLLogCall(#x, __LINE__))
-
-#define ASSERT(x) if (!(x)) fprintf(stderr, "Err: %s:%d\n", __FUNCTION__, __LINE__);
-
-static void GLClearError() {
-  while(glGetError());
-}
-
-static bool GLLogCall(const str func, const int line) {
-  u32 gl_err;
-  while((gl_err = glGetError()) != GL_NO_ERROR) {
-    fprintf(stderr, "[OpenGL Error] (0x%X): %s:%d\n", gl_err, func, line);
-    return false;
-  }
-
-  return true;
-}
-
 
 typedef struct {
   str VertexSource;
@@ -42,7 +24,7 @@ typedef enum ShaderType {
 } ShaderType;
 
 static ShaderProgramSource ParseShader(str file) {
-  reader *r = reader_create_from_file(file, 0);
+  reader *r = reader_create_from_file(file);
   str_buf *sb[2] = {str_buf_create(), str_buf_create()};
 
   u32 type;
@@ -70,7 +52,7 @@ static ShaderProgramSource ParseShader(str file) {
 
 static u32 CompileShader(const str source, u32 type) {
   u32 id = glCreateShader(type);
-  GLCall(glShaderSource(id, 1, &source, null));
+  GLCall(glShaderSource(id, 1, (const char *const *)&source, null));
   GLCall(glCompileShader(id));
 
   i32 result;
@@ -159,18 +141,12 @@ int main() {
   GLCall(glGenVertexArrays(1, &vao));
   GLCall(glBindVertexArray(vao));
   
-  u32 buffer;
-  GLCall(glGenBuffers(1, &buffer));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer);)
-  GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW));
+  VertexBuffer vb = VertexBufferCreate(positions, sizeof(positions));
 
   GLCall(glEnableVertexAttribArray(0));
   GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(f32) * 2, (ptr)0));
 
-  u32 ibo;
-  GLCall(glGenBuffers(1, &ibo));
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
-  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeces), indeces, GL_STATIC_DRAW));
+  IndexBuffer ib = IndexBufferCreate(indeces, sizeof(indeces) / sizeof(u32));
   
   ShaderProgramSource source = ParseShader("./res/shaders/Basic.glsl");
 
@@ -197,7 +173,8 @@ int main() {
     GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
 
     GLCall(glBindVertexArray(vao));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));
+    // VertexBufferBind(&vb);
+    IndexBufferBind(&ib);
     
     GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null));
 
@@ -213,6 +190,8 @@ int main() {
     usleep(50000);
   }
 
+  VertexBufferDestroy(&vb);
+  IndexBufferDestroy(&ib);
   log(INFO, "We are DONE");
   GLCall(glDeleteProgram(shader));
   glfwDestroyWindow(window);

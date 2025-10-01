@@ -1,25 +1,23 @@
 APP = app
-SRC = main.c 
+SRC = $(wildcard *.c)
 OBJ = $(SRC:%.c=%.o)
 
 default: build run
 
+debug: $(OBJ)
+	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW -g
 
-debug:
-	gcc -o $(APP) main.c -lGL -lglfw -lcext -lGLEW -g
-
-
-
-build:
-	gcc -o $(APP) main.c -lGL -lglfw -lcext -lGLEW
+build: $(OBJ)
+	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW
 
 run:
 	./$(APP)
 
+# $(OBJ): $(SRC)
+# 	gcc -o $@ -c $<
 
 %.o: %.c
 	gcc -o $@ -c $<
-
 
 clear:
 	rm $(APP) *.o
