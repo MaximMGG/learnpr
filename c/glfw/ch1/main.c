@@ -134,10 +134,6 @@ int main() {
     0, 1, 2, 2, 3, 0
   };
 
-  u32 vao;
-  GLCall(glGenVertexArrays(1, &vao));
-  GLCall(glBindVertexArray(vao));
-  
   VertexArray va = VertexArrayCreate();
   VertexBuffer vb = VertexBufferCreate(positions, sizeof(positions));
 
@@ -156,9 +152,11 @@ int main() {
   ASSERT(location != -1);
   GLCall(glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f));
 
-  GLCall(glBindVertexArray(0));
+
+  VertexArrayUnbind(&va);
   GLCall(glUseProgram(0));
-  GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+  VertexBufferUnbind(&vb);
+  // GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
   GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
   
   f32 r = 0.0;
