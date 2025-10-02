@@ -10,7 +10,7 @@
 #include <time.h>
 
 #define ERR(msg) fprintf(stderr, "Error: line: %d, message: %s\n", __LINE__ - 1, msg)
-#define LOCAL_HOST 0
+#define LOCAL_HOST "127.0.0.1"
 #define LOG(msg) printf("%s...\n", msg)
 #define BUFFER_SIZE 1024
 #define SET_BUF(buf) memset(buf, 0, BUFFER_SIZE)
@@ -110,6 +110,8 @@ int main(int argc, char **argv) {
                     char buf[BUFFER_SIZE] = {0};
 
                     bc = recv(i, buf, BUFFER_SIZE, 0);
+
+                    printf("%s\n", buf);
 
                     if (bc < 1) {
                         FD_CLR(i, &master);
