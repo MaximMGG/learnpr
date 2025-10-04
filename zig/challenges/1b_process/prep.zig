@@ -423,7 +423,7 @@ var Measures = [_]Measure{
 
 
 const COUNTER = 1_000_000;
-
+threadlocal var c: u64 = 0;
 
 fn set_rand_temp(measure: *Measure) void {
     const f = std.crypto.random.float(f32);
@@ -433,18 +433,21 @@ fn set_rand_temp(measure: *Measure) void {
 
 //var counter: u64 = 0;
 
-fn write_measure(writer: *std.fs.File.Writer, counter: *u64) void {
-    while(counter.* < COUNTER / 4) {
+fn write_measure(writer: *std.fs.File.Writer, w: *u64) void {
+    _ = &w;
+    counter_loop: while(true) {
         for(&Measures) |*m| {
+            if (c == COUNTER / 4) {break :counter_loop;}
             set_rand_temp(m);
             writer.interface.print("{s};{d:.1}\n", .{m.city, m.temperature}) catch |err| {
                 std.debug.print("{any}\n", .{err});
             };
             //@atomicStore(u64, &counter, @atomicLoad(u64, &counter, .monotonic) + 1, .monotonic);
             // _ = @atomicRmw(u64, &counter, .Add, 1, .monotonic);
-            counter.* += 1;
+            c += 1;
         }
     }
+    std.debug.print("Counter: {d}\n", .{c});
     writer.interface.flush() catch |err| {
         std.debug.print("{any}\n", .{err});
     };
