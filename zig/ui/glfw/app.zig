@@ -1,22 +1,29 @@
 const std = @import("std");
 const glew = @cImport(@cInclude("GL/glew.h"));
 const gl = @cImport(@cInclude("GL/gl.h"));
-const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
+const glfw = @cImport(@cInclude({"GLFW/glfw3.h";}));
+
+
+const WIDTH = 640;
+const HEIGHT = 480;
+
 
 pub fn main() !void {
-    var buf: [1024]u8 = undefined;
-    const stdout_writer: std.fs.File.Writer = std.fs.File.stdout().writer(&buf);
-    const stdout: *std.Io.Writer = @constCast(&stdout_writer.interface);
 
-    for(1..1001) |i| {
-        try stdout.print("{d}. Hello\n", .{i});
+    if (glfw.glfwInit() == 0) {
+        std.debug.print("glfwInit Fail\n", .{});
+        return;
     }
 
-    try stdout.flush();
+    std.debug.print("glfwInit\n", .{});
 
-    if (glfw.glfwInit() != 0) {
+    glfw.glfwWindowHint(glfw.GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfw.glfwWindowHint(glfw.GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfw.glfwWindowHint(glfw.GLFW_OPENGL_PROFILE, glfw.GLFW_OPENGL_CORE_PROFILE);
 
-    }
+    const window: ?*glfw.GLFWwindow = glfw.glfwCreateWindow(WIDTH, HEIGHT, "TEST WINDOW", null, null);
+
+
 
     glfw.glfwTerminate();
 }
