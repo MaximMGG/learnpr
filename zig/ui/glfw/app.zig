@@ -3,6 +3,7 @@ const c = @cImport(@cInclude("stdio.h"));
 const glew = @cImport(@cInclude("GL/glew.h"));
 const gl = @cImport(@cInclude("GL/gl.h"));
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
+const Shader = @import("shader.zig");
 
 
 const WIDTH = 640;
@@ -10,6 +11,8 @@ const HEIGHT = 480;
 
 
 pub fn main() !void {
+
+    const allocator = std.heap.page_allocator;
 
     if (glfw.glfwInit() == 0) {
         std.debug.print("glfwInit Fail\n", .{});
@@ -41,6 +44,10 @@ pub fn main() !void {
     std.debug.print("glewInit\n", .{});
     glfw.glfwSwapInterval(1);
 
+    var s = try Shader.create("./res/shaders/basic.glsl", allocator);
+    defer s.destroy();
+    s.bind();
+
     std.debug.print("GL Version: {s}\n", .{gl.glGetString(gl.GL_VERSION)});
 
     while(glfw.glfwWindowShouldClose(window) == 0) {
@@ -53,4 +60,5 @@ pub fn main() !void {
 
     glfw.glfwDestroyWindow(window);
     glfw.glfwTerminate();
+
 }
