@@ -1,4 +1,5 @@
 const std = @import("std");
+const thread = std.Thread;
 
 
 const Measure = struct {
@@ -6,6 +7,7 @@ const Measure = struct {
     temperature: f32,
 };
  
+//var m_mutex: thread.Mutex = undefined;
 var Measures = [_]Measure{
                      Measure{.city = "Abha", .temperature = 18.0},
                      Measure{.city = "Abidjan", .temperature = 26.0},
@@ -420,13 +422,32 @@ var Measures = [_]Measure{
                      Measure{.city = "Zürich", .temperature = 9.3}};
 
 
-const COUNTER = 1_000_000_000;
+const COUNTER = 1_000_000;
 
 
 fn set_rand_temp(measure: *Measure) void {
     const f = std.crypto.random.float(f32);
     const i = @mod(std.crypto.random.int(i32), @as(i32, 100));
     measure.temperature = @as(f32, @floatFromInt(i)) + f;
+}
+
+//var counter: u64 = 0;
+
+fn write_measure(writer: *std.fs.File.Writer, counter: *u64) void {
+    while(counter.* < COUNTER / 4) {
+        for(&Measures) |*m| {
+            set_rand_temp(m);
+            writer.interface.print("{s};{d:.1}\n", .{m.city, m.temperature}) catch |err| {
+                std.debug.print("{any}\n", .{err});
+            };
+            //@atomicStore(u64, &counter, @atomicLoad(u64, &counter, .monotonic) + 1, .monotonic);
+            // _ = @atomicRmw(u64, &counter, .Add, 1, .monotonic);
+            counter.* += 1;
+        }
+    }
+    writer.interface.flush() catch |err| {
+        std.debug.print("{any}\n", .{err});
+    };
 }
 
 pub fn main() !void {
@@ -436,14 +457,31 @@ pub fn main() !void {
     defer f.close();
     var f_writer = f.writer(&buf);
 
-    var counter: u64 = 0;
-    while(counter < COUNTER) {
-        for(0..Measures.len) |i| {
-            set_rand_temp(&Measures[i]);
-            try f_writer.interface.print("{s};{d:.1}\n", .{Measures[i].city, Measures[i].temperature});
-            counter += 1;
-        }
+    var counters: [4]u64 = .{0} ** 4;
+    const threads: [4]thread = .{
+        try thread.spawn(.{.allocator = std.heap.page_allocator}, write_measure, .{&f_writer, &counters[0]}),
+        try thread.spawn(.{.allocator = std.heap.page_allocator}, write_measure, .{&f_writer, &counters[1]}),
+        try thread.spawn(.{.allocator = std.heap.page_allocator}, write_measure, .{&f_writer, &counters[2]}),
+        try thread.spawn(.{.allocator = std.heap.page_allocator}, write_measure, .{&f_writer, &counters[3]}),
+    };
+
+    for(threads) |t| {
+        t.join();
     }
+
+    // var pool: std.Thread.Pool = undefined;
+    // try pool.init(.{.n_jobs = 4, .allocator = std.heap.page_allocator});
+    // defer pool.deinit();
+    // try pool.spawn(write_measure, .{&f_writer});
+
+    // var counter: u64 = 0;
+    // while(counter < COUNTER) {
+    //     for(0..Measures.len) |i| {
+    //         set_rand_temp(&Measures[i]);
+    //         try f_writer.interface.print("{s};{d:.1}\n", .{Measures[i].city, Measures[i].temperature});
+    //         counter += 1;
+    //     }
+    // }
     try f_writer.interface.flush();
     
 }
