@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-char *get_png_buf(const char *file_name, int *buf_size) {
+static char *get_png_buf(const char *file_name, int *buf_size) {
     int fd = open(file_name, O_RDONLY);
     if (fd < 0) {
         fprintf(stderr, "cant open file %s\n", file_name);
@@ -28,7 +28,7 @@ char *get_png_buf(const char *file_name, int *buf_size) {
 }
 
 
-int main() {
+unsigned char* load_png(unsigned int *len) {
     int buf_size;
     char *buf = get_png_buf("Simple_cat.png", &buf_size);
     spng_ctx *ctx = spng_ctx_new(0);
@@ -75,6 +75,7 @@ int main() {
 
     spng_ctx_free(ctx);
     free(buf);
+    *len = (unsigned int)image_size;
 
-    return 0;
+    return image;
 }

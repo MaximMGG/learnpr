@@ -16,9 +16,13 @@ pub fn build(b: *std.Build) void {
         .root_module = exe_module,
     });
 
+    exe.root_module.addCSourceFile(.{.file = b.path("png_load.c"), .flags = &.{"-lspng -O2"}});
+
     exe.linkSystemLibrary("GL");
     exe.linkSystemLibrary("glfw");
     exe.linkSystemLibrary("GLEW");
+    exe.linkSystemLibrary("spng");
+
     exe.linkLibC();
     b.installArtifact(exe);
 
