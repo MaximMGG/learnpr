@@ -9,6 +9,7 @@ const vb = @import("vertex_buffer.zig");
 const vbl = @import("vertex_buffer_layout.zig");
 const renderer = @import("renderer.zig");
 const ib = @import("index_buffer.zig");
+const texture = @import("texture.zig");
 
 
 
@@ -52,10 +53,10 @@ pub fn main() !void {
 
 
     var positions = [_]f32{
-        -0.5, -0.5,
-         0.5, -0.5,
-         0.5,  0.5,
-        -0.5,  0.5,
+        -0.5, -0.5, 0.0, 0.0,
+         0.5, -0.5, 1.0, 0.0,
+         0.5,  0.5, 1.0, 1.0,
+        -0.5,  0.5, 0.0, 1.0
     };
 
     var indeces = [_]u32{
@@ -67,15 +68,21 @@ pub fn main() !void {
 
     var vertexBufferLayout = try vbl.vertexBufferLayout(std.heap.page_allocator);
     try vertexBufferLayout.pushf32(2, false);
+    try vertexBufferLayout.pushf32(2, false);
     vertexArray.addBuffer(&vertexBuffer, &vertexBufferLayout);
 
     var indexBuffer = ib.indexBuffer(&indeces);
 
     var s = try shader.create("./res/shaders/basic.glsl", allocator);
     s.bind();
-    try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
-    vertexArray.unbind();
+    //try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
 
+    var t = texture.texture("./res/textures/file.png");
+    t.bind(0);
+    try s.setUniform1i("u_Texture", 0);
+
+
+    vertexArray.unbind();
     s.unbind();
     vertexBuffer.unbind();
     indexBuffer.unbind();
@@ -92,7 +99,8 @@ pub fn main() !void {
         render.clear();
 
         s.bind();
-        try s.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
+        try s.setUniform1i("u_Texture", 0);
+        //try s.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
 
         render.draw(&vertexArray, &indexBuffer, &s);
 
@@ -114,6 +122,7 @@ pub fn main() !void {
     vertexArray.destroy();
     vertexBufferLayout.destroy();
     s.destroy();
+    t.destroy();
 
     glfw.glfwDestroyWindow(window);
     glfw.glfwTerminate();

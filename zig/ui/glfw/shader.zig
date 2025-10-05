@@ -138,6 +138,11 @@ pub const Shader = struct {
         return location;
     }
 
+    pub fn setUniform1i(self: *Shader, name: []const u8, v0: i32) !void {
+        gl.glUniform1i().?(try self.getUniformLocation(name), v0);
+
+    }
+
     pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) !void {
         gl.glUniform4f().?(try self.getUniformLocation(name), v0, v1, v2, v3);
     }

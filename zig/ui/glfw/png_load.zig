@@ -11,7 +11,7 @@ pub fn load_png(png_name: []const u8, png_width: *u32, png_height: *u32) []u8 {
     var png_len: c_uint = 0;
     var width: c_uint = 0;
     var height: c_uint = 0;
-    image.ptr = @ptrCast(load_png_rgba8(png_name, &png_len, &width, &height));
+    image.ptr = @ptrCast(load_png_rgba8(@ptrCast(png_name), &png_len, &width, &height));
     image.len = @intCast(png_len);
 
     png_width.* = @intCast(width);
