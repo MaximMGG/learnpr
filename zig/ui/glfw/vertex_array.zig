@@ -16,13 +16,14 @@ pub const VertexArray = struct {
     }
 
     pub fn addBuffer(self: *VertexArray, vb: *VertexBuffer, layout: *VertexBufferLayout) void {
-        vb.bind(vb);
+        vb.bind();
         self.bind();
 
         var offset: usize = 0;
-        for(0.., layout.elements.items) |i, element| {
-            gl.glEnableVertexAttribArray().?(i);
-            gl.glVertexAttribPointer(i, element.count, element._type, @as(u8, @intCast(element.normalized)), layout.stride, @ptrFromInt(offset));
+        for(0.., layout.elements.items) |i, *element| {
+            gl.glEnableVertexAttribArray().?(@intCast(i));
+            gl.glVertexAttribPointer().?(@intCast(i), @intCast(element.count), element._type, @as(u8, @intFromBool(element.normalized)), 
+                @intCast(layout.stride), @ptrFromInt(offset));
             offset += element.count + element.bufferElementGetSize();
         }
     }

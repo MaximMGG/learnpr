@@ -1,5 +1,4 @@
 const std = @import("std");
-const AutoHashMap = std.AutoHashMap;
 const gl = @cImport(@cInclude("GL/glew.h"));
 
 const ShaderType = enum(usize) {
@@ -97,7 +96,7 @@ pub fn create(filepath: []const u8, allocator: std.mem.Allocator) !Shader {
     }
 
     s.rendererID = try createShader(prog_source.VertexSource, prog_source.FragmentSource, allocator);
-    s.uniform_location_catch = std.AutoHashMap([]u8, u32).init(allocator);
+    s.uniform_location_catch = std.StringHashMap(u32).init(allocator);
 
     return s;
 }
@@ -105,7 +104,7 @@ pub fn create(filepath: []const u8, allocator: std.mem.Allocator) !Shader {
 pub const Shader = struct {
     filepath: []const u8,
     rendererID: u32 = 0,
-    uniform_location_catch: AutoHashMap([]u8, u32) = undefined,
+    uniform_location_catch: std.StringHashMap(u32) = undefined,
     allocator: std.mem.Allocator = undefined,
 
     pub fn destroy(self: *Shader) void {
@@ -123,9 +122,9 @@ pub const Shader = struct {
         gl.glUseProgram().?(0);
     }
 
-    fn getUniformLocation(self: *Shader, name: []const u8) i32 {
+    fn getUniformLocation(self: *Shader, name: []const u8) !i32 {
         if (self.uniform_location_catch.contains(name)) {
-            return self.uniform_location_catch.get(name).?;
+            return @intCast(self.uniform_location_catch.get(name).?);
         }
 
         const location: i32 = gl.glGetUniformLocation().?(self.rendererID, name.ptr);
@@ -134,12 +133,12 @@ pub const Shader = struct {
             return -1;
         }
 
-        self.uniform_location_catch.put(name, @as(u32, @intCast(location)));
+        try self.uniform_location_catch.put(name, @as(u32, @intCast(location)));
 
         return location;
     }
 
-    pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) void {
-        gl.glUniform4f().?(self.getUniformLocation(name), v0, v1, v2, v3);
+    pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) !void {
+        gl.glUniform4f().?(try self.getUniformLocation(name), v0, v1, v2, v3);
     }
 };

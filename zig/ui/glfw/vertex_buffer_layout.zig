@@ -39,18 +39,19 @@ pub const VertexBufferLayout = struct {
         self.elements.deinit(self.allocator);
     }
 
-    pub fn pushf32(self: *VertexBufferLayout, count: u32, normalized: bool) void {
-        self.elements.append(VertexBufferElement{.count = count, ._type = gl.GL_FLOAT, .normalized = normalized});
-        self.stride += VertexBufferElement.bufferElementGetSize(gl.GL_FLOAT) * count;
+    pub fn pushf32(self: *VertexBufferLayout, count: u32, normalized: bool) !void {
+        var elem = VertexBufferElement{.count = count, ._type = gl.GL_FLOAT, .normalized = normalized};
+        try self.elements.append(self.allocator, elem);
+        self.stride += elem.bufferElementGetSize() * count;
     }
 
-    pub fn pushu32(self: *VertexBufferLayout, count: u32, normalized: bool) void {
-        self.elements.append(VertexBufferElement{.count = count, ._type = gl.GL_UNSIGNED_INT, .normalized = normalized});
+    pub fn pushu32(self: *VertexBufferLayout, count: u32, normalized: bool) !void {
+        try self.elements.append(self.allocator, VertexBufferElement{.count = count, ._type = gl.GL_UNSIGNED_INT, .normalized = normalized});
         self.stride += VertexBufferElement.bufferElementGetSize(gl.GL_UNSIGNED_INT) * count;
     }
 
-    pub fn pushu8(self: *VertexBufferLayout, count: u32, normalized: bool) void {
-        self.elements.append(VertexBufferElement{.count = count, ._type = gl.GL_UNSIGNED_BYTE, .normalized = normalized});
+    pub fn pushu8(self: *VertexBufferLayout, count: u32, normalized: bool) !void {
+        try self.elements.append(self.allocator, VertexBufferElement{.count = count, ._type = gl.GL_UNSIGNED_BYTE, .normalized = normalized});
         self.stride += VertexBufferElement.bufferElementGetSize(gl.GL_UNSIGNED_BYTE) * count;
     }
 };

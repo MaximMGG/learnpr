@@ -22,10 +22,10 @@ pub const VertexBuffer = struct {
 };
 
 
-pub fn vertexBuffer(data: anyopaque, size: u32) VertexBuffer {
-    var vb: VertexBuffer = {};
+pub fn vertexBuffer(data: *anyopaque, size: u32) VertexBuffer {
+    var vb: VertexBuffer = .{};
     gl.glGenBuffers().?(1, &vb.rendererID);
     gl.glBindBuffer().?(gl.GL_ARRAY_BUFFER, vb.rendererID);
-    gl.glBufferData().?(gl.GL_ARRAY_BUFFER, data, size, gl.GL_STATIC_DRAW);
+    gl.glBufferData().?(gl.GL_ARRAY_BUFFER, size, data, gl.GL_STATIC_DRAW);
     return vb;
 }
