@@ -84,19 +84,17 @@ pub fn main() !void {
     std.debug.print("GL Version: {s}\n", .{gl.glGetString(gl.GL_VERSION)});
 
 
+    var render = renderer.Renderer{};
     var r: f32 = 0.0;
     var increment: f32 = 0.05;
 
     while(glfw.glfwWindowShouldClose(window) == 0) {
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+        render.clear();
 
         s.bind();
         try s.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
 
-        vertexArray.bind();
-        indexBuffer.bind();
-
-        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, null);
+        render.draw(&vertexArray, &indexBuffer, &s);
 
         if (r > 1.0) {
             increment = -0.05;
@@ -121,3 +119,4 @@ pub fn main() !void {
     glfw.glfwTerminate();
 
 }
+
