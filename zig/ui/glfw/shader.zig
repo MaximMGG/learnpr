@@ -1,5 +1,9 @@
 const std = @import("std");
 const gl = @cImport(@cInclude("GL/glew.h"));
+const glm = @cImport({
+    @cInclude("cglm/struct.h");
+    @cInclude("cglm/cglm.h");
+});
 
 const ShaderType = enum(usize) {
     VERTEX = 0,
@@ -145,5 +149,9 @@ pub const Shader = struct {
 
     pub fn setUniform4f(self: *Shader, name: []const u8, v0: f32, v1: f32, v2: f32, v3: f32) !void {
         gl.glUniform4f().?(try self.getUniformLocation(name), v0, v1, v2, v3);
+    }
+
+    pub fn setUniformMat4f(self: *Shader, name: []const u8, mat: glm.mat4) !void {
+        gl.glUniformMatrix4fv().?(try self.getUniformLocation(name), 1, gl.GL_FALSE, @ptrCast(@alignCast(&mat[0][0])));
     }
 };

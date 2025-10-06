@@ -10,11 +10,14 @@ const vbl = @import("vertex_buffer_layout.zig");
 const renderer = @import("renderer.zig");
 const ib = @import("index_buffer.zig");
 const texture = @import("texture.zig");
+const glm = @cImport({
+    @cInclude("cglm/struct.h");
+    @cInclude("cglm/cglm.h");
+});
 
 
-
-const WIDTH = 640;
-const HEIGHT = 480;
+const WIDTH = 1280;
+const HEIGHT = 720;
 
 
 pub fn main() !void {
@@ -63,6 +66,11 @@ pub fn main() !void {
         0, 1, 2, 2, 3, 0
     };
 
+    gl.glEnable(gl.GL_BLEND);
+    gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+    std.debug.print("Blending enable\n", .{});
+
+
     var vertexArray = va.vertexArray();
     var vertexBuffer = vb.vertexBuffer(@ptrCast(&positions[0]), @sizeOf(f32) * positions.len);
 
@@ -70,17 +78,24 @@ pub fn main() !void {
     try vertexBufferLayout.pushf32(2, false);
     try vertexBufferLayout.pushf32(2, false);
     vertexArray.addBuffer(&vertexBuffer, &vertexBufferLayout);
-
     var indexBuffer = ib.indexBuffer(&indeces);
+    std.debug.print("Create VBO, VAO, IAO\n", .{});
+
+    var proj: glm.mat4 = undefined;
+    glm.glm_ortho(-2.0, 2.0, -1.5, 1.5, -1.0, 1.0, @ptrCast(&proj[0]));
 
     var s = try shader.create("./res/shaders/basic.glsl", allocator);
     s.bind();
     //try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
+    try s.setUniformMat4f("u_MVP", proj);
+
+    std.debug.print("Create a chader and set uniforms\n", .{});
 
     var t = texture.texture("./res/textures/file.png");
     t.bind(0);
     try s.setUniform1i("u_Texture", 0);
 
+    std.debug.print("Load texture and bind it\n", .{});
 
     vertexArray.unbind();
     s.unbind();
@@ -103,6 +118,7 @@ pub fn main() !void {
         //try s.setUniform4f("u_Color", r, 0.3, 0.8, 1.0);
 
         render.draw(&vertexArray, &indexBuffer, &s);
+        renderer.GLLogError(@src());
 
         if (r > 1.0) {
             increment = -0.05;
