@@ -84,7 +84,7 @@ pub fn main() !void {
 
     vertexArray.unbind();
     s.unbind();
-    vertexBuffer.unbind();
+    //vertexBuffer.unbind();
     indexBuffer.unbind();
     std.debug.print("Setup done\n", .{});
 

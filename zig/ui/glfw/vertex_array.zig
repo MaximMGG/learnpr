@@ -24,7 +24,7 @@ pub const VertexArray = struct {
             gl.glEnableVertexAttribArray().?(@intCast(i));
             gl.glVertexAttribPointer().?(@intCast(i), @intCast(element.count), element._type, @as(u8, @intFromBool(element.normalized)), 
                 @intCast(layout.stride), @ptrFromInt(offset));
-            offset += element.count + element.bufferElementGetSize();
+            offset += element.count * element.bufferElementGetSize();
         }
     }
 
