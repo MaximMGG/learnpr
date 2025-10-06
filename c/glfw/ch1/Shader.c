@@ -111,3 +111,6 @@ void ShaderSetUniform4f(Shader *s, const char *name, float v0, float v1, float v
 
 }
 
+void ShaderSetUniform1i(Shader *s, const char *name, u32 v0) {
+    GLCall(glUniform1i(ShaderGetUniformLocation(s, name), v0));
+}

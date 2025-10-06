@@ -5,10 +5,10 @@ OBJ = $(SRC:%.c=%.o)
 default: build run
 
 debug: $(OBJ)
-	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW -g
+	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW -lspng -g 
 
 build: $(OBJ)
-	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW
+	gcc -o $(APP) $(OBJ) -lGL -lglfw -lcext -lGLEW -lspng
 
 run:
 	./$(APP)

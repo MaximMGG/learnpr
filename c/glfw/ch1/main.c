@@ -13,6 +13,7 @@
 #include "VertexArray.h"
 #include "VertexBufferLayout.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -50,10 +51,10 @@ int main() {
   log(INFO, "GL Version %s", glGetString(GL_VERSION));
 
   float positions[] = {
-   -0.5f, -0.5f, // 0
-    0.5f, -0.5f, // 1
-    0.5f,  0.5f, // 2
-   -0.5f,  0.5f, // 3
+   -0.5f, -0.5f, 0.0f, 0.0f,// 0
+    0.5f, -0.5f, 1.0f, 0.0f,// 1
+    0.5f,  0.5f, 1.0f, 1.0f,// 2
+   -0.5f,  0.5f, 0.0f, 1.0f// 3
   };
 
   u32 indeces[] = {
@@ -65,6 +66,7 @@ int main() {
 
   VertexBufferLayout vbl = VertexBufferLayoutCreate();
   VertexBufferLayoutPushf32(&vbl, 2, false);
+  VertexBufferLayoutPushf32(&vbl, 2, false);
   VertexArrayAddBuffer(&va, &vb, &vbl);
 
   IndexBuffer ib = IndexBufferCreate(indeces, sizeof(indeces) / sizeof(u32));
@@ -72,10 +74,15 @@ int main() {
   Shader s = ShaderCreate("./res/shaders/Basic.glsl");
 
   ShaderBind(&s);
-  ShaderSetUniform4f(&s, "u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+  //ShaderSetUniform4f(&s, "u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
+
+  Texture t = TextureCreate("./res/textures/file.png");
+  TextureBind(&t, 0);
+  ShaderSetUniform1i(&s, "u_Texture", 0);
+
 
   VertexArrayUnbind(&va);
-  ShaderUnbind(&s);
+  //ShaderUnbind(&s);
   VertexBufferUnbind(&vb);
   IndexBufferUnbind(&ib);
   
@@ -86,8 +93,9 @@ int main() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
     
     ShaderBind(&s);
-    ShaderSetUniform4f(&s, "u_Color", r, 0.3f, 0.8f, 1.0f);
+    //ShaderSetUniform4f(&s, "u_Color", r, 0.3f, 0.8f, 1.0f);
 
+    ShaderSetUniform1i(&s, "u_Texture", 0);
     VertexArrayBind(&va);
     IndexBufferBind(&ib);
     

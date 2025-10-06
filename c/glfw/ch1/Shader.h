@@ -30,5 +30,6 @@ void ShaderUnbind(Shader *s);
 
 //Set uniforoms
 void ShaderSetUniform4f(Shader *s, const char *name, float v0, float v1, float v2, float v3);
+void ShaderSetUniform1i(Shader *s, const char *name, u32 v0);
 
 #endif //SHADER_H
