@@ -18,7 +18,6 @@ i8 *shader_data(const str file_name) {
     return shader;
 }
 
-
 int main() {
     log(INFO, "Initialize GLFW");
     glfwInit();
@@ -30,6 +29,11 @@ int main() {
         return 1;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
     glfwMakeContextCurrent(window);
     log(INFO, "Set current context");
 
@@ -38,14 +42,14 @@ int main() {
         goto fatal_error;
     }
 
-    glViewport(0, 0, WIDTH, HEIGHT);
+    //glViewport(0, 0, WIDTH, HEIGHT);
     log(INFO, "set viewport");
 
 
     f32 pos[] = {
-        -0.5f, -0.5f,
-         0.5f, -0.5f,
-         0.0f,  0.5f
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
     };
 
     u32 index[] = {0, 1, 2};
@@ -69,7 +73,7 @@ int main() {
 
     i8 *vertexShaderSource = shader_data("./vertex.glsl");
     u32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, (const GLchar * const *)&vertexShaderSource, null);
+    glShaderSource(vertexShader, 1, (const char *const *)&vertexShaderSource, null);
     glCompileShader(vertexShader);
     i32 success;
     byte *err_buf;
@@ -88,7 +92,8 @@ int main() {
 
     i8 *fragmentShaderSource = shader_data("./fragment.glsl");
     u32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, (const GLchar *const *)&fragmentShaderSource, null);
+    glShaderSource(fragmentShader, 1, (const char *const *)&fragmentShaderSource, null);
+    glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (success == GL_FALSE) {
         glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &err_buf_len);
