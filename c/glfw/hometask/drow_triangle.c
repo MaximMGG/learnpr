@@ -10,10 +10,11 @@
 #define HEIGHT 480
 
 
-u8 *shader_data(const str file_name) {
+i8 *shader_data(const str file_name) {
     reader *r = reader_create_from_file(file_name);
-    u8 *shader = alloc_copy(r->buf, r->bytes_availeble);
+    i8 *shader = alloc_copy(r->buf, r->bytes_availeble + 1);
     reader_destroy(r);
+    printf("%s\n", shader);
     return shader;
 }
 
@@ -55,35 +56,71 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
     log(INFO, "Gen VBO");
 
-    u32 IBO;
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
-    log(INFO, "Gen IBO");
-
-    u32 VAO;
+    u32 VAO; // vertex array object
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    log(INFO, "Bind vertex arrats");
 
 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    log(INFO, "gl attrib pointer done");
 
-    u8 *vertexShaderSource = shader_data("vertex.glsl");
+
+    i8 *vertexShaderSource = shader_data("./vertex.glsl");
     u32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, (const GLchar * const *)vertexShaderSource, null);
+    glShaderSource(vertexShader, 1, (const GLchar * const *)&vertexShaderSource, null);
     glCompileShader(vertexShader);
     i32 success;
-    i8 buf[512];
+    byte *err_buf;
+    i32 err_buf_len;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, buf);
-        log(ERROR, "Shader compilation faild\n%s", buf);
+    if (success == GL_FALSE) {
+        glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &err_buf_len);
+        err_buf = alloc(err_buf_len + 1);
+        glGetShaderInfoLog(vertexShader, err_buf_len, NULL, err_buf);
+        log(ERROR, "Shader compilation faild\n%s", err_buf);
+        dealloc(err_buf);
         goto fatal_error;
     }
-    u8 *fragmentShaderSource = shader_data("fragment.glsl");
+
+    log(INFO, "Load vertex shader");
+
+    i8 *fragmentShaderSource = shader_data("./fragment.glsl");
     u32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, (const GL))
+    glShaderSource(fragmentShader, 1, (const GLchar *const *)&fragmentShaderSource, null);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if (success == GL_FALSE) {
+        glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &err_buf_len);
+        err_buf = alloc(err_buf_len + 1);
+        glGetShaderInfoLog(fragmentShader, err_buf_len, NULL, err_buf);
+        log(ERROR, "Shader compilation failed: %s\n", err_buf);
+        dealloc(err_buf);
+        goto fatal_error;
+    }
 
+    log(INFO, "Load fragment shader");
+    u32 program = glCreateProgram();
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
 
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &err_buf_len);
+        err_buf = alloc(err_buf_len + 1);
+        glGetProgramInfoLog(program, err_buf_len, null, err_buf);
+        log(ERROR, "Program linking fail\n%s", err_buf);
+        dealloc(err_buf);
+        goto fatal_error;
+    }
+    glUseProgram(program);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
-
+    log(INFO, "Use pogram");
+    dealloc(vertexShaderSource);
+    dealloc(fragmentShaderSource);
 
 
     log(INFO, "Start cycle");
@@ -93,6 +130,9 @@ int main() {
         glClearColor(0.2, 0.3, 0.4, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glUseProgram(program);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
         glfwSwapBuffers(window);

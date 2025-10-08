@@ -11,14 +11,16 @@ default: build run
 build: $(OBJ)
 	gcc -o $(APP) $(OBJ) -lGL -lglfw -lGLEW -lcext
 
+debug: $(OBJ)
+	gcc -o $(APP) $(OBJ) -lGL -lglfw -lGLEW -lcext -g
 
 run:
 	./$(APP)
 
 %.o: %.c
-	gcc -o $@ -c $< -lGL -lglfw -lGLEW -lcext
+	gcc -o $@ -c $< -lGL -lglfw -lGLEW -lcext -g
 
-claer:
+clear:
 	rm $(APP) *.o
 
 
