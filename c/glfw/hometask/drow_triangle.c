@@ -143,6 +143,10 @@ int main() {
     dealloc(fragmentShaderSource);
 
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
+
     log(INFO, "Start cycle");
     f32 inc = 0.05f;
 
