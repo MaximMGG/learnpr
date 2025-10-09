@@ -93,12 +93,20 @@ pub fn main() !void {
     log.info("Gen buffers and vertex arrays", .{});
 
 
+    var offset: f32 = 0.001;
+    var inc: f32 = 0.001;
     log.info("Start main looooooop", .{});
     while(glfw.glfwWindowShouldClose(window) == 0) {
 
-        // const time = glfw.glfwGetTime();
-        // const greenVal = (@sin(time) / 2.0) + 0.5;
-        // glew.glUniform4f().?(glew.glGetUniformLocation().?(program, "v_Color"), 0.0, @floatCast(greenVal), 0.0, 1.0);
+
+        glew.glUniform1f().?(glew.glGetUniformLocation().?(program, "u_Offset"), offset);
+
+        if (offset > 0.5) {
+            inc = -0.001;
+        } else if (offset < 0.00001) {
+            inc = 0.001;
+        }
+        offset += inc;
 
         glew.glClear(gl.GL_COLOR_BUFFER_BIT);
 
