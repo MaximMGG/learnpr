@@ -1,5 +1,9 @@
 package app
 
+// foreign import lib {
+//     "system:GLEW",
+// };
+
 import "vendor:glfw"
 import GL "vendor:OpenGL"
 import "core:fmt"
@@ -7,14 +11,11 @@ import "core:c"
 import "core:os"
 import "core:strings"
 
-foreign import lib {
-    "system:GLEW",
-};
 
-@(default_calling_convention="c")
-foreign lib {
-    glewInit :: proc() -> c.int ---
-}
+// @(default_calling_convention="c")
+// foreign lib {
+//     glewInit :: proc() -> c.int ---
+// }
 
 
 WIDTH :: 640
@@ -92,7 +93,7 @@ main :: proc() {
     //     return
     // }
 
-    fmt.printfln("GL Version %s", GL.GetString(GL.VERSION))
+    //fmt.printfln("GL Version %s", GL.GetString(GL.VERSION))
 
 
     vertexShader: u32 = load_shader("vertex.glsl", GL.VERTEX_SHADER)

@@ -170,7 +170,7 @@ int main() {
     SDL_Window *window = 
         SDL_CreateWindow("3D Cube", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0); 
     SDL_Surface *surface = SDL_GetWindowSurface(window);
-    int delay = 40;
+    int delay = 5;
 
 
     //Point p = {0, 0, 0};
