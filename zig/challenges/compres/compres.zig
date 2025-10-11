@@ -1,38 +1,50 @@
 const std = @import("std");
 
+fn contain_in_list(list: *std.ArrayList(u8), c: u8) ?usize {
+    for(list.items, 0..) |e, i| {
+        if (e == c) {
+            return i;
+        }
+    }
+    return null;
+}
+
 pub fn main() !void {
-    var errbuf: [4096]u8 = .{0} ** 4096;
-    var stderr_writer = std.fs.File.stderr().writer(&errbuf);
-    var stderr = stderr_writer.interface;
     const allocator = std.heap.page_allocator;
-    var map = std.AutoHashMap(u8, u32).init(allocator);
-    defer map.deinit();
+    const test_file = try std.fs.cwd().openFile("test.txt", .{.mode = .read_only});
+    defer test_file.close();
+    const file_stat = try test_file.stat();
+    var file_buf: [4096]u8 = undefined;
+    var reader = test_file.reader(&file_buf);
 
-    const file = try std.fs.cwd().openFile("test.txt", .{ .mode = .read_only });
-    var reader_buf: [4096]u8 = undefined;
-    var f_reader = file.reader(&reader_buf);
-    defer file.close();
+    const file_cont = try reader.interface.readAlloc(allocator, file_stat.size);
+    defer allocator.free(file_cont);
+    if (file_cont.len != file_stat.size) {
+        std.debug.print("read not anaght bytes\n", .{});
+        return;
+    }
 
-    const fstat = try file.stat();
-    const read_bytes = try f_reader.interface.readAlloc(allocator, fstat.size);
-    defer allocator.free(read_bytes);
+    var chars = try std.ArrayList(u8).initCapacity(allocator, 255);
+    defer chars.deinit(allocator);
+    var count = try std.ArrayList(u32).initCapacity(allocator, 255);
+    defer count.deinit(allocator);
 
-    for (read_bytes) |c| {
-        if (!map.contains(c)) {
-            try map.put(c, @intCast(1));
+
+
+
+    for(file_cont) |c| {
+        if (contain_in_list(&chars, c)) |i| {
+            count.items[i] += 1;
         } else {
-            const kv = map.getEntry(c).?;
-            kv.value_ptr.* += 1;
+            try chars.append(allocator, c);
+            try count.append(allocator, 1);
         }
     }
 
     var total: u64 = 0;
-    var it = map.iterator();
-    while (it.next()) |i| {
-        try stderr.print("Key - {c}, value - {d}\n", .{ i.key_ptr.*, i.value_ptr.* });
-        total += i.value_ptr.*;
+    for(chars.items, count.items) |c, i| {
+        std.debug.print("Char: {d} - {d}\n", .{@as(u32, @intCast(c)), i});
+        total += i;
     }
-
-    try stderr.print("File size {d}, total chars {d}\n", .{ fstat.size, total });
-    _ = &stderr_writer;
+    std.debug.print("Total chars: {d}\n", .{total});
 }
