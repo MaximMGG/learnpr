@@ -30,6 +30,15 @@ class List {
             }
         }
 
+        bool contain(T data) {
+            for(int i = 0; i < this->len; i++) {
+                if (data == this->buf[i]) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         T* operator[](int i) {
             return &this->buf[i];
         }
