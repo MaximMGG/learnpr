@@ -12,6 +12,26 @@
 #define HEIGHT 480
 
 
+void shader_set_uniform1i(u32 shader, str name, i32 i) {
+    glUniform1i(glGetUniformLocation(shader, name), i);
+}
+
+void shader_set_uniform_vec3(u32 shader, str name, vec3 v) {
+    glUniform3f(glGetUniformLocation(shader, name), v.x, v.y, v.z);
+
+}
+
+void shader_set_uniform_vec4(u32 shader, str name, vec4 v) {
+    glUniform4f(glGetUniformLocation(shader, name), v.x, v.y, v.z, v.w);
+}
+
+void shader_set_uniform_mat4(u32 shader, str name, mat4 m) {
+    f32 *ptr = mat4_value_ptr(m);
+    glUniformMatrix4fv(glGetUniformLocation(shader, name), 1, GL_FALSE, ptr);
+}
+
+
+
 u32 load_shader(str shader_name, u32 type) {
     reader *r = reader_create_from_file(shader_name);
     i8 *buf = alloc_copy(r->buf, r->bytes_availeble);
@@ -72,8 +92,6 @@ int main() {
     glAttachShader(program, f_shader);
     glLinkProgram(program);
 
-    glUseProgram(program);
-
     u32 VAO, VBO, IBO;
 
     f32 vertices[] = {
@@ -102,6 +120,10 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32) * 3, (void *)0);
 
 
+    glUseProgram(program);
+    shader_set_uniform_mat4(program, "uPorj", mat4_orghographic(0.0f, WIDTH, HEIGHT, 0.0f));
+    shader_set_uniform_mat4(program, "uModel", mat4_mul(mat4_translate(mat4_identity(), (vec3){100.0f, 100.0f, 0.0f}), 
+                                                mat4_scale(mat4_identity(), (vec3){100.0f, 100.0f, 0.0f})));
 
     log(INFO, "Start main loop");
 
