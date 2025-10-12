@@ -51,9 +51,11 @@ unsigned char* load_png_rgba8(const char *file_name, u32 *image_size, u32 *width
         free(image);
         return null;
     }
+
+
     size_t image_width = size / ihdr.height;
     struct spng_row_info row_info;
-    do {
+    for(i32 i = ihdr.height - 1; i >= 0; i--) {
         res = spng_get_row_info(ctx, &row_info);
         if (res != SPNG_OK) {
             log(ERROR, "spng_get_row_info() error");
@@ -62,8 +64,23 @@ unsigned char* load_png_rgba8(const char *file_name, u32 *image_size, u32 *width
             free(image);
             return null;
         }
-        res = spng_decode_row(ctx, image + image_width * row_info.row_num, image_width);
-    } while(res != SPNG_EOI);
+        res = spng_decode_row(ctx, image + image_width * i, image_width);
+    }
+
+
+    // size_t image_width = size / ihdr.height;
+    // struct spng_row_info row_info;
+    // do {
+    //     res = spng_get_row_info(ctx, &row_info);
+    //     if (res != SPNG_OK) {
+    //         log(ERROR, "spng_get_row_info() error");
+    //         spng_ctx_free(ctx);
+    //         fclose(png);
+    //         free(image);
+    //         return null;
+    //     }
+    //     res = spng_decode_row(ctx, image + image_width * row_info.row_num, image_width);
+    // } while(res != SPNG_EOI);
 
     spng_ctx_free(ctx);
     *image_size = size;

@@ -10,10 +10,10 @@ const vbl = @import("vertex_buffer_layout.zig");
 const renderer = @import("renderer.zig");
 const ib = @import("index_buffer.zig");
 const texture = @import("texture.zig");
-const glm = @cImport({
-    @cInclude("cglm/struct.h");
-    @cInclude("cglm/cglm.h");
-});
+// const glm = @cImport({
+//     @cInclude("cglm/struct.h");
+//     @cInclude("cglm/cglm.h");
+// });
 
 
 const WIDTH = 1280;
@@ -81,13 +81,13 @@ pub fn main() !void {
     var indexBuffer = ib.indexBuffer(&indeces);
     std.debug.print("Create VBO, VAO, IAO\n", .{});
 
-    var proj: glm.mat4 = undefined;
-    glm.glm_ortho(-2.0, 2.0, -1.5, 1.5, -1.0, 1.0, @ptrCast(&proj[0]));
+    // var proj: glm.mat4 = undefined;
+    // glm.glm_ortho(-2.0, 2.0, -1.5, 1.5, -1.0, 1.0, @ptrCast(&proj[0]));
 
     var s = try shader.create("./res/shaders/basic.glsl", allocator);
     s.bind();
     //try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
-    try s.setUniformMat4f("u_MVP", proj);
+    //try s.setUniformMat4f("u_MVP", proj);
 
     std.debug.print("Create a chader and set uniforms\n", .{});
 

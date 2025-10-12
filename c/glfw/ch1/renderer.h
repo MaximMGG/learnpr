@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 #include <cstdext/core.h>
+#include <stdio.h>
 
 #define GLCall(x) GLClearError(); \
   x;\

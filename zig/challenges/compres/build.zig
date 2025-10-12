@@ -8,6 +8,7 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{.preferred_optimize_mode = .Debug});
 
     const exe = b.addExecutable(.{
+        .use_llvm = true,
         .name = "compres",
         .root_module = b.addModule("compres", .{
             .optimize = optimize,
