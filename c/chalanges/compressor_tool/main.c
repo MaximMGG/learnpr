@@ -124,6 +124,59 @@ void print_tree(Node *head) {
 }
 
 
+char *encode(Node *head, str text, u32 text_len, u32 *encode_len) {
+    u8 *encode_buf = alloc(text_len);
+    u32 index = 0;
+    u8 bit = 0;
+    u8 bit_count = 0;
+
+    for(i32 i = 0; i < text_len; i++) {
+        Node *tmp = head;
+        bool find = false;
+        while(!find) {
+            if (tmp->left != null && tmp->left->leaf) {
+                if (tmp->left->val == text[i]) {
+                    bit <<= 1;
+                    bit_count++;
+                    find = true;
+                } else {
+                    bit += 1;
+                    bit <<= 1;
+                    bit_count++;
+                    tmp = tmp->right;
+                }
+            }
+            if (tmp->right != null && tmp->right->leaf){
+                if (tmp->right->val == text[i]) {
+                    bit += 1;
+                    bit <<= 1;
+                    bit_count++;
+                    find = true;
+                } else {
+                    bit <<= 1;
+                    bit_count++;
+                    tmp = tmp->left;
+                }
+            }
+
+            if (bit_count == 9) {
+                encode_buf[index] = bit;
+                bit ^= bit;
+                bit_count = 0;
+                index++;
+            }
+        }
+    }
+    if (bit_count > 0) {
+        encode_buf[index] = bit;
+    }
+
+    *encode_len = index;
+    dealloc(encode_buf);
+    return alloc_copy(encode_buf, index);
+}
+
+
 int main() {
     i32 fd = open("./test/test2.txt", O_RDONLY);
     if (fd < 0) {
@@ -160,6 +213,11 @@ int main() {
     sort_lists(chars, weights);
     Node *head = buildHaffmanTree(chars, weights);
     print_tree(head);
+
+    u32 encode_len = 0;
+    i8 *encode_buf = encode(head, buf, read_bytes, &encode_len);
+    printf("Len - %d, Enode: %s\n", encode_len, encode_buf);
+    dealloc(encode_buf);
 
     return 0;
 }

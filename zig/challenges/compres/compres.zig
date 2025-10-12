@@ -128,6 +128,69 @@ fn contain_in_list(list: *std.ArrayList(u8), c: u8) ?usize {
 }
 
 
+pub fn getCode(node: *Node, c: u8, node_size: u32, allocator: std.mem.Allocator) ![]u8 {
+    const res = try allocator.alloc(u8, node_size);
+    var len: usize = 0;
+
+    var tmp: *Node = node;
+    while(true) {
+        if (tmp.left.?.leaf) {
+            if (tmp.left.?.val == c) {
+                res[len] = 0;
+                break;
+            } else {
+                res[len] = 1;
+                len += 1;
+                tmp = tmp.right.?;
+                continue;
+            }
+        } else {
+            if (tmp.right.?.val == c) {
+                res[len] = 1;
+                break;
+            } else {
+                res[len] = 1;
+                len += 1;
+                tmp = tmp.left.?;
+            }
+        }
+    }
+    return res[0..(len + 1)];
+}
+
+
+pub fn encode(node: *Node, text: []const u8, allocator: std.mem.Allocator) ![]u8 {
+    var code: []u8 = try allocator.alloc(u8, 4096);
+    var cur_bit: usize = 0;
+    var index: usize = 0;
+
+    var bit: u8 = 0;
+
+    for(text) |c| {
+        const crypt = try getCode(node, c, 29, allocator);
+        defer allocator.free(crypt);
+
+        for(crypt) |b| {
+            if (b == 0) {
+                bit <<= 1;
+            } else {
+                bit += 1;
+                bit <<= 1;
+            }
+            cur_bit += 1;
+            if (cur_bit == 8) {
+                code[index] = bit;
+                cur_bit = 0;
+                index += 1;
+            }
+        }
+    }
+    if (cur_bit != 0) {
+        code[index] = bit;
+    }
+
+    return code[0..(index + 1)];
+}
 
 
 pub fn main() !void {
@@ -173,6 +236,10 @@ pub fn main() !void {
 
     std.debug.print("\n\n\n", .{});
     printHuffmanTree(node);
-    deleteHuffmanTree(node, allocator);
 
+
+    const code = try encode(node, &file_buf, allocator);
+    defer allocator.free(code);
+    std.debug.print("CODE: {any}\n", .{code});
+    deleteHuffmanTree(node, allocator);
 }
