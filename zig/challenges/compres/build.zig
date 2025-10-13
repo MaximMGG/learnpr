@@ -16,6 +16,7 @@ pub fn build(b: *std.Build) void {
             .root_source_file = b.path("compres.zig"),
         })
     });
+    //exe.linkLibC();
 
     const run_step = b.step("run", "Run application");
     const exe_step = b.addRunArtifact(exe);

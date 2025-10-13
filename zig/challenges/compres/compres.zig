@@ -56,8 +56,64 @@ pub fn prepCharQueue(text: []const u8, allocator: std.mem.Allocator) !std.Priori
 }
 
 
+fn createHuffmanTree(q: *std.PriorityQueue(Pair, Pair, compare), allocator: std.mem.Allocator) !*Node {
+    var cur_node: *Node = try allocator.create(Node);
+    var left_node: *Node = try allocator.create(Node);
+    var right_node: *Node = try allocator.create(Node);
+    var tmp_pair: Pair = q.remove();
+    left_node.* = .{.val = tmp_pair.char, .weight = tmp_pair.count, .leaf = true};
+    tmp_pair = q.remove();
+    right_node.* = .{.val = tmp_pair.char, .weight = tmp_pair.count, .leaf = true};
+    cur_node.* = .{.weight = left_node.weight + right_node.weight, .leaf = false, .left = left_node, .right = right_node};
+
+    while(q.count() != 0) {
+        tmp_pair = q.remove();
+        if (cur_node.weight < tmp_pair.count) {
+            left_node = cur_node;
+            right_node = try allocator.create(Node);
+            right_node.* = .{.val = tmp_pair.char, .weight = tmp_pair.count, .leaf = true};
+            cur_node = try allocator.create(Node);
+            cur_node.* = .{.weight = left_node.weight + right_node.weight, .leaf = false, .left = left_node, .right = right_node};
+        } else {
+            right_node = cur_node;
+            left_node = try allocator.create(Node);
+            left_node.* = .{.val = tmp_pair.char, .weight = tmp_pair.count, .leaf = true};
+            cur_node = try allocator.create(Node);
+            cur_node.* = .{.weight = left_node.weight + right_node.weight, .leaf = false, .left = left_node, .right = right_node};
+        }
+    }
+    return cur_node;
+}
+
+fn freeHuffmanTree(node: *Node, allocator: std.mem.Allocator) void {
+    const tmp: *Node = node;
+    if (tmp.left) |l| {
+        if (l.leaf) {
+            allocator.destroy(l);
+        } else {
+            freeHuffmanTree(l, allocator);
+        }
+    } else {
+        allocator.destroy(tmp);
+        return;
+    }
+    if (tmp.right) |r| {
+        if (r.leaf) {
+            allocator.destroy(r);
+        } else {
+            freeHuffmanTree(r, allocator);
+        }
+    } else {
+        allocator.destroy(tmp);
+        return;
+    }
+    allocator.destroy(tmp);
+}
+
+
 pub fn main() !void { 
     const allocator = std.heap.page_allocator;
+    // const allocator = std.heap.c_allocator;
     const file = try std.fs.cwd().openFile("test2.txt", .{.mode = .read_only});
     defer file.close();
     var file_buf: [4096]u8 = undefined;
@@ -70,7 +126,11 @@ pub fn main() !void {
     var q = try prepCharQueue(text, allocator);
     defer q.deinit();
 
-    while(q.count() != 0) {
-        std.debug.print("{any}\n", .{q.remove()});
-    }
+    const node = try createHuffmanTree(&q, allocator);
+    defer freeHuffmanTree(node, allocator);
+
+
+
+    std.debug.print("{any}\n", .{node});
 }
+
