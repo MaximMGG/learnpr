@@ -110,6 +110,37 @@ fn freeHuffmanTree(node: *Node, allocator: std.mem.Allocator) void {
     allocator.destroy(tmp);
 }
 
+fn enodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator) ![]u8 {
+    const encoding: []u8 = try allocator.alloc(u8, text.len);
+    var i: usize = 0;
+    var bit: u8 = 0;
+    var bits_count: u8 = 0;
+
+    for(text) |c| {
+        var tmp: *Node = node;
+        var find: bool = false;
+        while(!find) {
+            if (tmp.left.?.leaf) {
+                if (tmp.left.?.val == c) {
+                    bit <<= 1;
+                    bits_count += 1;
+                    break;
+                }
+            } 
+            if (tmp.right.?.leaf) {
+                if (tmp.right.?.val == c) {
+                    bit += 1;
+                    bit <<= 1;
+                    bits_count += 1;
+                    break;
+                }
+            }
+        }
+
+    }
+}
+
+
 
 pub fn main() !void { 
     const allocator = std.heap.page_allocator;
