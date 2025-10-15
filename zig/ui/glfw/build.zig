@@ -2,7 +2,7 @@ const std = @import("std");
 
 
 pub fn build(b: *std.Build) void {
-    const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode =  .Debug});
+    const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
 
     const exe_module = b.createModule(.{
@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) void {
     const exe = b.addExecutable(.{
         .name = "app",
         .root_module = exe_module,
+        .use_llvm = true,
     });
 
     exe.root_module.addCSourceFile(.{.file = b.path("png_load.c"), .flags = &.{"-lspng -O2"}});

@@ -1,8 +1,14 @@
 const std = @import("std");
+
 const c = @cImport(@cInclude("stdio.h"));
 const glew = @cImport(@cInclude("GL/glew.h"));
 const gl = @cImport(@cInclude("GL/gl.h"));
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
+const glm = @cImport({
+    @cInclude("cglm/struct.h");
+    @cInclude("cglm/cglm.h");
+});
+
 const shader = @import("shader.zig");
 const va = @import("vertex_array.zig");
 const vb = @import("vertex_buffer.zig");
@@ -10,10 +16,7 @@ const vbl = @import("vertex_buffer_layout.zig");
 const renderer = @import("renderer.zig");
 const ib = @import("index_buffer.zig");
 const texture = @import("texture.zig");
-// const glm = @cImport({
-//     @cInclude("cglm/struct.h");
-//     @cInclude("cglm/cglm.h");
-// });
+const mmath = @import("mat_math.zig");
 
 
 const WIDTH = 1280;
@@ -56,12 +59,18 @@ pub fn main() !void {
 
 
     var positions = [_]f32{
-        -0.5, -0.5, 0.0, 0.0,
-         0.5, -0.5, 1.0, 0.0,
-         0.5,  0.5, 1.0, 1.0,
-        -0.5,  0.5, 0.0, 1.0
+         0.0, 0, 0.0, 0.0,
+         WIDTH, 0, 1.0, 0.0,
+         WIDTH, HEIGHT, 1.0, 1.0,
+         0.0, HEIGHT, 0.0, 1.0
     };
 
+    // var positions = [_]f32{
+    //      100.0, 100.0, 0.0, 0.0,
+    //      200.0, 100.0, 1.0, 0.0,
+    //      200.0, 200.0, 1.0, 1.0,
+    //      100.0, 200.0, 0.0, 1.0
+    // };
     var indeces = [_]u32{
         0, 1, 2, 2, 3, 0
     };
@@ -82,12 +91,25 @@ pub fn main() !void {
     std.debug.print("Create VBO, VAO, IAO\n", .{});
 
     // var proj: glm.mat4 = undefined;
-    // glm.glm_ortho(-2.0, 2.0, -1.5, 1.5, -1.0, 1.0, @ptrCast(&proj[0]));
+    // glm.glm_ortho(0, 1280.0, 0, 720.0, -1.0, 1.0, @ptrCast(&proj[0]));
+
+    const proj = mmath.mat4_ortho(0, 1280.0, 0, 720, -1.0, 1.0);
+    const proj_ptr = try mmath.mat4_ptr(proj, allocator);
+    var pp: []f32 = undefined;
+    pp.ptr = @ptrCast(proj_ptr);
+    pp.len = 16;
+    defer allocator.free(pp);
+
+    // var vp: glm.vec4 = .{100.0, 100.0, 0.0, 0.0};
+    const vp: mmath.vec4 = .{100.0, 100.0, 0.0, 0.0};
+    _ = vp;
+
+    //const res: glm.vec4 = mmath.mul_mat4_by_vec4(@alignCast(&proj), @alignCast(&vp));
 
     var s = try shader.create("./res/shaders/basic.glsl", allocator);
     s.bind();
     //try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
-    //try s.setUniformMat4f("u_MVP", proj);
+    try s.setUniformMat4f("u_MVP", proj_ptr);
 
     std.debug.print("Create a chader and set uniforms\n", .{});
 
@@ -129,6 +151,7 @@ pub fn main() !void {
 
         glfw.glfwSwapBuffers(window);
         glfw.glfwPollEvents();
+        checkEvents(window);
         std.Thread.sleep(50000000);
     }
 
@@ -145,3 +168,9 @@ pub fn main() !void {
 
 }
 
+
+fn checkEvents(window: *glfw.GLFWwindow) void {
+    if (glfw.glfwGetKey(window, glfw.GLFW_KEY_ESCAPE) == glfw.GLFW_PRESS) {
+        glfw.glfwSetWindowShouldClose(window, 1);
+    }
+}
