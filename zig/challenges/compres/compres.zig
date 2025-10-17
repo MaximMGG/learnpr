@@ -110,7 +110,7 @@ fn freeHuffmanTree(node: *Node, allocator: std.mem.Allocator) void {
     allocator.destroy(tmp);
 }
 
-fn enodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator) ![]u8 {
+fn encodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator) ![]u8 {
     const encoding: []u8 = try allocator.alloc(u8, text.len);
     var i: usize = 0;
     var bit: u8 = 0;
@@ -118,26 +118,67 @@ fn enodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator)
 
     for(text) |c| {
         var tmp: *Node = node;
-        var find: bool = false;
-        while(!find) {
+        while(true) {
             if (tmp.left.?.leaf) {
                 if (tmp.left.?.val == c) {
-                    bit <<= 1;
                     bits_count += 1;
+                    bit <<= 1;
                     break;
-                }
-            } 
-            if (tmp.right.?.leaf) {
-                if (tmp.right.?.val == c) {
+                } 
+                if (tmp.right.?.leaf) {
+                    if (tmp.right.?.val == c) {
+                        bit += 1;
+                        bits_count += 1;
+                        bit <<= 1;
+                        break;
+                    } else {
+                        @panic("End of tree, no chars is matched");
+                    }
+                } else {
+                    tmp = tmp.right.?;
                     bit += 1;
                     bit <<= 1;
                     bits_count += 1;
+                }
+            } else if (tmp.right.?.leaf) {
+                if (tmp.right.?.val == c) {
+                    bit += 1;
+                    bits_count += 1;
+                    bit <<= 1;
                     break;
                 }
+                bit <<= 1;
+                bits_count += 1;
+                tmp = tmp.left.?;
+            } else {
+                @panic("Not support now bot not leaf");
+            }
+
+            if (bits_count == 8) {
+                encoding[i] = bit;
+                bit ^= bit;
+                i += 1;
+                bits_count = 0;
             }
         }
-
+        if (bits_count == 8) {
+            encoding[i] = bit;
+            bit ^= bit;
+            i += 1;
+            bits_count = 0;
+        }
     }
+
+    if (bits_count != 0) {
+        encoding[i] = bit;
+        i += 1;
+    }
+
+    const res = try allocator.alloc(u8, i);
+    @memcpy(res, encoding[0..i]);
+    allocator.free(encoding);
+
+    return res;
 }
 
 
@@ -159,9 +200,13 @@ pub fn main() !void {
 
     const node = try createHuffmanTree(&q, allocator);
     defer freeHuffmanTree(node, allocator);
+    const res = try encodeHuffmanTree(text, node, allocator);
 
+    for(res) |b| {
+        std.debug.print("{b}", .{b});
+    }
 
-
+    std.debug.print("\n", .{});
     std.debug.print("{any}\n", .{node});
 }
 
