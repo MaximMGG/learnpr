@@ -122,14 +122,12 @@ fn encodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator
             if (tmp.left.?.leaf) {
                 if (tmp.left.?.val == c) {
                     bits_count += 1;
-                    bit <<= 1;
                     break;
                 } 
                 if (tmp.right.?.leaf) {
                     if (tmp.right.?.val == c) {
                         bit += 1;
                         bits_count += 1;
-                        bit <<= 1;
                         break;
                     } else {
                         @panic("End of tree, no chars is matched");
@@ -137,17 +135,14 @@ fn encodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator
                 } else {
                     tmp = tmp.right.?;
                     bit += 1;
-                    bit <<= 1;
                     bits_count += 1;
                 }
             } else if (tmp.right.?.leaf) {
                 if (tmp.right.?.val == c) {
                     bit += 1;
                     bits_count += 1;
-                    bit <<= 1;
                     break;
                 }
-                bit <<= 1;
                 bits_count += 1;
                 tmp = tmp.left.?;
             } else {
@@ -159,6 +154,8 @@ fn encodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator
                 bit ^= bit;
                 i += 1;
                 bits_count = 0;
+            } else {
+                bit <<= 1;
             }
         }
         if (bits_count == 8) {
@@ -166,6 +163,8 @@ fn encodeHuffmanTree(text: []const u8, node: *Node, allocator: std.mem.Allocator
             bit ^= bit;
             i += 1;
             bits_count = 0;
+        } else {
+            bit <<= 1;
         }
     }
 
