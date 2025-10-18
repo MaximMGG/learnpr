@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub const mat4 = [4]@Vector(4, f32);
 pub const vec4 = @Vector(4, f32);
+pub const vec3 = @Vector(3, f32);
 
 pub fn mat4_identity() mat4 {
     return mat4{@Vector(4, f32){1, 0, 0, 0}, 
@@ -9,6 +10,32 @@ pub fn mat4_identity() mat4 {
                 @Vector(4, f32){0, 0, 1, 0}, 
                 @Vector(4, f32){0, 0, 0, 1}};
 
+}
+
+
+pub fn mat4_create(f: f32) mat4 {
+    const m = mat4{
+        @Vector(4, f32){f, f, f, f}, 
+        @Vector(4, f32){f, f, f, f}, 
+        @Vector(4, f32){f, f, f, f}, 
+        @Vector(4, f32){f, f, f, f}, 
+    };
+
+    return m;
+}
+
+
+pub fn mat4_translate(m: mat4, v3: vec3) mat4 {
+    var res = m;
+    res[3][0] = m[0][0] * v3[0] + m[1][0] * v3[1] + m[2][0] * v3[2] + m[3][0] * 1;
+    res[3][1] = m[0][1] * v3[0] + m[1][1] * v3[1] + m[2][1] * v3[2] + m[3][1] * 1;
+    res[3][2] = m[0][2] * v3[0] + m[1][2] * v3[1] + m[2][2] * v3[2] + m[3][2] * 1;
+    res[3][0] = 0;
+    res[3][1] = 0;
+    res[3][2] = 0;
+    res[3][3] = 1;
+
+    return res;
 }
 
 
@@ -24,7 +51,7 @@ pub fn mat4_ortho(left: f32, right: f32, top: f32, bottom: f32, zFar: f32, zNear
     return m;
 }
 
-pub fn mat4_ptr(m: [4]@Vector(4, f32), allocator: std.mem.Allocator) ![*]f32 {
+pub fn mat4_ptr(m: [4]@Vector(4, f32), allocator: std.mem.Allocator) ![]f32 {
     const p = try allocator.alloc(f32, 16);
 
     @memcpy(p[0..4], @as([]f32, @constCast(@ptrCast(&m[0]))));
@@ -32,10 +59,23 @@ pub fn mat4_ptr(m: [4]@Vector(4, f32), allocator: std.mem.Allocator) ![*]f32 {
     @memcpy(p[8..12], @as([]f32, @constCast(@ptrCast(&m[2]))));
     @memcpy(p[12..16], @as([]f32, @constCast(@ptrCast(&m[3]))));
 
-    return @ptrCast(p.ptr);
+    return p;
 }
+pub fn mat4_multiply(a: mat4, b: mat4) mat4 {
+    var res: mat4 = undefined;
+    // const m1 = @Vector(4, f32){a[0][0], a[1][0], a[2][0], a[3][0]};
+    // const m2 = @Vector(4, f32){a[0][1], a[1][1], a[2][1], a[3][1]};
+    // const m3 = @Vector(4, f32){a[0][2], a[1][2], a[2][2], a[3][0]};
+    // const m4 = @Vector(4, f32){a[0][3], a[1][3], a[2][3], a[3][3]};
 
-pub fn mul_mat4_by_vec4(mat: *[4][4]f32, vec: *[4]f32) @Vector(4, f32) {
+    res[0] = mul_mat4_by_vec4(b, a[0]);
+    res[1] = mul_mat4_by_vec4(b, a[1]);
+    res[2] = mul_mat4_by_vec4(b, a[2]);
+    res[3] = mul_mat4_by_vec4(b, a[3]);
+
+    return res;
+}
+pub fn mul_mat4_by_vec4(mat: mat4, vec: vec4) vec4{
     const m1 = @Vector(4, f32){mat[0][0], mat[1][0], mat[2][0], mat[3][0]};
     const m2 = @Vector(4, f32){mat[0][1], mat[1][1], mat[2][1], mat[3][1]};
     const m3 = @Vector(4, f32){mat[0][2], mat[1][2], mat[2][2], mat[3][0]};

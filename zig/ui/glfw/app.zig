@@ -58,19 +58,19 @@ pub fn main() !void {
     glfw.glfwSwapInterval(1);
 
 
-    var positions = [_]f32{
-         0.0, 0, 0.0, 0.0,
-         WIDTH, 0, 1.0, 0.0,
-         WIDTH, HEIGHT, 1.0, 1.0,
-         0.0, HEIGHT, 0.0, 1.0
-    };
-
     // var positions = [_]f32{
-    //      100.0, 100.0, 0.0, 0.0,
-    //      200.0, 100.0, 1.0, 0.0,
-    //      200.0, 200.0, 1.0, 1.0,
-    //      100.0, 200.0, 0.0, 1.0
+    //      0.0, 0, 0.0, 0.0,
+    //      WIDTH, 0, 1.0, 0.0,
+    //      WIDTH, HEIGHT, 1.0, 1.0,
+    //      0.0, HEIGHT, 0.0, 1.0
     // };
+
+    var positions = [_]f32{
+         100.0, 100.0, 0.0, 0.0,
+         200.0, 100.0, 1.0, 0.0,
+         200.0, 200.0, 1.0, 1.0,
+         100.0, 200.0, 0.0, 1.0
+    };
     var indeces = [_]u32{
         0, 1, 2, 2, 3, 0
     };
@@ -90,26 +90,21 @@ pub fn main() !void {
     var indexBuffer = ib.indexBuffer(&indeces);
     std.debug.print("Create VBO, VAO, IAO\n", .{});
 
-    // var proj: glm.mat4 = undefined;
-    // glm.glm_ortho(0, 1280.0, 0, 720.0, -1.0, 1.0, @ptrCast(&proj[0]));
+    const proj = mmath.mat4_ortho(0, 960.0, 0, 540, -1.0, 1.0);
+    const view = mmath.mat4_translate(mmath.mat4_create(1.0), mmath.vec3{-100, 0, 0});
 
-    const proj = mmath.mat4_ortho(0, 1280.0, 0, 720, -1.0, 1.0);
+    const mvp = mmath.mat4_multiply(proj, view);
+
+    const mvp_ptr = try mmath.mat4_ptr(mvp, allocator);
+    defer allocator.free(mvp_ptr);
     const proj_ptr = try mmath.mat4_ptr(proj, allocator);
-    var pp: []f32 = undefined;
-    pp.ptr = @ptrCast(proj_ptr);
-    pp.len = 16;
-    defer allocator.free(pp);
-
-    // var vp: glm.vec4 = .{100.0, 100.0, 0.0, 0.0};
-    const vp: mmath.vec4 = .{100.0, 100.0, 0.0, 0.0};
-    _ = vp;
-
-    //const res: glm.vec4 = mmath.mul_mat4_by_vec4(@alignCast(&proj), @alignCast(&vp));
+    defer allocator.free(proj_ptr);
 
     var s = try shader.create("./res/shaders/basic.glsl", allocator);
     s.bind();
-    //try s.setUniform4f("u_Color", 0.2, 0.3, 0.8, 1.0);
-    try s.setUniformMat4f("u_MVP", proj_ptr);
+
+    // try s.setUniformMat4f("u_MVP", @ptrCast(proj_ptr.ptr));
+    try s.setUniformMat4f("u_MVP", @ptrCast(mvp_ptr.ptr));
 
     std.debug.print("Create a chader and set uniforms\n", .{});
 
