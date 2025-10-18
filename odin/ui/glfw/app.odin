@@ -119,8 +119,9 @@ main :: proc() {
     GL.BindVertexArray(vao)
     GL.BindBuffer(GL.ARRAY_BUFFER, vbo)
     GL.BufferData(GL.ARRAY_BUFFER, size_of(position), raw_data(&position), GL.STATIC_DRAW)
+    shift: uint = 0;
 
-    GL.VertexAttribPointer(0, 2, GL.FLOAT, GL.FALSE, size_of(f32) * 2, uintptr(0))
+    GL.VertexAttribPointer(0, 2, GL.FLOAT, GL.FALSE, size_of(f32) * 2, uintptr(shift))
     GL.EnableVertexAttribArray(0)
 
     for !bool(glfw.WindowShouldClose(window)) {
