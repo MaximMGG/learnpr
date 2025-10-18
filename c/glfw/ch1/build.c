@@ -10,6 +10,7 @@ int main() {
     build_exe_link_syslib(e, "GLEW");
     build_exe_link_syslib(e, "spng");
     build_exe_link_syslib(e, "c");
+    build_exe_link_syslib(e, "cstd");
     build_exe_compile(e);
     build_exe_execute(e);
     build_exe_cleanup(e);

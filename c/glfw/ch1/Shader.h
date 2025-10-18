@@ -6,6 +6,7 @@
 #include <cstdext/io/logger.h>
 #include <cstdext/container/map.h>
 #include "renderer.h"
+#include <alloca.h>
 
 typedef enum ShaderType {
     NONE = -1, VERTEX = 0, FRAGMENT = 1
