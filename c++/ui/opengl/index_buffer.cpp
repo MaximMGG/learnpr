@@ -6,7 +6,7 @@ IndexBuffer::IndexBuffer(unsigned *data, unsigned size) {
     glGenBuffers(1, &this->rendererID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->rendererID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
-    this->count = size / sizeof(typeof(*data));
+    this->count = size / sizeof(unsigned int);
 }
 
 IndexBuffer::~IndexBuffer(){

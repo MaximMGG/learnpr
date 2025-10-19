@@ -111,8 +111,6 @@ int main() {
         usleep(40000);
     }
 
-
-
     glfwDestroyWindow(window);
     glfwTerminate();
     std::cout << "End opengl app\n" ;
