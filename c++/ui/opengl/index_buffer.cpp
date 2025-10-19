@@ -1,7 +1,7 @@
 #include "index_buffer.hpp"
 
-IndexBuffer::IndexBuffer(u32 *data, u32 size) {
-    static_assert(sizeof(u32) == sizeof(GLuint));
+IndexBuffer::IndexBuffer(unsigned *data, unsigned size) {
+    static_assert(sizeof(unsigned) == sizeof(GLuint));
 
     glGenBuffers(1, &this->rendererID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->rendererID);

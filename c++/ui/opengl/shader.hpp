@@ -4,7 +4,6 @@
 #include <string>
 #include <glm/glm.hpp>
 
-#define u32 unsigned int
 
 struct ShaderProgramSource {
     std::string vertexShader;
@@ -12,10 +11,11 @@ struct ShaderProgramSource {
 };
 
 struct Shader {
-    u32 rendererID;
+    unsigned int rendererID;
+    std::string filepath;
     std::unordered_map<std::string, int> uniformLocationCache;
 
-    Shader(std::string &filepath);
+    Shader(std::string filepath);
     ~Shader();
 
     void bind();
@@ -28,10 +28,9 @@ struct Shader {
     
 private:
     ShaderProgramSource parseShader(const std::string &filepath);
-    u32 compileShader(u32 type, const std::string &source);
-    u32 createShader(const std::string &vertexShader, const std::string &fragmentShader);
+    unsigned int compileShader(unsigned int type, const std::string &source);
+    unsigned int createShader(const std::string &vertexShader, const std::string &fragmentShader);
     int getUniformLocation(const std::string &name);
-
 };
 
 

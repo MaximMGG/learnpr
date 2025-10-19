@@ -4,14 +4,13 @@
 #include "vertex_buffer.hpp"
 #include "vertex_buffer_layout.hpp"
 
-#define u32 unsigned int
 struct VertexArray {
-    u32 rendererID;
+    unsigned int rendererID;
 
     VertexArray();
     ~VertexArray();
 
-    void addBuffer(VertexBuffer &vb, VertexBufferLayout vbl);
+    void addBuffer(VertexBuffer &vb, VertexBufferLayout &vbl);
     void bind();
     void unbind();
 };

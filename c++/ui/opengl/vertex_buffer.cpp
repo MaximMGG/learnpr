@@ -1,6 +1,6 @@
 #include "vertex_buffer.hpp"
 
-VertexBuffer::VertexBuffer(void *data, u32 size) {
+VertexBuffer::VertexBuffer(void *data, unsigned int size) {
     glGenBuffers(1, &this->rendererID);
     glBindBuffer(GL_ARRAY_BUFFER, this->rendererID);
     glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);

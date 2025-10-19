@@ -6,11 +6,10 @@
 #include <string>
 #include <sstream>
 
-#define u32 unsigned int
-
-Shader::Shader(std::string &filepath) {
+Shader::Shader(std::string filepath) {
     ShaderProgramSource source = parseShader(filepath);
     this->rendererID = createShader(source.vertexShader, source.fragmentShader);
+    this->filepath = filepath;
 }
 
 Shader::~Shader() {
@@ -38,8 +37,7 @@ void Shader::setUniformf4(const std::string &name, float v0, float v1, float v2,
 }
 
 void Shader::setUniformMatf4(const std::string &name, glm::mat4 &m) {
-    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, m);
-
+    //glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, m);
 }
     
 ShaderProgramSource Shader::parseShader(const std::string &filepath) {
@@ -63,8 +61,9 @@ ShaderProgramSource Shader::parseShader(const std::string &filepath) {
     return {ss[0].str(), ss[1].str()};
 }
 
-u32 Shader::compileShader(u32 type, const std::string &source) {
-    u32 id = glCreateShader(type);
+unsigned int Shader::compileShader(unsigned int type, const std::string &source) {
+
+    unsigned int id = glCreateShader(type);
     const char *src = source.c_str();
     glShaderSource(id, 1, &src, NULL);
     glCompileShader(id);
@@ -83,10 +82,10 @@ u32 Shader::compileShader(u32 type, const std::string &source) {
     return id;
 }
 
-u32 Shader::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
-    u32 vs = compileShader(GL_VERTEX_SHADER, vertexShader);
-    u32 fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
-    u32 program = glCreateProgram();
+unsigned int Shader::createShader(const std::string &vertexShader, const std::string &fragmentShader) {
+    unsigned int vs = compileShader(GL_VERTEX_SHADER, vertexShader);
+    unsigned int fs = compileShader(GL_FRAGMENT_SHADER, fragmentShader);
+    unsigned int program = glCreateProgram();
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);

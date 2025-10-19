@@ -1,9 +1,9 @@
 #include "vertex_buffer_layout.hpp"
 
-VertexBufferElement::VertexBufferElement(u32 count, u32 _type, bool normalized) : count(count), _type(_type), normalized(normalized) {}
+VertexBufferElement::VertexBufferElement(unsigned int count, unsigned int _type, bool normalized) : count(count), _type(_type), normalized(normalized) {}
 VertexBufferElement::~VertexBufferElement(){}
 
-u32 VertexBufferElement::bufferElementGetSize() {
+unsigned int VertexBufferElement::bufferElementGetSize() {
     switch(this->_type) {
         case GL_FLOAT: {
             return sizeof(GLfloat);
@@ -29,19 +29,19 @@ VertexBufferLayout::VertexBufferLayout() {
 
 VertexBufferLayout::~VertexBufferLayout() {}
 
-void VertexBufferLayout::pushf32(u32 count, bool normalized) {
+void VertexBufferLayout::pushf32(unsigned int count, bool normalized) {
     VertexBufferElement e{count, GL_FLOAT, normalized};
     this->elements.push_back(e);
     this->stride += e.bufferElementGetSize() * count;
 }
 
-void VertexBufferLayout::pushu32(u32 count, bool normalized) {
+void VertexBufferLayout::pushu32(unsigned int count, bool normalized) {
     VertexBufferElement e{count, GL_UNSIGNED_INT, normalized};
     this->elements.push_back(e);
     this->stride += e.bufferElementGetSize() * count;
 }
 
-void VertexBufferLayout::pushu8(u32 count, bool normalized) {
+void VertexBufferLayout::pushu8(unsigned int count, bool normalized) {
     VertexBufferElement e{count, GL_UNSIGNED_BYTE, normalized};
     this->elements.push_back(e);
     this->stride += e.bufferElementGetSize() * count;

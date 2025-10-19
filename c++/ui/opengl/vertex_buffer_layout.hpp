@@ -3,30 +3,28 @@
 #include <GL/glew.h>
 #include <vector>
 
-#define u32 unsigned int
-
 struct VertexBufferElement {
-    u32 count;
-    u32 _type;
+    unsigned int count;
+    unsigned int _type;
     bool normalized;
 
-    VertexBufferElement(u32 count, u32 _type, bool normalized);
+    VertexBufferElement(unsigned int count, unsigned int _type, bool normalized);
     ~VertexBufferElement();
 
-    u32 bufferElementGetSize();
+    unsigned int bufferElementGetSize();
 };
 
 
 struct VertexBufferLayout {
     std::vector<VertexBufferElement> elements{};
-    u32 stride{0};
+    unsigned int stride{0};
 
     VertexBufferLayout();
     ~VertexBufferLayout();
 
-    void pushf32(u32 count, bool normalized);
-    void pushu32(u32 count, bool normalized);
-    void pushu8(u32 count, bool normalized);
+    void pushf32(unsigned int count, bool normalized);
+    void pushu32(unsigned int count, bool normalized);
+    void pushu8(unsigned int count, bool normalized);
 };
 
 #endif
