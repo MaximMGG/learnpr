@@ -14,6 +14,7 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+#include <cglm/struct.h>
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -74,7 +75,6 @@ int main() {
   Shader s = ShaderCreate("./res/shaders/Basic.glsl");
 
   ShaderBind(&s);
-  //ShaderSetUniform4f(&s, "u_Color", 0.2f, 0.3f, 0.8f, 1.0f);
 
   Texture t = TextureCreate("./res/textures/file.png");
   TextureBind(&t, 0);
@@ -82,7 +82,6 @@ int main() {
 
 
   VertexArrayUnbind(&va);
-  //ShaderUnbind(&s);
   VertexBufferUnbind(&vb);
   IndexBufferUnbind(&ib);
   
