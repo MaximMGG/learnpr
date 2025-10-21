@@ -43,16 +43,17 @@ struct Shader {
             glDeleteShader(fragment);
             return;
         }
-        unsigned int program = glCreateProgram();
+        ID = glCreateProgram();
 
-        glAttachShader(program, vertex);
-        glAttachShader(program, fragment);
-        glLinkProgram(program);
-        if (checkCompileError(program, "PROGRAM")) {
-            glDeleteProgram(program);
+        glAttachShader(ID, vertex);
+        glAttachShader(ID, fragment);
+        glLinkProgram(ID);
+        if (checkCompileError(ID, "PROGRAM")) {
+            glDeleteProgram(ID);
             return;
         }
 
+        glValidateProgram(ID);
         glDeleteShader(vertex);
         glDeleteShader(fragment);
     }
@@ -87,6 +88,13 @@ struct Shader {
         }
         return true;
     }
+
+    void set4f(const char *name, float v1, float v2, float v3, float v4) {
+        glUniform4f(glGetUniformLocation(ID, name), v1, v2, v3, v4);
+    }
+
 };
+
+
 
 #endif
