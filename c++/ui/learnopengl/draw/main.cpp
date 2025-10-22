@@ -71,20 +71,24 @@ int main() {
     unsigned int VBO, EBO, VAO;
 
     glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(verteces), verteces, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeces), indeces, GL_STATIC_DRAW);
 
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(0);
 
     unsigned int v_shader = load_shader("./vertex.glsl", GL_VERTEX_SHADER);
     unsigned int f_shader = load_shader("./fragment.glsl", GL_FRAGMENT_SHADER);
@@ -118,6 +122,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUniform4f(glGetUniformLocation(program, "uColor"), 0.2, 0.3, 0.4, 1.0);
+        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
         glfwSwapBuffers(window);

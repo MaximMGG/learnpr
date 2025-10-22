@@ -30,6 +30,7 @@ struct Shader {
 
         const char *vShaderCode = vertexCode.c_str();
         const char *fShaderCode = fragmentCode.c_str();
+        std::cout << "Shader:\n" << vShaderCode << '\n';
 
         glShaderSource(vertex, 1, &vShaderCode, NULL);
         glCompileShader(vertex);
@@ -37,6 +38,7 @@ struct Shader {
             glDeleteShader(vertex);
             return;
         }
+        std::cout << "Shader:\n" << fShaderCode << '\n';
         glShaderSource(fragment, 1, &fShaderCode, NULL);
         glCompileShader(fragment);
         if (!checkCompileError(fragment, "FRAGMENT")) {

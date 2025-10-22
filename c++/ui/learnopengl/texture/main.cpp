@@ -43,10 +43,10 @@ int main() {
     //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
     // };
     float vertices[] = {
-         0.5f,  0.5f, 0.0,
-         0.5f, -0.5f, 0.0,
-        -0.5f, -0.5f, 0.0,
-        -0.5f,  0.5f, 0.0
+         0.5f,  0.5f, 
+         0.5f, -0.5f,
+        -0.5f, -0.5f,
+        -0.5f,  0.5f,
     };
 
     unsigned int indices[] = {
@@ -66,8 +66,13 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindVertexArray(0);
+
     // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     // glEnableVertexAttribArray(1);
     // glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
@@ -107,11 +112,10 @@ int main() {
         // glBindTexture(GL_TEXTURE_2D, texture);
 
         shader.use();
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        shader.set4f("u_Color", 0.8f, 0.3f, 0.4f, 1.0);
+        shader.set4f("u_Color", 0.2f, 0.4f, 0.1f, 1.0f);
         glBindVertexArray(VAO);
-        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
         glfwSwapBuffers(window);
