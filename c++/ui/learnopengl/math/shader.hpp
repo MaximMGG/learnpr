@@ -4,16 +4,15 @@
 #include <string.h>
 #include <glm/glm.hpp>
 
+enum SHADER_TYPE {
+    VERTEX_SHADER,
+    FRAGMENT_SHADER,
+    PROGRAM
+};
 
 struct Shader {
-    unsigned int ID;
-    static char err_msg[1024];
-
-    enum SHADER_TYPE {
-        VERTEX_SHADER,
-        FRAGMENT_SHADER,
-        PROGRAM
-    };
+    unsigned int ID = 0;
+    char err_msg[1024];
 
     Shader(const char *v_shader, const char *f_shader) {
         unsigned int vertex;
@@ -84,7 +83,8 @@ struct Shader {
             glGetShaderiv(shader, GL_COMPILE_STATUS, &res);
             if (res == GL_FALSE) {
                 memset(err_msg, 0, 1024);
-                glGetShaderInfoLog(shader, 1024, NULL, err_msg);
+                int len;
+                glGetShaderInfoLog(shader, 1024, &len, err_msg);
                 return false;
             }
         } else {
@@ -92,7 +92,8 @@ struct Shader {
             glGetProgramiv(shader, GL_LINK_STATUS, &res);
             if (res == GL_FALSE) {
                 memset(err_msg, 0, 1024);
-                glGetProgramInfoLog(shader, 1024, NULL, err_msg);
+                int len;
+                glGetProgramInfoLog(shader, 1024, &len, err_msg);
                 return false;
             }
         }
