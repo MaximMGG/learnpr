@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ASSERT(x)
-#include <stb_image.h>
+#include <stb/stb_image.h>
+
 
 #define WIDTH 1280
 #define HEIGHT 720
