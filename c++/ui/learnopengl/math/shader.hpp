@@ -43,7 +43,7 @@ struct Shader {
             f_file.seekg(0, std::ios::beg);
             char *f_source = new char[file_size];
             f_file.read(f_source, file_size);
-            fragment = glCreateShader(GL_VERTEX_SHADER);
+            fragment = glCreateShader(GL_FRAGMENT_SHADER);
             glShaderSource(fragment, 1, &f_source, NULL);
             glCompileShader(fragment);
             if (!checkStatus(fragment, FRAGMENT_SHADER)) {
