@@ -23,8 +23,8 @@ public:
         stbi_set_flip_vertically_on_load(true);
         unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data) {
-            int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
-            GLCall(glTexImage2D(ID, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
+            int format = (nrChannels == 4 ? GL_RGBA : GL_RGB);
+            GLCall(glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
             GLCall(glGenerateMipmap(GL_TEXTURE_2D));
         } else {
             std::cerr << "Can't load texture\n";
