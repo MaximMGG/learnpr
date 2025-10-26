@@ -5,6 +5,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 #define WIDTH 720
 #define HEIGHT 720
@@ -140,6 +142,7 @@ int main() {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 1.0f, 100.0f);
 
     std::cout << "Start main loop\n";
+    float rotate_side = 1.0f;
 
     while(!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,9 +161,20 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, rotate_side * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.setMat4("model", model);
 
+
             glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+            std::cout << "R pressed\n";
+            if (rotate_side == 1.0f) {
+                rotate_side = -1.0f;
+            } else {
+                rotate_side = 1.0f;
+            }
         }
 
         glfwSwapBuffers(window);
