@@ -5,9 +5,6 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
 
 #define WIDTH 720
 #define HEIGHT 720

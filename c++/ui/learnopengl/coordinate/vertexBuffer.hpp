@@ -6,20 +6,20 @@ class VertexBuffer {
 public:
     unsigned int ID;
     VertexBuffer(void *data, unsigned int data_size) {
-        glGenBuffers(1, &ID);
-        glBindBuffer(GL_ARRAY_BUFFER, ID);
-        glBufferData(GL_ARRAY_BUFFER, data_size, data, GL_STATIC_DRAW);
+        GLCall(glGenBuffers(1, &ID));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, ID));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, data_size, data, GL_STATIC_DRAW));
     }
 
     ~VertexBuffer() {
-        glDeleteBuffers(1, &ID);
+        GLCall(glDeleteBuffers(1, &ID));
     }
 
     void bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, ID);
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, ID));
     }
     void unbind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
 };
 

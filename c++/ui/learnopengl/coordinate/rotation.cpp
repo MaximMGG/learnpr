@@ -1,5 +1,4 @@
 #include <iostream>
-#include "render.hpp"
 #include "windowMenager.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -80,8 +79,8 @@ int main() {
 
 
     while(!glfwWindowShouldClose(m.window)) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        GLCall(glActiveTexture(GL_TEXTURE0));
         t.bind();
 
         shader.use();
@@ -95,7 +94,7 @@ int main() {
 
         VAO.bind();
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 
         glfwSwapBuffers(m.window);
         glfwPollEvents();

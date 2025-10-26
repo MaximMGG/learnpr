@@ -2,8 +2,17 @@
 #define RENDER_HPP
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <cstdio>
 
+
+#define GLCall(x)       \
+while(glGetError());    \
+    x;                  \
+    GLASSERT(GLLogCall(#x, __LINE__)) 
+
+
+#define GLASSERT(x) if (!(x)) fprintf(stderr, "Err: %s:%d\n", __FUNCTION__, __LINE__)
+
+bool GLLogCall(const char *func, const int line);
 
 #endif //RENDER_HPP

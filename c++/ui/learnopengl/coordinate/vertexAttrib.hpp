@@ -32,8 +32,8 @@ public:
 
         for(int i = 0; i < elements.size(); i++) {
             Element tmp = elements[i];
-            glVertexAttribPointer(i, tmp.count, GL_FLOAT, GL_FALSE, stride, (void *)offset);
-            glEnableVertexAttribArray(i);
+            GLCall(glVertexAttribPointer(i, tmp.count, GL_FLOAT, GL_FALSE, stride, (void *)offset));
+            GLCall(glEnableVertexAttribArray(i));
             offset += tmp.size;
         }
     }

@@ -8,20 +8,20 @@ public:
     unsigned int ID;
 
     VertexArray() {
-        glGenVertexArrays(1, &ID);
-        glBindVertexArray(ID);
+        GLCall(glGenVertexArrays(1, &ID));
+        GLCall(glBindVertexArray(ID));
     }
 
     ~VertexArray() {
-        glDeleteVertexArrays(1, &ID);
+        GLCall(glDeleteVertexArrays(1, &ID));
     }
 
     void bind() {
-        glBindVertexArray(ID);
+        GLCall(glBindVertexArray(ID));
     }
 
     void unbind() {
-        glBindVertexArray(0);
+        GLCall(glBindVertexArray(0));
     }
 
 };
