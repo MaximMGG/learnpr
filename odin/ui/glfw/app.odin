@@ -1,8 +1,8 @@
 package app
 
-// foreign import lib {
-//     "system:GLEW",
-// };
+foreign import lib {
+    "system:GLEW",
+};
 
 import "vendor:glfw"
 import GL "vendor:OpenGL"
@@ -10,12 +10,13 @@ import "core:fmt"
 import "core:c"
 import "core:os"
 import "core:strings"
+import "core:time"
 
 
-// @(default_calling_convention="c")
-// foreign lib {
-//     glewInit :: proc() -> c.int ---
-// }
+@(default_calling_convention="c")
+foreign lib {
+    glewInit :: proc() -> c.int ---
+}
 
 
 WIDTH :: 640
@@ -85,15 +86,9 @@ main :: proc() {
     }
 
     glfw.MakeContextCurrent(window)
-    // glfw.SwapInterval(1)
-    // GL.Enable(GL.BLEND)
-
-    // if glewInit() != 0 {
-    //     fmt.eprintln("GLEW error")
-    //     return
-    // }
-
-    //fmt.printfln("GL Version %s", GL.GetString(GL.VERSION))
+    GL.load_up_to(3, 3, proc(p: rawptr, name: cstring) {
+        (^rawptr)(p)^ = glfw.GetProcAddress(name)
+    })
 
 
     vertexShader: u32 = load_shader("vertex.glsl", GL.VERTEX_SHADER)
@@ -102,6 +97,10 @@ main :: proc() {
     GL.AttachShader(program, vertexShader)
     GL.AttachShader(program, fragmentShader)
     GL.LinkProgram(program)
+
+    GL.DeleteShader(vertexShader)
+    GL.DeleteShader(fragmentShader)
+
     GL.UseProgram(program)
 
     position: [6]f32 = {
@@ -124,13 +123,28 @@ main :: proc() {
     GL.VertexAttribPointer(0, 2, GL.FLOAT, GL.FALSE, size_of(f32) * 2, uintptr(shift))
     GL.EnableVertexAttribArray(0)
 
+    r: f32 = 0.05;
+    inc: f32 = 0.05;
+
     for !bool(glfw.WindowShouldClose(window)) {
         GL.Clear(GL.COLOR_BUFFER_BIT)
+
+        GL.Uniform4f(GL.GetUniformLocation(program, "aColor"), r, 0.3, 0.9, 1.0)
 
         GL.DrawArrays(GL.TRIANGLES, 0, 3)
 
         glfw.SwapBuffers(window)
         glfw.PollEvents()
+
+        if r > 1.0 {
+            inc = -0.01
+        } else if r < 0.0 {
+            inc = 0.01
+        }
+        r += inc
+
+        time.sleep(500000)
+
     }
 
     glfw.DestroyWindow(window)
