@@ -61,3 +61,23 @@ proc p(x, y: int): int {.discardable.} =
 
 echo p(123, 1)
 p(123, 1)
+
+
+echo "Overloading procedures"
+
+
+proc toString(x: int): string =
+    result = 
+        if x < 0: "negative"
+        elif x > 0: "positve"
+        else: "zero"
+
+proc toString(x: bool): string =
+    result = 
+        if x: "true"
+        else: "false"
+
+assert toString(123) == "positve"
+assert toString(false) == "false"
+
+
