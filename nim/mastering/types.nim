@@ -216,5 +216,50 @@ else:
     echo "They are diffrent"
 
 
+echo "Object construction\n\n\n"
+
+
+type 
+    Student = object
+        name: string
+        age: int
+    PStudent = ref Student
+
+proc `$`(s: Student): string =
+    return s.name & ": " & $s.age
+
+var a1 = Student(name: "Bill", age: 12)
+var a2 = PStudent(name: "John", age: 24)
+
+var a3 = (ref Student)(name: "John", age: 22)
+var a4 = Student(age: 8)
+
+echo $a1, $a4
+
+echo "Object variants (Union)"
+
+type 
+    NodeKind = enum
+        nkInt,
+        nkFloat,
+        nkString,
+        nkAdd,
+        nkSub,
+        nkIf
+    Node = ref NodeObj
+    NodeObj = object
+        case kind: NodeKind
+        of nkInt: intVal: int
+        of nkFloat: floatVal: float
+        of nkString: stringVal: string
+        of nkAdd, nkSub: leftOp, rightOp: Node
+        of nkIf: condition, thenPart, elsePart: Node
+        
+
+var n = Node(kind: nkIf, condition: nil)
+n.thenPart = Node(kind: nkFloat, floatVal: 2.0)
+# n.stringVal = ""
+# n.kind = nkInt
+# n.intVal = 2
 
 
