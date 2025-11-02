@@ -1,5 +1,7 @@
 import posix
 import system/ansi_c
+import math
+import json
 
 
 type 
@@ -262,4 +264,150 @@ n.thenPart = Node(kind: nkFloat, floatVal: 2.0)
 # n.kind = nkInt
 # n.intVal = 2
 
+
+# const unknownKind = nkString
+# var y = Node(kind: unknownKind, stringVal: "y")
+
+echo "cast uncheckedAssign\n\n\n"
+
+type 
+    TokenKind* = enum
+        strLit, intLit
+    Token = object
+        case kind*: TokenKind
+        of strLit: s*: string
+        of intLit: l*: int64
+
+
+proc passToVar(x: var TokenKind) = discard
+
+var t = Token(kind: strLit, s: "abc")
+
+{.cast(uncheckedAssign).}:
+    passtoVar(t.kind)
+
+    t = Token(kind: t.kind, s: "abc")
+    t.kind = intLit
+    
+
+type
+    CharSet = set[char]
+
+var 
+    x_set: CharSet
+
+x_set = {'a'..'z', '0'..'9'}
+
+x_set.incl('Q')
+echo x_set
+echo sizeof(x_set)
+
+if 'f' in x_set:
+    echo "f in set"
+
+var y_set: CharSet = {'A'..'Q', 'v'}
+echo x_set + y_set
+
+if '!' notin y_set:
+    echo "! not in y_set"
+
+echo "BIT FIELDS\n\n\n"
+
+type
+    MyFlag* {.size: sizeof(cint).} = enum
+        A, B, C, D
+    MyFlags = set[MyFlag]
+
+
+proc toNum(f: MyFlags): int =   cast[int](f)
+proc toFlags(v: int): MyFlags = cast[MyFlags](v)
+
+assert toNum({}) == 0
+assert toNum({A}) == 1
+assert toNum({D}) == 8
+assert toNum({A, C}) == 5
+assert toFlags(0) == {}
+assert toFlags(7) == {A, B, C}
+
+echo "All assertion done"
+
+echo "Reference and pointer types\n\n\n"
+
+echo "0x", cast[uint64](addr(y_set))
+
+
+var arr: array[5, int32] = [1, 2, 3, 4, 5]
+
+for i in 0..<arr.len:
+    echo cast[uint64](addr(arr[i]))
+
+
+type
+    Node2 = ref NodeObj2
+    NodeObj2 = object
+        le, ri: Node2
+        data: int
+
+var node: Node2
+new(node)
+
+node.data = 9
+
+echo "Node addr: ", cast[uint64](addr(node))
+
+
+echo static(fac(5)), " ", static[bool](16.isPowerOfTwo)
+
+
+type
+    Matrix[M, N: static int; T: SomeNumber] = array[0..(M*N - 1), T]
+
+
+    AffineTransform2D[T] = Matrix[3, 3, T]
+    AffineTransform3D[T] = Matrix[4, 4, T]
+
+var m1: AffineTransform3D[float32]
+echo m1
+
+template maxval(T: typedesc[int]): int = high(int)
+template maxval(T: typedesc[float]): float = Inf
+
+template maxval2[T](U: typedesc[T]): T = high(T)
+
+var i = int.maxval
+var f = float.maxval
+var i2 = int32.maxval2
+echo i, " ", f, " ", i2
+
+
+echo "typeof keyword\n\n\n"
+
+iterator split(s: string): string = discard
+proc split(s: string): seq[string] = discard
+
+
+assert typeof("a b c".split) is string
+assert typeof("a b c".split, typeOfProc) is seq[string]
+
+
+proc fromJ[T: enum](t: typedesc[T]; j: JsonNode): T{.inline.} = T(j.getInt)
+
+proc fromJ(t: typedesc[string]; j: JsonNode): string{.inline.} = j.getStr
+proc fromJ(t: typedesc[bool]; j: JsonNode): string{.inline.} = j.getBool
+proc fromJ(t: typedesc[int]; j: JsonNode): string{.inline.} = j.getInt
+proc fromJ(t: typedesc[float]; j: JsonNode): string{.inline.} = j.getFloat
+
+proc fromJ[T: seq](t: typedesc[T]; j: JsonNode): T =
+    result = newSeq[typeof(result[0])]()
+    assert j.kind == JArray
+    for elem in itmes(f):
+        result.add fromJ(typeof(result[0]), elem)
+
+
+proc fromJ[T: object](t: typedesc[T]; j: JsonNode): T =
+    result = T()
+    assert j.kind == JObject
+    for name, loc in fieldPairs(result):
+        if j.hasKey(name):
+            loc = fromJ(typeof(loc), j[name])
 
