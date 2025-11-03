@@ -1,6 +1,5 @@
 const std = @import("std");
-const stdout = std.io.getStdOut().writer();
-
+var stdout: *std.Io.Writer = undefined;
 
 
 fn check_extension(file_name: []const u8) bool {
@@ -52,13 +51,21 @@ fn iterate_throuth_dir(allocator: std.mem.Allocator, dir: std.fs.Dir, path: []co
 
 pub fn main() !void {
 
+    var buf: [1024]u8 = undefined;
+    var f_stdout = std.fs.File.stdout().writer(&buf);
+    stdout = &f_stdout.interface;
+
+
     // var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     // const allocator = gpa.allocator();
     const c_allocator = std.heap.c_allocator;
+
 
 
     var cwd = try std.fs.cwd().openDir(".", .{.iterate = true});
     defer cwd.close();
     //try iterate_throuth_dir(allocator, cwd, ".");
     try iterate_throuth_dir(c_allocator, cwd, ".");
+
+    try stdout.flush();
 }
