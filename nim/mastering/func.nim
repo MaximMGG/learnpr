@@ -1,4 +1,6 @@
 # import strutils, math
+import sequtils
+import algorithm as algo
 
 
 proc foo(inp: int, outp: var int) =
@@ -94,6 +96,45 @@ proc `[]=`*(m: var Matrix, i, j: int, s: float) =
     m.data[i * m.n + j] = s
 
 
+echo "Closure\n\n\n"
+
+proc outer =
+    var i = 0
+
+    proc mutate =
+        inc i
+
+    mutate()
+    echo i
+
+outer()
+
+
+var later: seq[proc ()] = @[]
+
+for i in 1..2:
+    later.add(proc () = echo i)
+
+for x in later: 
+    x()
+
+var later2: seq[proc ()] = @[]
+
+for i in 1..2:
+    (proc = 
+        let j = i
+        later2.add proc() = echo j)()
+
+for x in later2:
+    x()
+
+echo "Anonymous procs\n\n\n"
+
+var cities = @["Frankfurt", "Tokyo", "New Youk", "Kyiv"]
+
+cities.sort(proc (x, y: string): int = cmp(x.len, y.len))
+
+echo repr(cities)
 
 
 
