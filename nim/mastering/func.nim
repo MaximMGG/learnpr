@@ -1,5 +1,4 @@
 # import strutils, math
-import sequtils
 import algorithm as algo
 
 
@@ -137,6 +136,41 @@ cities.sort(proc (x, y: string): int = cmp(x.len, y.len))
 echo repr(cities)
 
 
+echo "Func\n\n\n"
+
+proc divmode(a, b: int, res, remainder: var int) =
+  res = a div b
+  remainder = a mod b
+
+var
+  a1, a2: int
+
+divmode(8, 5, a1, a2)
+
+assert a1 == 1
+assert a2 == 3
+
+proc divmode(a, b: int, res, remainder: ptr int) =
+  res[] = a div b
+  remainder[] = a mod b
+
+var
+  ptr1, ptr2: int
+
+divmode(8, 5, addr(ptr1), addr(ptr2))
+
+assert ptr1 == 1
+assert ptr2 == 3
+
+proc divmode(a, b: int): tuple[res, remainder: int] = (a div b, a mod b)
 
 
+var t = divmode(8, 5)
 
+assert t.res == 1
+assert t.remainder == 3
+
+var (xx, yy) = divmode(8, 5)
+
+assert xx == 1
+assert yy == 3
