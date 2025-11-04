@@ -60,8 +60,6 @@ pub fn main() !void {
     // const allocator = gpa.allocator();
     const c_allocator = std.heap.c_allocator;
 
-
-
     var cwd = try std.fs.cwd().openDir(".", .{.iterate = true});
     defer cwd.close();
     //try iterate_throuth_dir(allocator, cwd, ".");

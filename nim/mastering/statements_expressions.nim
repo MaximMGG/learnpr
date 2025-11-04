@@ -1,3 +1,4 @@
+import strutils
 
 
 echo "discard"

@@ -1,9 +1,6 @@
-
-
-
 iterator `..`[T, U](a: T, b: U): U =
     var i = U(a)
-    while i <= b
+    while i <= b:
         yield i
         inc i
 
@@ -21,3 +18,9 @@ for x in items(@["ijij", "kdjfsl", "ooooo"]):
 
 var p = Point[float](x: 123.3, y: 11)
 echo p
+
+for i in 0..9:
+  echo $i, " 1"
+
+
+

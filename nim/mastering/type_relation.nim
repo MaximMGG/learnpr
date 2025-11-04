@@ -1,3 +1,4 @@
+import strutils
 
 type
     A = object of RootObj
@@ -20,5 +21,6 @@ var bb = a.toB()
 b.seyName()
 a.seyName()
 bb.seyName()
+
 
 
