@@ -38,7 +38,7 @@ iterator findAll(haystack: string, needle: char): int =
     for i in 0 ..< haystack.len:
         if haystack[i] == needle:
             yield i
-
+pp
 let s = "Kavabunga!!!@"
 echo find(s, 'v')
 
