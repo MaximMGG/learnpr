@@ -39,7 +39,6 @@ main :: proc() {
     log.log(.Info, "Compile Shaders")
 
 
-
     log.log(.Info, "Start main loop")
 
     for !bool(glfw.WindowShouldClose(window)) {

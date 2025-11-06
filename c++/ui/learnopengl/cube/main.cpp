@@ -1,119 +1,74 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 #include <iostream>
+#include "window_manager.hpp"
+#include "shader.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-
-void compileShader(unsigned int shader) {
-    glCompileShader(shader);
-    int res;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &res);
-    if (res == GL_FALSE) {
-        int len;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-        char *err_msg = new char [len];
-        glGetShaderInfoLog(shader, len, &len, err_msg);
-        std::cerr << "Compile shader error: " << err_msg << '\n';
-        delete [] err_msg;
-    }
-}
-
-const char *vertexSource = R"(
-#version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoord;
-
-out vec2 TexCoord;
-
-void main() {
-    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
-    TexCoord = aTexCoord;
-}
-
-)";
-
-const char *fragmentSource = R"(
-#version 330 core
-
-out vec4 FragColor;
-in vec2 TexCoord;
-
-uniform sampler2D texture1;
-
-void main() {
-    FragColor = texture(texture1, TexCoord);
-}
-)";
+#define WIDTH 1280
+#define HEIGHT 720
 
 int main() {
-
-
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, 1.0f, 1.0f,
-
-         0.5f,  0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f, 0.0f
-    };
-
-
-    glfwInit();
-
-
-    const GLFWvidmode *vm = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-    const int screenWidth = vm->width;
-    const int screenHeight = vm->height;
-
-    const int windowWidth = screenHeight / 2;
-    const int windowHeight = screenHeight / 2;
-
-    GLFWwindow *window = glfwCreateWindow(windowWidth, windowHeight, "CUBE", NULL, NULL);
-    if (window == NULL) {
-        std::cout << "Failed to create GLFW window\n";
-        glfwTerminate();
-        return 1;
-    }
-
-
-    int windowPosX = (screenWidth - windowWidth) / 2;
-    int windowPosY = (screenHeight - windowHeight) / 2;
-
-    glfwSetWindowAspectRatio(window, 1, 1);
-    glfwMakeContextCurrent(window);
+    
+    std::cout << "Init glfw\n";
+    WindowManager m(WIDTH, HEIGHT, "CUBE");
 
     if (glewInit() != 0) {
-        std::cerr << "Failed to initialize GLEW\n";
-        glfwTerminate();
+        fprintf(stderr, "glewInit failed\n");
         return 1;
     }
 
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    compileShader(vertexShader);
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    compileShader(fragmentShader);
+    glEnable(GL_DEPTH_TEST);
 
-    unsigned int prog = glCreateProgram();
-    glAttachShader(prog, vertexShader);
-    glAttachShader(prog, fragmentShader);
-    glLinkProgram(prog);
-    int res;
-    glGetProgramiv(prog, GL_LINK_STATUS, &res);
-    if (res == GL_FALSE) {
-        std::cout << "glLinkProgram failed\n";
-        glDeleteProgram(prog);
-        glfwTerminate();
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader prog("./vertex.glsl", "./fragment.glsl");
+    std::cout << "Create shader\n";
+
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
 
     unsigned int VAO, VBO;
-
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -121,63 +76,72 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void *)(sizeof(float) * 2));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *)(sizeof(float) * 3));
     glEnableVertexAttribArray(1);
+    std::cout << "Init buffers\n";
 
+    unsigned int texture;
 
-    unsigned int texture ;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
-    int textureWidth, textureHeight, nrChannels;
+    int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true);
-
-    unsigned char *data = stbi_load("./crate.png", &textureWidth, &textureHeight, &nrChannels, 0);
+    unsigned char *data = stbi_load("./crate.png", &width, &height, &nrChannels, 0);
     if (data) {
-        int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, textureWidth, textureHeight, 0, format, GL_UNSIGNED_BYTE, data);
+        int format = nrChannels == 4 ? GL_RGBA : GL_RGB; 
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
     } else {
-        std::cerr << "Failed to load image\n";
+        fprintf(stderr, "Cant load texture\n");
+        return 1;
     }
-
     stbi_image_free(data);
+    std::cout << "Load texture\n";
 
-    glUseProgram(prog);
-    glUniform1i(glGetUniformLocation(prog, "texture1"), 0);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    prog.use();
+    prog.setInt("texture1", 0);
 
-    while(!glfwWindowShouldClose(window)) {
 
-        int fbWidth, fbHeight;
-        glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-        glViewport(0, 0, fbWidth, fbHeight);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
-        glClear(GL_COLOR_BUFFER_BIT);
+    std::cout << "Start main Loop\n";
+    while(!glfwWindowShouldClose(m.window)) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
 
-        glUseProgram(prog);
+        prog.use();
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
+
+        prog.setMat4("model", model);
+        prog.setMat4("view", view);
+        prog.setMat4("projection", projection);
+
         glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        m.work();
     }
 
+    std::cout << "End of looping\n";
 
-    glDeleteProgram(prog);
-    glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
     glDeleteTextures(1, &texture);
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     return 0;
 }
