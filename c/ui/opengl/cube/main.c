@@ -9,6 +9,7 @@
 
 #define WIDTH 1280
 #define HEIGHT 720
+#define CUBES_COUNT 12
 
 int main() {
     glfwInit();
@@ -74,6 +75,22 @@ int main() {
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    vec3 cubePositions[CUBES_COUNT] = {
+        {0.0f,  0.0f,  0.0f},
+        {2.0f,  5.0f, -15.0f},
+        {-1.5f, -2.2f, -2.5f},
+        {-3.8f, -2.0f, -12.3f},
+        {2.4f, -0.4f, -3.5f},
+        {-1.7f,  3.0f, -7.5f},
+        {1.3f, -2.0f, -2.5f},
+        {1.5f,  2.0f, -2.5f},
+        {1.5f,  0.2f, -1.5f},
+        {-1.3f,  1.0f, -1.5f},
+        {-1.5f,  -2.0f, 2.5f},
+        {-1.5f,  -0.2f, 1.5f},
+    };
+
+
     unsigned int VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -125,15 +142,20 @@ int main() {
 
         ShaderUse(prog);
 
-        mat4 model = GLM_MAT4_IDENTITY_INIT;
-        glm_rotate(model, (float)glfwGetTime(), (vec3){0.5f, 1.0f, 0.0f});
 
-        ShaderSetMat4(prog, "model", model);
-        ShaderSetMat4(prog, "view", model);
-        ShaderSetMat4(prog, "projection", model);
+        ShaderSetMat4(prog, "view", view);
+        ShaderSetMat4(prog, "projection", projection);
 
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(u32 i = 0; i < CUBES_COUNT; i++) {
+            mat4 model = GLM_MAT4_IDENTITY_INIT;
+            glm_translate(model, cubePositions[i]);
+            glm_rotate(model, (f32)glfwGetTime(), (vec3){1.0f, 0.3f, 0.5f});
+            ShaderSetMat4(prog, "model", model);
+
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
