@@ -8,10 +8,11 @@ import gl "vendor:OpenGL"
 import glfw "vendor:glfw"
 import stb "vendor:stb/image"
 import "util"
+import camera "util/camera"
 import m "core:math/linalg"
 
-WIDTH :: 1280
-HEIGHT :: 720
+WIDTH :: 1280 * 2
+HEIGHT :: 720 * 2
 CUBE_POSITIONS :: 10
 
 faster: bool = false
