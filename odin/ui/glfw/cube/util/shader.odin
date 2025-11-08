@@ -4,6 +4,7 @@ import "core:os"
 import "core:fmt"
 import "core:strings"
 import gl "vendor:OpenGL"
+import m "core:math/linalg"
 
 ShaderError :: enum {
     OPEN_FILE_ERROR,
@@ -13,7 +14,8 @@ ShaderError :: enum {
 }
 
 Shader :: struct {
-    id: u32
+    id: u32,
+    location: map[string]int
 }
 
 ShaderType :: enum {
@@ -34,6 +36,7 @@ checkStatus :: proc(shader: u32, type: ShaderType) -> bool {
             gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &len)
             err_msg := make([]u8, len)
             defer delete(err_msg)
+            gl.GetProgramInfoLog(shader, len, &len, raw_data(err_msg))
             fmt.eprintf("Cant compile %s shader: %s\n", "vertex" if type == .VERTEX_SHADER else "fragment", err_msg)
             return false
         }
@@ -45,6 +48,7 @@ checkStatus :: proc(shader: u32, type: ShaderType) -> bool {
             gl.GetProgramiv(shader, gl.INFO_LOG_LENGTH, &len)
             err_msg := make([]u8, len)
             defer delete(err_msg)
+            gl.GetProgramInfoLog(shader, len, &len, raw_data(err_msg))
             fmt.eprintf("Cant link program: %s\n", err_msg)
             return false
         }
@@ -88,7 +92,7 @@ compileShader :: proc(v_path: string, f_path: string) -> Shader {
         fmt.eprintf("%v\n", v_err)
         return Shader{}
     }
-    fragment_shader, f_err := compileShaderHelper(v_path, gl.FRAGMENT_SHADER)
+    fragment_shader, f_err := compileShaderHelper(f_path, gl.FRAGMENT_SHADER)
     if f_err != nil {
         fmt.eprintf("%v\n", v_err)
         return Shader{}
@@ -107,7 +111,21 @@ compileShader :: proc(v_path: string, f_path: string) -> Shader {
     gl.DeleteShader(vertex_shader)
     gl.DeleteShader(fragment_shader)
 
-    return Shader{program}
+    return Shader{program, {}}
 }
 
+setInt :: proc(shader: Shader, name: cstring, value: i32) {
+    loc := gl.GetUniformLocation(shader.id, name)
+    if loc != -1 {
+        gl.Uniform1i(loc, value)
+
+    }
+}
+
+setMat4 :: proc(shader: Shader, name: cstring, value: ^m.Matrix4f32) {
+    loc := gl.GetUniformLocation(shader.id, name)
+    if loc != -1 {
+        gl.UniformMatrix4fv(loc, 1, gl.FALSE, raw_data(value))
+    }
+}
 
