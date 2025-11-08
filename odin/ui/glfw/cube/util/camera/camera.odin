@@ -33,10 +33,10 @@ createCamera :: proc {
 }
 
 createCameraDef :: proc(position := m.Vector3f32{0.0, 0.0, 0.0}, 
-    up := m.Vectorf3f32{0.0, 1.0, 0.0}, 
-    yaw := YAW, pitch := PITCH) -> Camera 
-{
-    camera := Camera{   front = m.Vector3f32{0.0, 0.0, -1.0},
+    up := m.Vector3f32{0.0, 1.0, 0.0}, 
+    yaw := YAW, pitch := PITCH) -> Camera {
+    camera := Camera{   
+                        front = m.Vector3f32{0.0, 0.0, -1.0},
                         movement_speed = SPEED,
                         mouse_sensitivity = SENSITIVITY,
                         zoom = ZOOM,
@@ -50,15 +50,34 @@ createCameraDef :: proc(position := m.Vector3f32{0.0, 0.0, 0.0},
 createCameraScalar :: proc(posX: f32, posY: f32, posZ: f32, upX: f32, upY: f32,
     upZ: f32, yaw: f32, pitch: f32) -> Camera 
 {
+    camera := Camera{
+        position = m.Vector3f32{posX, posY, posZ},
+        word_up = m.Vector3f32{upX, upY, upZ},
+        front = m.Vector3f32{0.0, 0.0, -1.0},
+        movement_speed = SPEED,
+        mouse_sensitivity = SENSITIVITY,
+        zoom = ZOOM,
+        yaw = yaw,
+        pitch = pitch,}
+    updateCameraVectors(camera)
+    return camera
+}
+
+getViewMatrix :: proc() -> m.Matrix4f32 {
 
 }
+
+processKeyboard ::proc(direction: CameraMovement, deltaTime: f32) {
+
+}
+
 
 @(private)
 updateCameraVectors :: proc(camera: Camera) {
     front: m.Vector3f32
-    front.x = m.cos(m.to_radians(camera.yaw)) * m.cos(m.to_radians(camera.pitch))
-    front.y = m.sin(m.to_radians(camera.pitch))
-    front.z = m.sin(m.to_radians(camera.yaw)) * mcos(m.to_raians(camera.pitch))
+    front.x = f32(m.cos(m.to_radians(camera.yaw))) * f32(m.cos(m.to_radians(camera.pitch)))
+    front.y = f32(m.sin(m.to_radians(camera.pitch)))
+    front.z = f32(m.sin(m.to_radians(camera.yaw))) * f32(m.cos(m.to_raians(camera.pitch)))
     camera.front = m.normalize(front)
     camera.right = m.normalize(m.vector_cross(camera.front, camera.word_up))
     camera.up = m.normalize(m.vector_cross(camera.right, camera.front))

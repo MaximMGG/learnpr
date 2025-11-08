@@ -5,13 +5,27 @@
 #include <cstdext/io/logger.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include "camera.h"
 
-
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH 720
+#define HEIGHT 640
 #define CUBES_COUNT 12
 
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+Camera camera;
+f32 lastX = WIDTH / 2.0f;
+f32 lastY = HEIGHT / 2.0f;
+bool firstMouse = true;
+
+f32 deltaTime = 0.0f;
+f32 lastFrame = 0.0f;
+
 int main() {
+
+    camera = cameraCreate((vec3){0.0f, 0.0f, 3.0f}, (vec3){0.0f, 1.0f, 0.0f}, YAW, PITCH);
+
     glfwInit();
 
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "titile", null, null);
@@ -129,22 +143,27 @@ int main() {
     ShaderUse(prog);
     ShaderSetInt(prog, "texture1", 0);
 
-    mat4 view = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
-    mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    glm_perspective(glm_rad(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f, projection);
 
 
     while(!glfwWindowShouldClose(window)) {
+
+        f32 currentFrame = (f32)glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
 
         ShaderUse(prog);
 
-
-        ShaderSetMat4(prog, "view", view);
+        mat4 projection;
+        glm_perspective(glm_rad(camera.zoom), (f32)WIDTH / (f32)HEIGHT, 0.1f, 100.0f, projection);
         ShaderSetMat4(prog, "projection", projection);
+        
+        mat4 *view = cameraGetMatrixView(&camera);
+        ShaderSetMat4(prog, "view", *view);
+
 
         glBindVertexArray(VAO);
         for(u32 i = 0; i < CUBES_COUNT; i++) {
@@ -153,10 +172,10 @@ int main() {
             glm_rotate(model, (f32)glfwGetTime(), (vec3){1.0f, 0.3f, 0.5f});
             ShaderSetMat4(prog, "model", model);
 
-
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        dealloc(view);
         glfwSwapBuffers(window);
         glfwPollEvents();
 
