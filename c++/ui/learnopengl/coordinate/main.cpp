@@ -2,31 +2,27 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "shader.hpp"
+#include "camera.hpp"
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+
 void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void mouse_buttonCallback(GLFWwindow *window, int button, int action, int mods);
+//void mouse_buttonCallback(GLFWwindow *window, int button, int action, int mods);
+
 #define WIDTH 720
 #define HEIGHT 720
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-
-bool firstMouse = true;
-bool mouseCouldMove = false;
-float yaw = -90.0f;
-float pitch = 0.0;
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = (float)WIDTH / 2.0;
 float lastY = (float)HEIGHT / 2.0;
-float fov = 45.0;
+bool firstMouse = true;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -44,7 +40,9 @@ int main() {
 
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    glfwSetMouseButtonCallback(window, mouse_buttonCallback);
+//    glfwSetMouseButtonCallback(window, mouse_buttonCallback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (glewInit() != 0) {
         std::cerr << "glewInit failed\n";
@@ -162,9 +160,6 @@ int main() {
     shader.setInt("texture1", 0);
 
     std::cout << "Start main loop\n";
-    float rotate_side = 1.0f;
-
-
 
     while(!glfwWindowShouldClose(window)) {
 
@@ -179,19 +174,17 @@ int main() {
 
         shader.use();
 
-        glm::mat4 projection = glm::perspective(glm::radians(fov), (float)WIDTH / (float)HEIGHT, 1.0f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
         shader.setMat4("projection", projection);
 
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 view = camera.getViewMatrix();
         shader.setMat4("view", view);
 
         glBindVertexArray(VAO);
         for(unsigned int i = 0; i < 10; i++) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
-            float angle = 20.f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            model = glm::rotate(model, rotate_side * (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
+            model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.3f, 0.5f));
             shader.setMat4("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -199,35 +192,6 @@ int main() {
 
 
         processInput(window);
-
-
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-            std::cout << "R pressed\n";
-            if (rotate_side == 1.0f) {
-                rotate_side = -1.0f;
-            } else {
-                rotate_side = 1.0f;
-            }
-        }
-        // if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        //     incX += 0.01f;
-        // }
-        // if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        //     incX -= 0.01f;
-        // }
-        // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        //     incY += 0.01f;
-        // }
-        // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        //     incY -= 0.01f;
-        // }
-        // if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        //     incZ += 0.01f;
-        // }
-        // if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-        //     incZ -= 0.01f;
-        // }
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -248,11 +212,10 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
-    float cameraSpeed = static_cast<float>(2.5 * deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cameraPos -= cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.processKeyboar(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.processKeyboar(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.processKeyboar(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.processKeyboar(RIGHT, deltaTime);
 
 
 }
@@ -266,47 +229,14 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
         lastY = ypos;
         firstMouse = false;
     }
-    if (mouseCouldMove) {
-        float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos;
-        lastX = xpos;
-        lastY = ypos;
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
 
-        float sensitivity = 0.1f;
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
-
-        yaw += xoffset;
-        pitch += yoffset;
-
-        if (pitch > 89.0) {
-            pitch = 89.0;
-        }
-        if (pitch < -89.0) {
-            pitch = -89.0;
-        }
-
-        glm::vec3 front;
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        cameraFront = glm::normalize(front);
-    }
-}
-
-void mouse_buttonCallback(GLFWwindow *window, int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        std::cout << "Mouse left pressed";
-        if (action == GLFW_PRESS) {
-            mouseCouldMove = true;
-        } else if (action == GLFW_RELEASE) {
-            mouseCouldMove = false;
-        }
-    } 
+    lastX = xpos;
+    lastY = ypos;
+    camera.processMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    fov -= (float)yoffset;
-    if (fov < 1.0f) fov = 1.0;
-    if (fov > 45.0f) fov = 45.0;
+    camera.processMouseScroll(static_cast<float>(yoffset));
 }
