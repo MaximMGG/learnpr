@@ -23,6 +23,7 @@ f32 deltaTime = 0.0f;
 f32 lastFrame = 0.0f;
 
 int main() {
+    //comment
 
     camera = cameraCreate((vec3){0.0f, 0.0f, 3.0f}, (vec3){0.0f, 1.0f, 0.0f}, YAW, PITCH);
 
