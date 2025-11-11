@@ -1,6 +1,6 @@
 #include <iostream>
-#include "window_manager.hpp"
 #include "shader.hpp"
+#include "window_manager.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <glm/glm.hpp>
@@ -14,10 +14,16 @@ int main() {
     std::cout << "Init glfw\n";
     WindowManager m(WIDTH, HEIGHT, "CUBE");
 
-    if (glewInit() != 0) {
+
+    int res = glewInit();
+    if (res != 0 && res != 4) {
         fprintf(stderr, "glewInit failed\n");
         return 1;
     }
+    // if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    //     std::cerr << "gladLoad Error\n";
+    //     return 1;
+    // }
 
     glEnable(GL_DEPTH_TEST);
 

@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
-
 class Shader {
 public:
     unsigned int id = 0;

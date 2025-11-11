@@ -12,7 +12,7 @@ default: build run
 
 
 build: $(OBJ)
-	g++ -o $(APP) $< -lGL -lGLEW -lglfw
+	g++ -o $(APP) $^ -lGL -lGLEW -lglfw
 
 run:
 	./$(APP)

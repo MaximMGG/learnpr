@@ -44,7 +44,8 @@ int main() {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if (glewInit() != 0) {
+    int glew_init_res = glewInit();
+    if (glew_init_res != 0 && glew_init_res != 4) {
         std::cerr << "glewInit failed\n";
         return 1;
     }
