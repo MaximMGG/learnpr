@@ -1,26 +1,23 @@
 const std = @import("std");
 
 
-
-
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
     const exe = b.addExecutable(.{
-        .use_llvm = true,
-        .name = "compres",
-        .root_module = b.addModule("compres", .{
-            .optimize = optimize,
+        .root_module = b.addModule("Exe", .{
+            .root_source_file = b.path("main.zig"),
             .target = target,
-            .root_source_file = b.path("compres.zig"),
-        })
+            .optimize = optimize,
+        }),
+        .use_llvm = true,
     });
-    //exe.linkLibC();
+
 
     const run_step = b.step("run", "Run application");
-    const exe_step = b.addRunArtifact(exe);
-    run_step.dependOn(&exe_step.step);
+    const run_art = b.addRunArtifact(exe);
+    run_step.dependOn(&run_art.step);
 
     b.installArtifact(exe);
 }
