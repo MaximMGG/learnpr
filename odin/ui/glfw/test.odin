@@ -29,6 +29,7 @@ initWindow :: proc(width: i32, height: i32, name: cstring) -> glfw.WindowHandle 
 
 loadShader :: proc(path: string, type: u32) -> (shader: u32) {
     file, file_err := os.open(path, os.O_RDONLY)
+    defer os.close(file)
     if file_err != nil {
         fmt.eprintln("Failed to open:", path, "file")
         shader = 0
@@ -61,13 +62,6 @@ main :: proc() {
 
     window := initWindow(720, 720, "test window")
 
-    for !bool(glfw.WindowShouldClose(window)) {
-        gl.Clear(gl.COLOR_BUFFER_BIT)
-
-        glfw.SwapBuffers(window)
-        glfw.PollEvents()
-    }
-
     vertex := loadShader("./vertex.glsl", gl.VERTEX_SHADER)
     fragment := loadShader("./fragment.glsl", gl.FRAGMENT_SHADER)
     prog := gl.CreateProgram()
@@ -90,22 +84,23 @@ main :: proc() {
     VAO, VBO, EBO: u32
 
     gl.GenVertexArrays(1, &VAO)
+    gl.BindVertexArray(VAO)
+
     gl.GenBuffers(1, &VBO)
     gl.GenBuffers(1, &EBO)
 
-    gl.BindVertexArray(VAO)
 
     gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-    gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(f32), &vertices[0], gl.STATIC_DRAW)
+    gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(f32), raw_data(vertices[:]), gl.STATIC_DRAW)
 
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(u32), &indices[0], gl.STATIC_DRAW)
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(u32), raw_data(indices[:]), gl.STATIC_DRAW)
 
     gl.VertexAttribPointer(0, 2, gl.FLOAT, gl.FALSE, size_of(f32) * 2, uintptr(0))
     gl.EnableVertexAttribArray(0)
 
-    gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-    gl.BindVertexArray(0)
+    // gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+    // gl.BindVertexArray(0)
 
     for !bool(glfw.WindowShouldClose(window)) {
         gl.Clear(gl.COLOR_BUFFER_BIT)
