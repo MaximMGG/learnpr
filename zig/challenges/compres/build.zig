@@ -3,9 +3,10 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const optimize = b.standardOptimizeOption(.{});
+    const optimize = b.standardOptimizeOption(.{.preferred_optimize_mode = .ReleaseFast});
 
     const exe = b.addExecutable(.{
+        .name = "comp",
         .root_module = b.addModule("Exe", .{
             .root_source_file = b.path("main.zig"),
             .target = target,

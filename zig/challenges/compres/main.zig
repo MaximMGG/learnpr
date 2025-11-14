@@ -8,7 +8,7 @@ pub fn main() !void {
 
     var tree = std.AutoHashMap(u8, i32).init(allocator);
     defer tree.deinit();
-    var buf: u8[1024] = undefined;
+    var buf: [1024]u8 = undefined;
 
     var stdout_writer = std.fs.File.stdout().writer(&buf);
     var stdout = &stdout_writer.interface;
@@ -27,13 +27,15 @@ pub fn main() !void {
         if (tree.getEntry(file_buf[i])) |entry| {
             entry.value_ptr.* += 1;
         } else {
-            tree.put(file_buf[i], 1);
+            try tree.put(file_buf[i], 1);
         }
     }
 
     var it = tree.iterator();
 
     while(it.next()) |entry| {
-        stdout.print("Char: {c} - Value: {d}\n", .{entry.key_ptr.*, entry.value_ptr.*});
+        try stdout.print("Char: {c} - Value: {d}\n", .{entry.key_ptr.*, entry.value_ptr.*});
     }
+
+    try stdout.flush();
 }

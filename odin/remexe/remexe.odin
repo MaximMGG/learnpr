@@ -49,37 +49,36 @@ check_dir :: proc(s: string, level: int) {
     defer os.close(dir)
 
     if err != os.ERROR_NONE {
-	fmt.printf("Could not open dir %s\n", s)
-	os.exit(1)
+        fmt.printf("Could not open dir %s\n", s)
+        os.exit(1)
     }
     print_level(level)
     fmt.println("Check dir:", s, "...")
     fin: []os.File_Info
-    
+
     fin, err = os.read_dir(dir, -1)
     if err != os.ERROR_NONE {
-	fmt.printf("Could not read dir %s\n", s)
-	os.exit(1)	
+        fmt.printf("Could not read dir %s\n", s)
+        os.exit(1)	
     }
     defer os.file_info_slice_delete(fin)
 
     for fi in fin {
-	if fi.is_dir {
-	    dot_index := strings.index_byte(fi.fullpath, '.')
-	    if dot_index == -1 {
-		check_dir(fi.fullpath, level + 1)
-		continue
-	    }
-	} else if (fi.mode & os.S_IXUSR != 0) {
-	    if check_exception(fi.fullpath) {
-		os.remove(fi.fullpath)
-		print_level(level)
-		fmt.println("Removing:", fi.fullpath)		
-	    }
-	}
+        if fi.is_dir {
+            dot_index := strings.index_byte(fi.fullpath, '.')
+            if dot_index == -1 {
+                check_dir(fi.fullpath, level + 1)
+                continue
+            }
+        } else if (fi.mode & os.S_IXUSR != 0) {
+            if check_exception(fi.fullpath) {
+                os.remove(fi.fullpath)
+                print_level(level)
+                fmt.println("Removing:", fi.fullpath)		
+            }
+        }
     }
 }
-
 
 
 main :: proc() {

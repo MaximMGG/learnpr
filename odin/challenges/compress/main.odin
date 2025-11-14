@@ -1,45 +1,35 @@
 package compress
 
-
 import "core:fmt"
 import "core:os"
 import "core:slice"
-import pq "core:container/priority_queue"
-
-Node :: struct {
-    val: u8,
-    weight: u32,
-    leaf: bool,
-    left: Node,
-    rigth: Node,
-};
-
-Pair :: struct {
-    val: u8,
-    count: u32,
-};
-
-less :: proc(a, b: Node) -> bool {
-    if a.weight > b.weight do return false;
-
-    return true;
-}
-
 
 main :: proc() {
-    file, _ := os.open("test2.txt", os.O_RDONLY)
+    file, f_err := os.open("test.txt", os.O_RDONLY)
     defer os.close(file)
-    fi, _ := os.fstat(file)
-    buf := make([]u8, fi.size)
-    defer delete(buf)
-
-    read_bytes, _ := os.read(file, buf)
-    if read_bytes != fi.size {
-        fmt.eprintln("read bytes not equalse file size")
+    if f_err != nil {
+        fmt.eprintf("Can't open file\n")
         return
     }
+    stat, _ := os.fstat(file)
+    buf := make([]u8, stat.size)
+    defer delete(buf)
+    os.read(file, buf)
 
-    pairs: [dynamic]u8
+    tree: map[u8]int
 
+    total: u64
+    for i in 0..<stat.size {
+        if buf[i] in tree {
+            tree[buf[i]] += 1
+        } else {
+            tree[buf[i]] = 1
+        }
+        total += 1
+    }
 
+    for k, v in tree {
+        fmt.printf("Char: %c, value: %d\n", k, v)
+    }
+    fmt.printf("Total: %d\n", total)
 }
