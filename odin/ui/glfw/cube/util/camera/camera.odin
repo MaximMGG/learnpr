@@ -44,7 +44,7 @@ createCameraDef :: proc(position := m.Vector3f32{0.0, 0.0, 0.0},
                         word_up = up,
                         yaw = yaw,
                         pitch = pitch,}
-    updateCameraVectors(camera)
+    updateCameraVectors(&camera)
     return camera
 }
 createCameraScalar :: proc(posX: f32, posY: f32, posZ: f32, upX: f32, upY: f32,
@@ -59,12 +59,13 @@ createCameraScalar :: proc(posX: f32, posY: f32, posZ: f32, upX: f32, upY: f32,
         zoom = ZOOM,
         yaw = yaw,
         pitch = pitch,}
-    updateCameraVectors(camera)
+    updateCameraVectors(&camera)
     return camera
 }
 
 getViewMatrix :: proc() -> m.Matrix4f32 {
 
+    return {}
 }
 
 processKeyboard ::proc(direction: CameraMovement, deltaTime: f32) {
@@ -73,11 +74,11 @@ processKeyboard ::proc(direction: CameraMovement, deltaTime: f32) {
 
 
 @(private)
-updateCameraVectors :: proc(camera: Camera) {
+updateCameraVectors :: proc(camera: ^Camera) {
     front: m.Vector3f32
     front.x = f32(m.cos(m.to_radians(camera.yaw))) * f32(m.cos(m.to_radians(camera.pitch)))
     front.y = f32(m.sin(m.to_radians(camera.pitch)))
-    front.z = f32(m.sin(m.to_radians(camera.yaw))) * f32(m.cos(m.to_raians(camera.pitch)))
+    front.z = m.sin(m.to_radians(f32(camera.yaw))) * m.cos(m.to_radians(f32(camera.pitch)))
     camera.front = m.normalize(front)
     camera.right = m.normalize(m.vector_cross(camera.front, camera.word_up))
     camera.up = m.normalize(m.vector_cross(camera.right, camera.front))
