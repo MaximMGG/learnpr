@@ -1,4 +1,6 @@
-APP = chess
+APP = chess 
+LIBS = -lGL -lGLEW -lglfw -lcext
+WARN = -Wall -Wextra
 
 SRC = $(wildcard *.c)
 OBJ = $(SRC:%.c=%.o)
@@ -8,7 +10,7 @@ OBJ = $(SRC:%.c=%.o)
 default: build run clear
 
 build: $(OBJ)
-	gcc -o $(APP) $^ -lGL -lGLEW -lglfw -lcext
+	gcc -o $(APP) $^ $(LIBS) $(WARN)
 
 run:
 	./$(APP)
@@ -17,4 +19,4 @@ clear:
 	rm *.o $(APP)
 
 %.o: %.c
-	gcc -o $@ -c $< -lGL -lGLEW -lglfw -lcext
+	gcc -o $@ -c $< $(LIBS) $(WARN)
