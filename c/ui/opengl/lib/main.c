@@ -1,0 +1,32 @@
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "../lib/util.h"
+
+
+
+int main() {
+    glfwInit();
+
+    GLFWwindow *window = glfwCreateWindow(1280, 720, "tet", null, null);
+
+    glfwMakeContextCurrent(window);
+
+
+    if (glewInit() != 4) {
+        return 1;
+    }
+    u32 VAO = vertexArrayCreate();
+
+    while(!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    vertexArrayDestroy(&VAO);
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
+}
