@@ -57,6 +57,7 @@ u32 programCreate(const char *v_path, const char *f_path) {
         glDeleteProgram(program);
         return 0;
     }
+    glValidateProgram(program);
     return program;
 }
 
