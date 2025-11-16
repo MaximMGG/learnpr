@@ -43,4 +43,4 @@ proc checkDir(d_name: string, level: int) =
     discard dir.closedir()
 
 checkDir(".", 0)
-    
+

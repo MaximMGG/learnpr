@@ -1,0 +1,35 @@
+
+
+proc getAlphabet(): string =
+  var accm = ""
+  for letter in 'a'..'z':
+    accm.add(letter)
+  return accm
+
+
+const alphabet = getAlphabet()
+
+var
+  a = "fofo"
+  b = 0
+  c:int
+
+
+let
+  d = "foo"
+  e = 5
+  f: float = 1.4
+
+
+a.add("bar")
+
+b += 1
+c = 3
+
+echo a, b, c, d, e, f, alphabet
+
+
+proc unexpected(): int =
+  result += 5
+
+echo unexpected()
