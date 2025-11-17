@@ -1,5 +1,5 @@
 OUT = libutil.a
-SRC = ArrayBuffer.c ElementBuffer.c shader.c texture.c VertexArray.c
+SRC = ArrayBuffer.c ElementBuffer.c shader.c texture.c VertexArray.c error.c
 OBJ = $(SRC:%.c=%.o)
 LIBS = -lGL -lGLEW -lcext
 

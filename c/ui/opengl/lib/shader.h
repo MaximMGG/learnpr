@@ -5,6 +5,7 @@
 #include <cstdext/core.h>
 #include <cstdext/io/reader.h>
 #include <cstdext/io/logger.h>
+#include "error.h"
 
 u32 programCreate(const char *v_path, const char *f_path);
 void programUse(u32 program);

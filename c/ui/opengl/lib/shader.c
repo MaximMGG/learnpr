@@ -3,12 +3,12 @@
 static bool programCheckStatus(u32 shader, u32 type) {
     if (type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER) {
         i32 res;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &res);
+        GLCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &res));
         if (res == GL_FALSE) {
             i32 len;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+            GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len));
             byte *err_msg = alloc(len + 1);
-            glGetShaderInfoLog(shader, len, &len, err_msg);
+            GLCall(glGetShaderInfoLog(shader, len, &len, err_msg));
             str shader_type = type == GL_VERTEX_SHADER ? "vertex" : "fragment";
             log(ERROR, "Compile %s shader error: %s", shader_type, err_msg);
             dealloc(err_msg);
@@ -16,12 +16,12 @@ static bool programCheckStatus(u32 shader, u32 type) {
         }
     } else if (type == GL_PROGRAM) {
         i32 res;
-        glGetProgramiv(shader, GL_LINK_STATUS, &res);
+        GLCall(glGetProgramiv(shader, GL_LINK_STATUS, &res));
         if (res == GL_FALSE) {
             i32 len;
-            glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &len);
+            GLCall(glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &len));
             byte *err_msg = alloc(len + 1);
-            glGetProgramInfoLog(shader, len, &len, err_msg);
+            GLCall(glGetProgramInfoLog(shader, len, &len, err_msg));
             log(ERROR, "Link program error: %s", err_msg);
             dealloc(err_msg);
             return false;
@@ -33,12 +33,13 @@ static bool programCheckStatus(u32 shader, u32 type) {
 
 u32 programCompileShader(char *path, u32 type) {
     reader *r = reader_create_from_file(path);
-    u32 shader = glCreateShader(type);
-    glShaderSource(shader, 1, (const char *const *)&r->buf, null);
-    glCompileShader(shader);
+    u32 shader;
+    GLCall(shader = glCreateShader(type));
+    GLCall(glShaderSource(shader, 1, (const char *const *)&r->buf, null));
+    GLCall(glCompileShader(shader));
     reader_destroy(r);
     if (!programCheckStatus(shader, type)) {
-        glDeleteShader(shader);
+        GLCall(glDeleteShader(shader));
         return 0;
     }
     return shader;
@@ -47,36 +48,37 @@ u32 programCompileShader(char *path, u32 type) {
 u32 programCreate(const char *v_path, const char *f_path) {
     u32 v_shader = programCompileShader((char *)v_path, GL_VERTEX_SHADER);
     u32 f_shader = programCompileShader((char *)f_path, GL_FRAGMENT_SHADER);
-    u32 program = glCreateProgram();
-    glAttachShader(program, v_shader);
-    glAttachShader(program, f_shader);
-    glLinkProgram(program);
-    glDeleteShader(v_shader);
-    glDeleteShader(f_shader);
+    u32 program;
+    GLCall(program = glCreateProgram());
+    GLCall(glAttachShader(program, v_shader));
+    GLCall(glAttachShader(program, f_shader));
+    GLCall(glLinkProgram(program));
+    GLCall(glDeleteShader(v_shader));
+    GLCall(glDeleteShader(f_shader));
     if (!programCheckStatus(program, GL_PROGRAM)) {
-        glDeleteProgram(program);
+        GLCall(glDeleteProgram(program));
         return 0;
     }
-    glValidateProgram(program);
+    GLCall(glValidateProgram(program));
     return program;
 }
 
 void programUse(u32 program) {
-    glUseProgram(program);
+    GLCall(glUseProgram(program));
 }
 void programUnuse(u32 program) {
-    glUseProgram(0);
+    GLCall(glUseProgram(0));
 }
 
 void programDestroy(u32 program) {
-    glDeleteProgram(program);
+    GLCall(glDeleteProgram(program));
 }
 
 void programSetI(u32 program, const char *name, i32 value) {
     i32 loc;
-    glGetUniformLocation(program, name);
+    GLCall(glGetUniformLocation(program, name));
     if (loc != -1) {
-        glUniform1i(loc, value);
+        GLCall(glUniform1i(loc, value));
     } else {
         log(ERROR, "Can not find location: %s", name);
     }
@@ -84,9 +86,9 @@ void programSetI(u32 program, const char *name, i32 value) {
 
 void programSetMat4(u32 program, const char *name, mat4 value) {
     i32 loc;
-    glGetUniformLocation(program, name);
+    GLCall(loc = glGetUniformLocation(program, name));
     if (loc != -1) {
-        glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]);
+        GLCall(glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]));
     } else {
         log(ERROR, "Can not find location: %s", name);
     }

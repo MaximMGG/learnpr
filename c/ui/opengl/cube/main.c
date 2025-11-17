@@ -31,8 +31,9 @@ int main() {
         glfwTerminate();
     }
 
-    glEnable(GL_DEPTH_TEST);
+    GLCall(glEnable(GL_DEPTH_TEST));
 
+    GLCall(glViewport(0, 0, WIDTH, HEIGHT));
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -93,10 +94,10 @@ int main() {
     u32 VAO = vertexArrayCreate();
     vertexArrayBind(VAO);
     u32 VBO = arrayBufferCreate(sizeof(vertices), vertices);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32) * 5, (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(f32) * 5, (void *)(sizeof(f32) * 3));
-    glEnableVertexAttribArray(1);
+    GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32) * 5, (void *)0));
+    GLCall(glEnableVertexAttribArray(0));
+    GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(f32) * 5, (void *)(sizeof(f32) * 3)));
+    GLCall(glEnableVertexAttribArray(1));
 
     vertexArrayUnbind();
 
@@ -107,37 +108,42 @@ int main() {
     programSetI(prog, "texture1", 0);
 
     while(!glfwWindowShouldClose(window)) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-        int res = 1;
-        while(res != 0) {
-            res = glGetError();
-            char *err = glewGetErrorString(res);
-            printf("Error: %x - %s\n", res, err);
-        }
-        glActiveTexture(GL_TEXTURE0);
+        GLCall(glActiveTexture(GL_TEXTURE0));
         textureBind(texture);
         programUse(prog);
 
-        mat4 view = GLM_MAT4_IDENTITY_INIT;
         mat4 projection = GLM_MAT4_IDENTITY_INIT;
+        mat4 view = GLM_MAT4_IDENTITY_INIT;
 
         glm_perspective(glm_rad(45.0f), (f32)WIDTH / (f32)HEIGHT, 0.1f, 100.0f, projection);
         glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
 
         programSetMat4(prog, "projection", projection);
         programSetMat4(prog, "view", view);
+        // printf("Set mat projection uniform\n");
+        // int loc;
+        // GLCall(loc = glGetUniformLocation(prog, "projection"));
+        // GLCall(glUniformMatrix4fv(loc, 1, GL_FALSE, &projection[0][0]));
+        //
+        // printf("Set mat view uniform\n");
+        // GLCall(loc = glGetUniformLocation(prog, "view"));
+        // GLCall(glUniformMatrix4fv(loc, 1, GL_FALSE, &view[0][0]));
 
         vertexArrayBind(VAO);
-
-
         for(u32 i = 0; i < 10; i++) {
             mat4 model = GLM_MAT4_IDENTITY_INIT;
             glm_translate(model, cubePositions[i]);
-            glm_rotate(model, glm_rad((f32)glfwGetTime()), (vec3){1.0f, 3.0f, 0.5f});
+            glm_rotate(model, glfwGetTime(), (vec3){1.0f, 0.3f, 0.5f});
+            // glm_rotate(model, glm_rad(20), (vec3){1.0f, 0.3f, 0.5f});
             programSetMat4(prog, "model", model);
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            // printf("Set mat model uniform\n");
+            // GLCall(loc = glGetUniformLocation(prog, "model"));
+            // GLCall(glUniformMatrix4fv(loc, 1, GL_FALSE, &model[0][0]));
+
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
         }
 
 
@@ -147,6 +153,9 @@ int main() {
 
     vertexArrayDestroy(&VAO);
     arrayBufferDestroy(&VBO);
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return 0;
 }
