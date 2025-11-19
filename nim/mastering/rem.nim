@@ -1,4 +1,4 @@
-import system, os, posix
+import system, os, posix, strutils
 
 iterator readdirIt(dir: ptr posix.DIR): ptr posix.Dirent =
     var d = dir.readdir()
@@ -6,14 +6,13 @@ iterator readdirIt(dir: ptr posix.DIR): ptr posix.Dirent =
         yield d
         d = dir.readdir()
 
-
-proc strFromArray(arr: array[0..255, cchar]): string =
+proc strFromCarr(arr: array[0..255, cchar]): string =
     result = ""
-    for c in arr:
-        if ord(c) == 0:
-            return
-        else:
-            result.add(c)
+    var i: int = 0
+    while arr[i] != '\0':
+        result.add(arr[i])
+        inc i
+        
 
 proc printTab(level: int) =
     for i in 0..<level:
@@ -28,11 +27,11 @@ proc checkDir(d_name: string, level: int) =
         if d.d_type == DT_DIR:
             if d.d_name[0] == '.': continue
             else:
-                var name = strFromArray(d.d_name)
+                var name = strFromCarr(d.d_name)
                 checkDir(d_name & "/" & name, level + 1)
                 continue
         if d.d_type == DT_REG:
-            var name = strFromArray(d.d_name)
+            var name = strFromCarr(d.d_name)
             var full_path: string  = d_name & "/" & name
             var a_stat: posix.Stat
             discard posix.stat(cstring(full_path), a_stat)
