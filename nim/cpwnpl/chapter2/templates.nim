@@ -1,4 +1,8 @@
 from std/math import sqrt
+import std/strutils
+import std/sequtils
+import std/sugar
+
 
 const PI = 3.1416
 proc sqr1[T](x: T): T = x * x
@@ -52,7 +56,7 @@ var xx = 4
 log("xx has the value: " & $xx)
 
 template gen = 
-    var z: int
+    # var z: int
     proc maxx(a, b: int): int =
         if a > b: a else: b
 
@@ -93,3 +97,7 @@ template liftScalarProc(fname) =
 
 liftScalarProc(sqrt)
 echo sqrt(@[4.0, 16.0, 25.0, 36.0])
+
+var s: string = "+"
+echo s.repeat(4)
+

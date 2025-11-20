@@ -1,5 +1,5 @@
 import t3
-
+import std/strutils
 
 type
     TestObj1 = object
