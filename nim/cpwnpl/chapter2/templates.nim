@@ -98,6 +98,32 @@ template liftScalarProc(fname) =
 liftScalarProc(sqrt)
 echo sqrt(@[4.0, 16.0, 25.0, 36.0])
 
+<<<<<<< HEAD
 var s: string = "+"
 echo s.repeat(4)
+=======
+
+echo "Vec templates"
+
+type
+    Vector = object
+        x, y, z: int
+
+template getOp(op: untyped) = 
+    proc `op`(a, b: Vector): Vector = 
+        Vector(x: `op`(a.x, b.x), y: `op`(a.y, b.y), z: `op`(a.z, b.z))
+
+
+getOp(`+`)
+getOp(`-`)
+
+echo `+`(2, 3)
+
+var p = Vector(x: 1, y: 8, z: 9)
+var p2 = p + p
+echo p2
+
+
+
+>>>>>>> cb64cb0 (chapter2 done)
 
