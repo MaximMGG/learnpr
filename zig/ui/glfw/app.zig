@@ -18,13 +18,10 @@ const ib = @import("index_buffer.zig");
 const texture = @import("texture.zig");
 const mmath = @import("mat_math.zig");
 
-
 const WIDTH = 1280;
 const HEIGHT = 720;
 
-
 pub fn main() !void {
-
     const allocator = std.heap.page_allocator;
 
     if (glfw.glfwInit() == 0) {
@@ -33,7 +30,6 @@ pub fn main() !void {
     }
 
     std.debug.print("glfwInit\n", .{});
-
     glfw.glfwWindowHint(glfw.GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfw.glfwWindowHint(glfw.GLFW_CONTEXT_VERSION_MINOR, 3);
     glfw.glfwWindowHint(glfw.GLFW_OPENGL_PROFILE, glfw.GLFW_OPENGL_CORE_PROFILE);
@@ -41,7 +37,7 @@ pub fn main() !void {
     const window: *glfw.GLFWwindow = glfw.glfwCreateWindow(WIDTH, HEIGHT, "TEST WINDOW", null, null) orelse {
         std.debug.print("GLFWwindow in null", .{});
         return;
-    }; 
+    };
 
     std.debug.print("Ceate window\n", .{});
 
@@ -57,7 +53,6 @@ pub fn main() !void {
     std.debug.print("glewInit\n", .{});
     glfw.glfwSwapInterval(1);
 
-
     // var positions = [_]f32{
     //      0.0, 0, 0.0, 0.0,
     //      WIDTH, 0, 1.0, 0.0,
@@ -65,20 +60,12 @@ pub fn main() !void {
     //      0.0, HEIGHT, 0.0, 1.0
     // };
 
-    var positions = [_]f32{
-         100.0, 100.0, 0.0, 0.0,
-         200.0, 100.0, 1.0, 0.0,
-         200.0, 200.0, 1.0, 1.0,
-         100.0, 200.0, 0.0, 1.0
-    };
-    var indeces = [_]u32{
-        0, 1, 2, 2, 3, 0
-    };
+    var positions = [_]f32{ 100.0, 100.0, 0.0, 0.0, 200.0, 100.0, 1.0, 0.0, 200.0, 200.0, 1.0, 1.0, 100.0, 200.0, 0.0, 1.0 };
+    var indeces = [_]u32{ 0, 1, 2, 2, 3, 0 };
 
     gl.glEnable(gl.GL_BLEND);
     gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
     std.debug.print("Blending enable\n", .{});
-
 
     var vertexArray = va.vertexArray();
     var vertexBuffer = vb.vertexBuffer(@ptrCast(&positions[0]), @sizeOf(f32) * positions.len);
@@ -91,7 +78,7 @@ pub fn main() !void {
     std.debug.print("Create VBO, VAO, IAO\n", .{});
 
     const proj = mmath.mat4_ortho(0, 960.0, 0, 540, -1.0, 1.0);
-    const view = mmath.mat4_translate(mmath.mat4_create(1.0), mmath.vec3{-100, 0, 0});
+    const view = mmath.mat4_translate(mmath.mat4_create(1.0), mmath.vec3{ -100, 0, 0 });
 
     const mvp = mmath.mat4_multiply(proj, view);
 
@@ -122,12 +109,11 @@ pub fn main() !void {
 
     std.debug.print("GL Version: {s}\n", .{gl.glGetString(gl.GL_VERSION)});
 
-
     var render = renderer.Renderer{};
     var r: f32 = 0.0;
     var increment: f32 = 0.05;
 
-    while(glfw.glfwWindowShouldClose(window) == 0) {
+    while (glfw.glfwWindowShouldClose(window) == 0) {
         render.clear();
 
         s.bind();
@@ -150,7 +136,6 @@ pub fn main() !void {
         std.Thread.sleep(50000000);
     }
 
-
     vertexBuffer.destroy();
     indexBuffer.destroy();
     vertexArray.destroy();
@@ -160,9 +145,7 @@ pub fn main() !void {
 
     glfw.glfwDestroyWindow(window);
     glfw.glfwTerminate();
-
 }
-
 
 fn checkEvents(window: *glfw.GLFWwindow) void {
     if (glfw.glfwGetKey(window, glfw.GLFW_KEY_ESCAPE) == glfw.GLFW_PRESS) {
