@@ -15,5 +15,5 @@ clear:
 	rm *.o
 
 %.o: %.c
-	gcc -o $@ -c $< $(LIBS)
+	gcc -o $@ -c $< $(LIBS) -g
 

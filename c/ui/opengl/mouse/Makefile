@@ -1,7 +1,7 @@
 APP = mouse
 SRC = main.c camera.c
 OBJ = $(SRC:%.c=%.o)
-LIBS = -lGL -lGLEW -lglfw -lcext
+LIBS = -lGL -lGLEW -lglfw -lcext -lm
 
 .PHONY: default build run clear
 
@@ -9,7 +9,7 @@ default: build run
 
 
 build: $(OBJ)
-	gcc -o $(APP) $^ $(LIBS) ../lib/libutil.a
+	gcc -o $(APP) $^ -g $(LIBS) ../lib/libutil.a
 
 run:
 	./$(APP)
@@ -18,4 +18,4 @@ clear:
 	rm *.o $(APP)
 
 %.o: %.c
-	gcc -o $@ -c $<
+	gcc -o $@ -c $< -g
