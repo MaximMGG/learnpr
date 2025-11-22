@@ -14,7 +14,7 @@
 
 void mouse_callback(GLFWwindow *window, f64 xpos, f64 ypos);
 void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset);
-void key_callback(GLFWwindow *window, i32 key, i32 scanncode, i32 action, i32 mods);
+void keyprocess(GLFWwindow *window);
 
 
 Camera *camera;
@@ -33,9 +33,11 @@ int main() {
 
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, APP_NAME, null, null);
 
-  glfwSetKeyCallback(window, key_callback);
+  //  glfwSetKeyCallback(window, key_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
+
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   
   if (window == null) {
     log(FATAL, "window is null");
@@ -124,6 +126,8 @@ int main() {
     f32 currentFrame = (f32)glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
+
+    keyprocess(window);
     
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     GLCall(glActiveTexture(GL_TEXTURE0));
@@ -190,16 +194,16 @@ void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
   cameraProcessMouseScroll(camera, (f32)yoffset);
 }
 
-void key_callback(GLFWwindow *window, i32 key, i32 scanncode, i32 action, i32 mods) {
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+void keyprocess(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-  if (key == GLFW_KEY_W && action == GLFW_PRESS)
+  if ((glfwGetKey(window, GLFW_KEY_W)) == GLFW_PRESS)
     cameraProcessKeyboard(camera, FORWARD, deltaTime);
-  if (key == GLFW_KEY_S && action == GLFW_PRESS)
+  if ((glfwGetKey(window, GLFW_KEY_S)) == GLFW_PRESS)
     cameraProcessKeyboard(camera, BACKWARD, deltaTime);
-  if (key == GLFW_KEY_A && action == GLFW_PRESS)
+  if ((glfwGetKey(window, GLFW_KEY_A)) == GLFW_PRESS)
     cameraProcessKeyboard(camera, LEFT, deltaTime);
-  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+  if ((glfwGetKey(window, GLFW_KEY_D)) == GLFW_PRESS)
     cameraProcessKeyboard(camera, RIGHT, deltaTime);
 }
