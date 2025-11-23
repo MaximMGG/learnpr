@@ -4,8 +4,8 @@
 
 const f32 YAW = -90.0f;
 const f32 PITCH = 0.0f;
-const f32 SPEED = 4.5f;
-const f32 SENSITIVITY = 0.1f;
+const f32 SPEED = 2.5f;
+const f32 SENSITIVITY = 0.0001f;
 const f32 ZOOM = 45.0f;
 
 static void updateCameraVectors(Camera *camera) {
@@ -14,6 +14,7 @@ static void updateCameraVectors(Camera *camera) {
   front[0] = cos(glm_rad(camera->yaw) * cos(glm_rad(camera->pitch)));
   front[1] = sin(glm_rad(camera->pitch));
   front[2] = sin(glm_rad(camera->yaw) * cos(glm_rad(camera->pitch)));
+
   glm_normalize(front);
   memcpy(camera->front, front, sizeof(vec3));
 
@@ -57,8 +58,8 @@ vec4 *cameraGetViewMatrix(Camera *camera) {
   vec3 sum_vec;
   glm_vec3_add(camera->position, camera->front, sum_vec);
 
-  glm_lookat(camera->position, sum_vec, camera->up, tmp[0]);
-  return tmp[0];
+  glm_lookat(camera->position, sum_vec, camera->up, *tmp);
+  return *tmp;
 }
 
 void cameraProcessKeyboard(Camera *camera, CameraMovement direction, f32 deltaTime) {
@@ -98,7 +99,7 @@ void cameraProcessMouseMovement(Camera *camera, f32 xoffset, f32 yoffset, bool c
   yoffset *= camera->mouseSenitivity;
 
   camera->yaw += xoffset;
-  camera->pitch += yoffset * -1;
+  camera->pitch += yoffset;
 
   if (constraintPitch) {
     if (camera->pitch > 89.0f) {

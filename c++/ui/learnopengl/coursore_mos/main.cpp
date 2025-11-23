@@ -4,10 +4,18 @@
 #include "vertexArray.hpp"
 #include "bufferArray.hpp"
 #include "texture.hpp"
-
+#include "camera.hpp"
 
 #define WIDTH 1280
 #define HEIGHT 720
+
+Camera camera(glm::vec3{0.0f, 0.0f, 3.0f});
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+bool firstMouse = true;
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 int main() {
     WindowManager w(WIDTH, HEIGHT, "MOUSE");
@@ -88,14 +96,40 @@ int main() {
 
     Texture texture("./crate.png");
 
+    prog.use();
+    prog.setInt("texture1", 0);
+
     while(!glfwWindowShouldClose(w.window)) {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+      float currentFrame = static_cast<float>(glfwGetTime());
+      deltaTime = currentFrame - lastFrame;
+      lastFrame = currentFrame;
+      
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      glActiveTexture(GL_TEXTURE0);
+      texture.bind();
 
+      prog.use();
 
+      glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+      prog.setMat4("projection", projection);
 
+      glm::mat4 view = camera.getViewMatrix();
+      prog.setMat4("view", view);
+
+      VAO.bind();
+
+      for(unsigned int i = 0; i < 10; i++) {
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, cubePositions[i]);
+	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3{1.0f, 0.3f, 0.5f});
+	prog.setMat4("model", model);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+      }
+
+      w.process();
     }
-
 
     return 0;
 }
