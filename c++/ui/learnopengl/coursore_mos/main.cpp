@@ -6,6 +6,11 @@
 #include "texture.hpp"
 #include "camera.hpp"
 
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
+
+
 #define WIDTH 1280
 #define HEIGHT 720
 
@@ -19,6 +24,7 @@ float lastFrame = 0.0f;
 
 int main() {
     WindowManager w(WIDTH, HEIGHT, "MOUSE");
+    w.setCallbacks(mouse_callback, scroll_callback);
 
     int glew_res = glewInit();
 
@@ -134,3 +140,25 @@ int main() {
     return 0;
 }
 
+
+void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
+  float xpos = static_cast<float>(xposIn);
+  float ypos = static_cast<float>(yposIn);
+
+  if (firstMouse) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos;
+
+  lastX = xpos;
+  lastY = ypos;
+
+  camera.processMouseMovement(xoffset, yoffset);
+}
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+  camera.processMouseScroll(static_cast<float>(yoffset));
+}

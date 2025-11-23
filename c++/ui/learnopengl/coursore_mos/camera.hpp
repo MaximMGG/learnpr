@@ -78,6 +78,14 @@ public:
     updateCameraVectors();
   }
 
+  void processMouseScroll(float offset) {
+    Zoom -= offset;
+    if (Zoom < 1.0f)
+      Zoom = 1.0f;
+    if (Zoom > 45.0f)
+      Zoom = 45.0f;
+  }
+  
 private:
   void updateCameraVectors() {
     glm::vec3 front;

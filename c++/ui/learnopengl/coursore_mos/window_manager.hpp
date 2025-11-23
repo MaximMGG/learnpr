@@ -11,11 +11,13 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 class WindowManager {
 public:
-    GLFWwindow *window;
+  GLFWwindow *window;
+  bool firstMouse;
 
-    WindowManager(int width, int height, const char *name);
-    ~WindowManager();
-    void process();
+  WindowManager(int width, int height, const char *name);
+  ~WindowManager();
+  void process();
+  void setCallbacks(void (*mouse_callback)(GLFWwindow*, double, double), void (*scroll_callback)(GLFWwindow*, double, double));
 };
 
 #endif //WINDOW_MANAGER_HPP
