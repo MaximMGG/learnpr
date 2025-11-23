@@ -9,7 +9,7 @@ enum CameraMovement {
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
+const float SENSITIVITY = 0.001f;
 const float ZOOM = 45.0f;
 
 
@@ -71,9 +71,9 @@ public:
 
     if (constrainPitch) {
       if (Pitch > 89.0f)
-	Pitch = 89.0f;
+        Pitch = 89.0f;
       if (Pitch < -89.0f)
-	Pitch = -89.0f;
+        Pitch = -89.0f;
     }
     updateCameraVectors();
   }

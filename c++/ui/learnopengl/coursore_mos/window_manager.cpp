@@ -23,7 +23,7 @@ WindowManager::~WindowManager() {
   glfwTerminate();
 }
 
-__inline void WindowManager::process() {
+void WindowManager::process() {
   glfwSwapBuffers(window);
   glfwPollEvents();
 }

@@ -11,10 +11,10 @@ run:
 	./$(APP)
 
 build: $(OBJ)
-	c++ -o $(APP) $^ $(LIBS)
+	c++ -o $(APP) $^ $(LIBS) -g
 
 clear:
 	rm *.o $(APP)
 
 %.o: %.cpp
-	c++ -o $@ -c $< $(LIBS)
+	c++ -o $@ -c $< $(LIBS) -g

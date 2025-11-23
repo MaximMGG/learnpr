@@ -15,7 +15,7 @@ public:
 
     Shader(const char *v_path, const char *f_path) {
         unsigned int v_shader = compileShader(v_path, GL_VERTEX_SHADER);
-        unsigned int f_shader = compileShader(v_path, GL_FRAGMENT_SHADER);
+        unsigned int f_shader = compileShader(f_path, GL_FRAGMENT_SHADER);
         id = glCreateProgram();
         glAttachShader(id, v_shader);
         glAttachShader(id, f_shader);

@@ -16,8 +16,10 @@ public:
 
   WindowManager(int width, int height, const char *name);
   ~WindowManager();
+
   void process();
   void setCallbacks(void (*mouse_callback)(GLFWwindow*, double, double), void (*scroll_callback)(GLFWwindow*, double, double));
+private:
 };
 
 #endif //WINDOW_MANAGER_HPP
