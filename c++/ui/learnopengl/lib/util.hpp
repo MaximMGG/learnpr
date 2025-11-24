@@ -11,6 +11,7 @@
 #include "vertexArray.hpp"
 #include "window_manager.hpp"
 #include "glcall.hpp"
+#include "types.hpp"
 
 
 #endif //OPENGL_LIEARNING_UTIL_HPP

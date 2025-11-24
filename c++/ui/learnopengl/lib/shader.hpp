@@ -50,6 +50,22 @@ public:
         }
     }
 
+    void setVec3(const char *name, glm::vec3 value) {
+        auto it = uniforms.find(name);
+        if (it != uniforms.end()) {
+            GLCall(glUniform3fv(it->second, 1, &value[0]));
+        } else {
+            int loc;
+            GLCall(loc = glGetUniformLocation(id, name));
+            if (loc != -1) {
+                GLCall(glUniform3fv(loc, 1, &value[0]));
+                uniforms[name] = loc;
+            } else {
+                std::cerr << "Con't find location " << name << '\n';
+            }
+        }
+    }
+
     void setMat4(const char *name, glm::mat4 value) {
         auto it = uniforms.find(name);
         if (it != uniforms.end()) {
