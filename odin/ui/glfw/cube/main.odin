@@ -11,8 +11,8 @@ import "util"
 import camera "util/camera"
 import m "core:math/linalg"
 
-WIDTH :: 1280 * 2
-HEIGHT :: 720 * 2
+WIDTH :: 1280
+HEIGHT :: 720
 CUBE_POSITIONS :: 10
 
 faster: bool = false
@@ -25,6 +25,11 @@ cameraUp := m.Vector3f32{0.0, 1.0, 0.0}
 deltaTime: f32
 lastFrame: f32
 
+u_camera: camera.Camera
+
+mouse_callback :: proc(window: ^glfw.WindowHandle, xposIn: f64, yposIn: f64) {
+
+}
 
 keyCallBack :: proc "c" (window: glfw.WindowHandle, key: c.int, scancode: c.int, action: c.int, mods: c.int) {
     if key == glfw.KEY_ESCAPE && action == glfw.PRESS {
@@ -58,6 +63,8 @@ main :: proc() {
     context.logger = log.create_console_logger()
     defer log.destroy_console_logger(context.logger)
 
+    u_camera = camera.createCamera(0.0, 0.0, 3.0)
+
     fmt.println("Init glfw")
     glfw.Init()
     defer glfw.Terminate()
@@ -69,6 +76,7 @@ main :: proc() {
 
     glfw.MakeContextCurrent(window)
     glfw.SetKeyCallback(window, keyCallBack)
+    glfw.SetCursorPosCallback(window, nil)
 
     gl.load_up_to(3, 3, proc(p: rawptr, name: cstring){
         (^rawptr)(p)^ = glfw.GetProcAddress(name)
@@ -242,7 +250,6 @@ main :: proc() {
         faster = false
         slower = false
 
-
         gl.BindVertexArray(VAO)
         for i in 0..<CUBE_POSITIONS {
             model := m.matrix4_translate(cubePosition[i])
@@ -258,3 +265,6 @@ main :: proc() {
         util.check_err()
     }
 }
+
+
+

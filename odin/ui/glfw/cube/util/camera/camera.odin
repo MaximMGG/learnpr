@@ -63,15 +63,53 @@ createCameraScalar :: proc(posX: f32, posY: f32, posZ: f32, upX: f32, upY: f32,
     return camera
 }
 
-getViewMatrix :: proc() -> m.Matrix4f32 {
-
-    return {}
+getViewMatrix :: proc(camera: ^Camera) -> m.Matrix4f32 {
+    return m.matrix4_look_at(camera.position, camera.position * camera.front, camera.up)
 }
 
-processKeyboard ::proc(direction: CameraMovement, deltaTime: f32) {
-
+processKeyboard ::proc(camera: ^Camera, direction: CameraMovement, deltaTime: f32) {
+  velocity: f32 = camera.movement_speed * deltaTime
+  if direction == CameraMovement.FORWARD {
+    camera.position += camera.front * velocity
+  }
+  if direction == CameraMovement.BACKWARD {
+    camera.position -= camera.front * velocity
+  }
+  if direction == CameraMovement.LEFT {
+    camera.position -= camera.right * velocity
+  }
+  if direction == CameraMovement.RIGHT {
+    camera.position += camera.right * velocity
+  }
 }
 
+processMouseMovement :: proc(camera: ^Camera, xoffset: f32, yoffset: f32, constraintPitch: bool = true) {
+  xoffset := xoffset * camera.movement_speed
+  yoffset := yoffset * camera.movement_speed
+
+  camera.yaw += xoffset
+  camera.pitch += yoffset
+
+  if constraintPitch {
+    if camera.pitch > 89.0 {
+      camera.pitch = 89.0
+    }
+    if camera.pitch < -89.0 {
+      camera.pitch = -89.0
+    }
+  }
+  updateCameraVectors(camera)
+}
+
+processMouseScroll :: proc(camera: ^Camera, yoffset: f32) {
+  camera.zoom -= yoffset;
+  if camera.zoom < 1.0 {
+    camera.zoom = 1.0
+  }
+  if camera.zoom > 45.0 {
+    camera.zoom = 45.0
+  }
+}
 
 @(private)
 updateCameraVectors :: proc(camera: ^Camera) {
