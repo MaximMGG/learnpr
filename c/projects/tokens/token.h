@@ -1,0 +1,49 @@
+#ifndef TOKEN_H
+#define TOKEN_H
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <cstdext/core.h>
+#include <cstdext/io/logger.h>
+#include <cstdext/container/list.h>
+
+#define HOST "api.binance.com"
+#define PORT "443"
+#define REQUEST "GET /api/v3/ticker?symbol=%s HTTP/1.1\r\nHost: api.binance.com\r\nConection: open\r\n\r\n"
+
+typedef struct {
+  i32 sock;
+  SSL *ssl;
+  SSL_CTX *ctx;
+  str request;
+  str response;
+
+  str symbol;
+  f64 priceChange;
+  f64 priceChangePercent;
+  f64 weightedAvgPrice;
+  f64 openPrice;
+  f64 highPrice;
+  f64 lowPrice;
+  f64 lastPrice;
+  f64 valume;
+  f64 quoteVolume;
+  i64 openTime;
+  i64 closeTime;
+  i64 firstId;
+  i64 astId;
+  i64 count;
+} Token;
+
+Token *tokenCreate(str ticker);
+void tokenDestroy(Token *t);
+void request(Token *t);
+
+
+
+#endif //TOKEN_H
