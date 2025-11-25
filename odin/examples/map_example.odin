@@ -1,4 +1,4 @@
-#+feature dynamic-literals
+#feature dynamic-literals
 package map_example
 
 import "core:fmt"
