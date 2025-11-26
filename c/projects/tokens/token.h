@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -36,13 +37,14 @@ typedef struct {
   i64 openTime;
   i64 closeTime;
   i64 firstId;
-  i64 astId;
+  i64 lastId;
   i64 count;
 } Token;
 
 Token *tokenCreate(str ticker);
 void tokenDestroy(Token *t);
-void request(Token *t);
+void tokenRequest(Token *t);
+str tokenToString(Token *t);
 
 
 
