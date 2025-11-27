@@ -48,6 +48,7 @@ Token *tokenCreate(str ticker) {
   }
   t->ssl = SSL_new(t->ctx);
   SSL_set_fd(t->ssl, t->sock);
+  SSL_set_connect_state(t->ssl); // experimental
 
   if (SSL_connect(t->ssl) <= 0) {
     close(t->sock);
@@ -154,12 +155,14 @@ str tokenToString(Token *t) {
 }
 
 static void tokenParseHystoricalData(Token *t, str hystoric) {
+  log(INFO, "Start parsin hystorical data");
   t->tickerHystrorical = list_create(PTR);
   str start_line = hystoric + 1;
   str end_line = start_line;
 
-  while(end_line != null) {
+  while(true) {
     end_line = strstr(start_line, "],");
+    if (end_line == null) break;
     end_line++;
     str new = alloc(end_line - start_line + 1);
     strncpy(new, start_line, end_line - start_line);
@@ -174,29 +177,51 @@ static void tokenParseHystoricalData(Token *t, str hystoric) {
   TickerHystorical *th = tickerHystoricalCreate(new);
   list_append(t->tickerHystrorical, th);
   dealloc(new);
+  log(INFO, "End parsing hystorical data");
 }
 
+static i32 tokenLoadHystricalGetContentLength(str cont) {
+  str endLine = strstr(cont, "\r\n");
+  cont += strlen("Content-Length: ");
+  i8 buf[128] = {0};
+  strncpy(buf, cont, endLine - cont);
+  return atol(buf);
+}
 
 void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime) {
   if (t->request_hystorical != null) {
     dealloc(t->request_hystorical);
   }
-  t->request_hystorical = str_create_fmt(REQUEST_HYSTORICAL, t->ticker->symbol, timelocal(startTime), timelocal(endTime));
+  t->request_hystorical = str_create_fmt(REQUEST_HYSTORICAL, t->ticker->symbol, timelocal(startTime) * 1000, timelocal(endTime) * 1000);
   i32 send_bytes = SSL_write(t->ssl, t->request_hystorical, strlen(t->request_hystorical));
   if (send_bytes != strlen(t->request_hystorical)) {
     log(ERROR, "SSL_write error");
     return;
   }
 
+  i64 total_read = 0;
   i32 read_bytes;
   i8 buf[4096] = {0};
   str_buf *hystoric = str_buf_create();
-  while((read_bytes = SSL_read(t->ssl, buf, 4096)) > 0) {
+  read_bytes = SSL_read(t->ssl, buf, 4096);
+  str content_length = strstr(buf, "Content-Length:");
+  i32 need_to_read = tokenLoadHystricalGetContentLength(content_length);
+
+  while(read_bytes > 0) {
     str_buf_append(hystoric, buf);
     memset(buf, 0, 4096);
+    total_read += read_bytes;
+    if (total_read >= need_to_read) {
+      break;
+    }
+    read_bytes = SSL_read(t->ssl, buf, 4096);
   }
-  str tmp = str_buf_to_string(hystoric);
+
+  log(INFO, "Total read %ld bytes", total_read);
+  str tmp_str = str_buf_to_string(hystoric);
+  str tmp = strstr(tmp_str, "\r\n\r\n");
+  tmp += 4;
   tokenParseHystoricalData(t, tmp);
-  dealloc(tmp);
+  dealloc(tmp_str);
   str_buf_destroy(hystoric);
 }

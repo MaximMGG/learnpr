@@ -5,7 +5,7 @@
 int main() {
   Token *t = tokenCreate("BTCUSDT");
 
-  i32 iter = 5;
+  i32 iter = 1;
   while(iter > 0) {
     tokenRequest(t);
     str s = tokenToString(t);
@@ -24,7 +24,8 @@ int main() {
   tokenLoadHystricalData(t, &startTime, &endTime);
 
   for(i32 i = 0; i < t->tickerHystrorical->len; i++) {
-
+    TickerHystorical *tmp = list_get(t->tickerHystrorical, i);
+    printf("Open Time: %ld\n", tmp->openTime);
   }
 
   tokenDestroy(t);
