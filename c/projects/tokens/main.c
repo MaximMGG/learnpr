@@ -6,7 +6,6 @@
 int main() {
   Token *t = tokenCreate("BTCUSDT");
 
-
   i32 iter = 20;
   while(iter > 0) {
     tokenRequest(t);
