@@ -121,3 +121,73 @@ void tickerDestroy(Ticker *t) {
   dealloc(t->symbol);
   dealloc(t);
 }
+
+TickerHystorical *tickerHystoricalCreate(str raw_ticker) {
+  str raw_s = str_replace_any(raw_ticker, "[]", "");
+  list *l = str_split(raw_s, ",");
+
+  TickerHystorical *th = make(TickerHystorical);
+
+  for(i32 i = 0; i < l->len; i++) {
+    str cur_value = list_get(l, i);
+    switch(i) {
+      case 0: {
+        th->openTime = atoll(cur_value);
+      } break;
+      case 1: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->openPrice = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 2: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->highPrice = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 3: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->lowPrice = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 4: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->lastPrice = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 5: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->volume = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 6: {
+        th->closeTime = atof(cur_value);
+      } break;
+      case 7: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->quoteVolume = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 8: {
+        th->numberOfTrades = atof(cur_value);
+      } break;
+      case 9: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->takerBuyVolume = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 10: {
+        cur_value = str_replace(cur_value, "\"", "");
+        th->takerBuyQuote = atof(cur_value);
+        dealloc(cur_value);
+      } break;
+      case 11: {
+        th->ignore = 0;
+      } break;
+    }
+  }
+  return th;
+}
+
+void tickerHystoricalDestroy(TickerHystorical *th) {
+  dealloc(th);
+}
