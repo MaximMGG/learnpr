@@ -7,7 +7,7 @@ Token *tokenCreate(str ticker) {
   t->request_hystorical = null;
   t->response = null;
   t->ticker = null;
-  t->tickerHystrorical = null;
+  t->tickerHystorical = null;
 
   SSL_library_init();
   SSL_load_error_strings();
@@ -70,11 +70,11 @@ void tokenDestroy(Token *t) {
   if (t->request_hystorical != null) {
     dealloc(t->request_hystorical);
   }
-  if (t->tickerHystrorical != null) {
-    for(i32 i = 0; i < t->tickerHystrorical->len; i++) {
-      dealloc(list_get(t->tickerHystrorical, i));
+  if (t->tickerHystorical != null) {
+    for(i32 i = 0; i < t->tickerHystorical->len; i++) {
+      dealloc(list_get(t->tickerHystorical, i));
     }
-    list_destroy(t->tickerHystrorical);
+    list_destroy(t->tickerHystorical);
   }
 
   SSL_shutdown(t->ssl);
@@ -117,46 +117,9 @@ void tokenRequest(Token *t) {
   tokenParseResponse(t);
 }
 
-#define TOKEN_TO_STRING       \
-  "symbol %s\n"               \
-  "priceChange %lf\n"         \
-  "priceChangePercent %lf\n"  \
-  "weightedAvgPrice %lf\n"    \
-  "openPrice %lf\n"           \
-  "highPrice %lf\n"           \
-  "lowPrice %lf\n"            \
-  "lastPrice %lf\n"           \
-  "volume %lf\n"              \
-  "quoteVolume %lf\n"         \
-  "openTime %ld\n"            \
-  "closeTime %ld\n"           \
-  "firstId %ld\n"             \
-  "lastId %ld\n"              \
-  "count %ld\n"
-str tokenToString(Token *t) {
-  str s = str_create_fmt(TOKEN_TO_STRING, 
-                                t->ticker->symbol,
-                                t->ticker->priceChange,
-                                t->ticker->priceChangePercent,
-                                t->ticker->weightedAvgPrice,
-                                t->ticker->openPrice,
-                                t->ticker->highPrice,
-                                t->ticker->lowPrice,
-                                t->ticker->lastPrice,
-                                t->ticker->volume,
-                                t->ticker->quoteVolume,
-                                t->ticker->openTime,
-                                t->ticker->closeTime,
-                                t->ticker->firstId,
-                                t->ticker->lastId,
-                                t->ticker->count);
-
-  return s;
-}
-
 static void tokenParseHystoricalData(Token *t, str hystoric) {
   log(INFO, "Start parsin hystorical data");
-  t->tickerHystrorical = list_create(PTR);
+  t->tickerHystorical = list_create(PTR);
   str start_line = hystoric + 1;
   str end_line = start_line;
 
@@ -167,7 +130,7 @@ static void tokenParseHystoricalData(Token *t, str hystoric) {
     str new = alloc(end_line - start_line + 1);
     strncpy(new, start_line, end_line - start_line);
     TickerHystorical *th = tickerHystoricalCreate(new);
-    list_append(t->tickerHystrorical, th);
+    list_append(t->tickerHystorical, th);
     dealloc(new);
     start_line = end_line + 1;
   }
@@ -175,7 +138,7 @@ static void tokenParseHystoricalData(Token *t, str hystoric) {
   str new = alloc(strlen(start_line));
   strncpy(new, start_line, strlen(start_line) - 1);
   TickerHystorical *th = tickerHystoricalCreate(new);
-  list_append(t->tickerHystrorical, th);
+  list_append(t->tickerHystorical, th);
   dealloc(new);
   log(INFO, "End parsing hystorical data");
 }

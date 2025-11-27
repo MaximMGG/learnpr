@@ -24,6 +24,7 @@ typedef struct {
 
 Ticker *tickerCreate(str raw_ticker);
 void tickerDestroy(Ticker *ticker);
+str tickerToString(Ticker *ticker);
 
 typedef struct {
   i64 openTime;
@@ -42,5 +43,7 @@ typedef struct {
 
 TickerHystorical *tickerHystoricalCreate(str raw_ticker);
 void tickerHystoricalDestroy(TickerHystorical *th);
+str tickerHystoricalToString(TickerHystorical *th);
+
 
 #endif //TICKER_H

@@ -32,14 +32,13 @@ typedef struct {
   str response;
 
   Ticker *ticker;
-  list *tickerHystrorical;
+  list *tickerHystorical;
 } Token;
 
 Token *tokenCreate(str symbol);
 void tokenDestroy(Token *t);
 void tokenRequest(Token *t);
 void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime);
-str tokenToString(Token *t);
 
 
 #endif //TOKEN_H

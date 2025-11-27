@@ -8,7 +8,7 @@ int main() {
   i32 iter = 1;
   while(iter > 0) {
     tokenRequest(t);
-    str s = tokenToString(t);
+    str s = tickerToString(t->ticker);
     printf("%s\n", s);
     dealloc(s);
     iter--;
@@ -23,9 +23,11 @@ int main() {
 
   tokenLoadHystricalData(t, &startTime, &endTime);
 
-  for(i32 i = 0; i < t->tickerHystrorical->len; i++) {
-    TickerHystorical *tmp = list_get(t->tickerHystrorical, i);
-    printf("Open Time: %ld\n", tmp->openTime);
+  for(i32 i = 0; i < t->tickerHystorical->len; i++) {
+    TickerHystorical *tmp = list_get(t->tickerHystorical, i);
+    str s = tickerHystoricalToString(tmp);
+    printf("%d - %s\n", i, s);
+    dealloc(s);
   }
 
   tokenDestroy(t);

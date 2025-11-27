@@ -122,6 +122,42 @@ void tickerDestroy(Ticker *t) {
   dealloc(t);
 }
 
+#define TICKER_TO_STRING      \
+  "symbol %s\n"               \
+  "priceChange %lf\n"         \
+  "priceChangePercent %lf\n"  \
+  "weightedAvgPrice %lf\n"    \
+  "openPrice %lf\n"           \
+  "highPrice %lf\n"           \
+  "lowPrice %lf\n"            \
+  "lastPrice %lf\n"           \
+  "volume %lf\n"              \
+  "quoteVolume %lf\n"         \
+  "openTime %ld\n"            \
+  "closeTime %ld\n"           \
+  "firstId %ld\n"             \
+  "lastId %ld\n"              \
+  "count %ld\n"
+str tickerToString(Ticker *ticker) {
+  str s = str_create_fmt(TICKER_TO_STRING,
+                                ticker->symbol,
+                                ticker->priceChange,
+                                ticker->priceChangePercent,
+                                ticker->weightedAvgPrice,
+                                ticker->openPrice,
+                                ticker->highPrice,
+                                ticker->lowPrice,
+                                ticker->lastPrice,
+                                ticker->volume,
+                                ticker->quoteVolume,
+                                ticker->openTime,
+                                ticker->closeTime,
+                                ticker->firstId,
+                                ticker->lastId,
+                                ticker->count);
+  return s;
+}
+
 TickerHystorical *tickerHystoricalCreate(str raw_ticker) {
   str raw_s = str_replace_any(raw_ticker, "[]", "");
   list *l = str_split(raw_s, ",");
@@ -190,4 +226,36 @@ TickerHystorical *tickerHystoricalCreate(str raw_ticker) {
 
 void tickerHystoricalDestroy(TickerHystorical *th) {
   dealloc(th);
+}
+
+#define TICKER_HYSTORICAL_TO_STRING   \
+  "OpenTime %ld\n"                    \
+  "OpenPrice %lf\n"                   \
+  "HighPrice %lf\n"                   \
+  "LowPrice %lf\n"                    \
+  "LastPrice %lf\n"                   \
+  "Volume %lf\n"                      \
+  "CloseTime %ld\n"                   \
+  "QuoteVolume %lf\n"                 \
+  "NumberOfTrades %ld\n"              \
+  "TakerBuyVolume %lf\n"              \
+  "TakerBuyQuote %lf\n"               \
+  "Ignore %lf\n"
+ 
+str tickerHystoricalToString(TickerHystorical *th) {
+  str s = str_create_fmt(TICKER_HYSTORICAL_TO_STRING, 
+    th->openTime,
+    th->openPrice,
+    th->highPrice,
+    th->lowPrice,
+    th->lastPrice,
+    th->volume,
+    th->closeTime,
+    th->quoteVolume,
+    th->numberOfTrades,
+    th->takerBuyVolume,
+    th->takerBuyQuote,
+    th->ignore);
+
+  return s;
 }
