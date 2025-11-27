@@ -2,9 +2,12 @@
 
 Token *tokenCreate(str ticker) {
   Token *t = make(Token);
+  t->token_symbol = str_copy(ticker);
   t->request = str_create_fmt(REQUEST, ticker);
+  t->request_hystorical = null;
   t->response = null;
   t->ticker = null;
+  t->tickerHystrorical = null;
 
   SSL_library_init();
   SSL_load_error_strings();
@@ -63,12 +66,23 @@ void tokenDestroy(Token *t) {
   if (t->ticker != null) {
     tickerDestroy(t->ticker);
   }
+  if (t->request_hystorical != null) {
+    dealloc(t->request_hystorical);
+  }
+  if (t->tickerHystrorical != null) {
+    for(i32 i = 0; i < t->tickerHystrorical->len; i++) {
+      dealloc(list_get(t->tickerHystrorical, i));
+    }
+    list_destroy(t->tickerHystrorical);
+  }
+
   SSL_shutdown(t->ssl);
   SSL_free(t->ssl);
   SSL_CTX_free(t->ctx);
   close(t->sock);
   EVP_cleanup();
   dealloc(t->request);
+  dealloc(t->token_symbol);
   dealloc(t);
 }
 
@@ -116,7 +130,7 @@ void tokenRequest(Token *t) {
   "openTime %ld\n"            \
   "closeTime %ld\n"           \
   "firstId %ld\n"             \
-  "lastId %ld\n"               \
+  "lastId %ld\n"              \
   "count %ld\n"
 str tokenToString(Token *t) {
   str s = str_create_fmt(TOKEN_TO_STRING, 
@@ -139,6 +153,50 @@ str tokenToString(Token *t) {
   return s;
 }
 
-void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm endTime) {
+static void tokenParseHystoricalData(Token *t, str hystoric) {
+  t->tickerHystrorical = list_create(PTR);
+  str start_line = hystoric + 1;
+  str end_line = start_line;
 
+  while(end_line != null) {
+    end_line = strstr(start_line, "],");
+    end_line++;
+    str new = alloc(end_line - start_line + 1);
+    strncpy(new, start_line, end_line - start_line);
+    TickerHystorical *th = tickerHystoricalCreate(new);
+    list_append(t->tickerHystrorical, th);
+    dealloc(new);
+    start_line = end_line + 1;
+  }
+
+  str new = alloc(strlen(start_line));
+  strncpy(new, start_line, strlen(start_line) - 1);
+  TickerHystorical *th = tickerHystoricalCreate(new);
+  list_append(t->tickerHystrorical, th);
+  dealloc(new);
+}
+
+
+void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime) {
+  if (t->request_hystorical != null) {
+    dealloc(t->request_hystorical);
+  }
+  t->request_hystorical = str_create_fmt(REQUEST_HYSTORICAL, t->ticker->symbol, timelocal(startTime), timelocal(endTime));
+  i32 send_bytes = SSL_write(t->ssl, t->request_hystorical, strlen(t->request_hystorical));
+  if (send_bytes != strlen(t->request_hystorical)) {
+    log(ERROR, "SSL_write error");
+    return;
+  }
+
+  i32 read_bytes;
+  i8 buf[4096] = {0};
+  str_buf *hystoric = str_buf_create();
+  while((read_bytes = SSL_read(t->ssl, buf, 4096)) > 0) {
+    str_buf_append(hystoric, buf);
+    memset(buf, 0, 4096);
+  }
+  str tmp = str_buf_to_string(hystoric);
+  tokenParseHystoricalData(t, tmp);
+  dealloc(tmp);
+  str_buf_destroy(hystoric);
 }
