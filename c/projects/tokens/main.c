@@ -2,24 +2,12 @@
 #include "token.h"
 #include "window.h"
 
-
 int main() {
-  Token *t = tokenCreate("BTCUSDT");
-  Token *eth = tokenCreate("ETHUSDT");
-  Token *bnb = tokenCreate("BNBUSDT");
-
-  i32 iter = 1;
-  while(iter > 0) {
-    tokenRequest(t);
-    str s = tickerToString(t->ticker);
-    printf("%s\n", s);
-    dealloc(s);
-    iter--;
-  }
   Window *w = windowCreate();
-  windowAddToken(w, t);
-  windowAddToken(w, eth);
-  windowAddToken(w, bnb);
+
+  windowAddToken(w, "BTCUSDT");
+  windowAddToken(w, "ETHUSDT");
+  windowAddToken(w, "BNBUSDT");
   timeout(50);
 
   i32 ch;
@@ -28,9 +16,7 @@ int main() {
     if (ch == 'q') {
       break;
     }
-    tokenRequest(t);
-    tokenRequest(eth);
-    tokenRequest(bnb);
+    windowRequest(w);
     windowDraw(w);
   }
 
