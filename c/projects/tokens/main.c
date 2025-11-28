@@ -5,9 +5,7 @@
 int main() {
   Window *w = windowCreate();
 
-  windowAddToken(w, "BTCUSDT");
-  windowAddToken(w, "ETHUSDT");
-  windowAddToken(w, "BNBUSDT");
+  windowParseConfig(w);
   timeout(50);
 
   i32 ch;
@@ -15,6 +13,14 @@ int main() {
     ch = getch();
     if (ch == 'q') {
       break;
+    }
+    if (ch == 'i') {
+      timeout(500000);
+      str new_token = windowGetInput(w);
+      windowAddToken(w, new_token);
+      json_add_to_arr(json_get_obj(w->config, "tokens"), json_create_str(null, new_token));
+      dealloc(new_token);
+      timeout(50);
     }
     windowRequest(w);
     windowDraw(w);

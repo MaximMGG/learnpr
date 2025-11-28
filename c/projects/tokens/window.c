@@ -14,6 +14,42 @@ Window *windowCreate() {
   return window;
 }
 
+str windowGetInput(Window *w) {
+  WINDOW *input = newwin(3, COLS / 1.5, LINES - (LINES / 8), COLS / 8);
+  box(input, 0, 0);
+  mvwprintw(input, 0, (COLS / 1.5) / 2, "Enter here:");
+  wrefresh(input);
+  wmove(input, 1, 1);
+  i32 ch;
+  byte in[128] = {0};
+  i32 len = 0;
+  i32 x = 1;
+  while((ch = wgetch(input)) != '\n') {
+    if (ch == 127) {
+      if (len != 0) {
+        len--;
+        in[len] = 0;
+        x--;
+        mvwaddch(input, 1, x, ' ');
+        wmove(input, 1, x);
+        wrefresh(input);
+        continue;
+      }
+    }
+    mvwaddch(input, 1, x, ch);
+    x++;
+    in[len++] = ch;
+    wrefresh(input);
+    if (len == 128) {
+      break;
+    }
+  }
+  wborder(input, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+  wrefresh(input);
+  delwin(input);
+  return str_copy(in);
+}
+
 void windowAddToken(Window *w, str token_name) {
   Token *t = tokenCreate(token_name);
   list_append(w->tokens, t);
@@ -67,7 +103,7 @@ void windowDraw(Window *w) {
     mvprintw(index, 1, WINDOW_DRAW_TIKER_FMT, t->ticker->symbol, t->ticker->lastPrice, t->ticker->volume, "-test-");
     index++;
   }
-  i32 err_pos = 20;
+  i32 err_pos = 10;
   for(i32 i = 0; i < w->errors->len; i++) {
     mvprintw(err_pos, 1, "Error: %s", (str)list_get(w->errors, i));
     err_pos++;
@@ -86,6 +122,7 @@ void windowDestroy(Window *w) {
   }
   list_destroy(w->tokens);
   list_destroy(w->errors);
+  json_connection_close(w->config);
   dealloc(w);
 }
 
@@ -94,3 +131,13 @@ void windowRequest(Window *w) {
     tokenRequest(list_get(w->tokens, i));
   }
 }
+
+void windowParseConfig(Window *w) {
+  json_obj *config = json_connection("./config.json");
+  json_obj *tokens = json_get_obj(config, "tokens");
+  for(i32 i = 0; i < tokens->arr_len; i++) {
+    windowAddToken(w, tokens->arr[i]->val.str_val);
+  }
+  w->config = config;
+}
+
