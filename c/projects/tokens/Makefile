@@ -1,7 +1,7 @@
 APP = net
 SRC = $(wildcard *.c)
 OBJ = $(SRC:%.c=%.o)
-LIBS = -lssl -lcrypto -lcext
+LIBS = -lssl -lcrypto -lcext -lcurses
 FLAGS = -Wall -Wextra
 
 .PHONY: default build run clear
