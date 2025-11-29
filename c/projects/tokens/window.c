@@ -24,7 +24,12 @@ str windowGetInput(Window *w) {
   byte in[128] = {0};
   i32 len = 0;
   i32 x = 1;
+  bool exit = false;
   while((ch = wgetch(input)) != '\n') {
+    if (ch == 27) {
+      exit = true;
+      break;
+    }
     if (ch == 127) {
       if (len != 0) {
         len--;
@@ -47,6 +52,9 @@ str windowGetInput(Window *w) {
   wborder(input, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
   wrefresh(input);
   delwin(input);
+  if (exit) {
+    return null;
+  }
   return str_copy(in);
 }
 
