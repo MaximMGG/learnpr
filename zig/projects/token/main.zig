@@ -5,25 +5,21 @@ const c = @cImport({
     @cInclude("ncurses.h");
 });
 
-
-const Tokens = struct {
-    tokens: [][]u8
-};
-
+const Tokens = struct { tokens: [][]u8 };
 
 pub fn main() !void {
-    const allocator = std.heap.page_allocator;
-    const json_file = try std.fs.cwd().openFile("./config.json", .{.mode = .read_only});
-    const json_file_stat = try json_file.stat();
-    const buf: []u8 = try allocator.alloc(u8, json_file_stat.size);
-    defer allocator.free(buf);
+    const window = c.initscr() orelse return;
+    _ = c.raw();
+    _ = c.noecho();
+    _ = c.keypad(window, true);
 
-    const read_bytes = try json_file.readAll(buf);
-    if (read_bytes != json_file_stat.size) {
-        std.debug.print("Read bytes {d} not equealse file size {d}\n", .{read_bytes, json_file_stat.size});
-        return;
+    var ch: c_int = 0;
+    while (@as(u8, @intCast(ch)) != 'q') {
+        _ = c.clear();
+        _ = c.mvprintw(1, 2, "Hello %s", "world!");
+        _ = c.refresh();
+        ch = c.getch();
     }
 
-    const t = try std.json.innerParse(Tokens, allocator, buf, .{});
-
+    _ = c.endwin();
 }
