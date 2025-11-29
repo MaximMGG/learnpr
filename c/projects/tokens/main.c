@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include "token.h"
 #include "window.h"
-#include <postgresql/pg_config.h>
+#include <cstdext/io/logger.h>
 #include <postgresql/libpq/libpq-fs.h>
 
+void initLogger() {
+  log_set_opt(DEF_OPTION, LOG_TYPE_FILE, "./tokens.log");
+}
+
 int main() {
+  log(INFO, "Initialize token application");
   Window *w = windowCreate();
 
   windowParseConfig(w);
@@ -26,6 +31,7 @@ int main() {
     }
     windowRequest(w);
     windowDraw(w);
+    log(INFO, "Shutdown token application");
   }
 
   // struct tm startTime = {
