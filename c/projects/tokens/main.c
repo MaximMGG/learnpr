@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "token.h"
 #include "window.h"
+#include <postgresql/pg_config.h>
+#include <postgresql/libpq/libpq-fs.h>
 
 int main() {
   Window *w = windowCreate();
 
   windowParseConfig(w);
   timeout(50);
-
+ 
   i32 ch;
   while(true) {
     ch = getch();
