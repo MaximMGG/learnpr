@@ -1,5 +1,5 @@
 #include "database.h"
-#define DB_CONNECTION_FMT "dbname=%s sslmode=disable"
+#define DB_CONNECTION_FMT "dbname=%s user=%s password=%s sslmode=disable"
 #define DB_TOKENS_INSERT "tokens_insert"
 
 #define DB_TOKENS_INSERT_QUARY \
@@ -58,7 +58,7 @@ static void databaseCheckTableExists(Database *db) {
   }
 }
 
-Database *databaseConnect(str database_name) {
+Database *databaseConnect(str database_name, str user, str password) {
   log(INFO, "databaseCreate begining");
   Database *db = make(Database);
   db->database_name = str_copy(database_name);
@@ -85,19 +85,16 @@ Database *databaseConnect(str database_name) {
 str *databaseTranformToken(Token *t) {
   log(INFO, "Tranforming token to insert into DB");
   str *res = alloc(sizeof(str) * 15);
-  
-
-  
+  //TODO(maxim) write this func
   return null;
 }
 
 
 
-
 void databaseInsertToken(Database *db, Token *t) {
+  //TODO(maxim) after databaseTransformToken will be writen add here
 
   PQexecPrepared(db->conn, DB_TOKENS_INSERT, 15, null, null, null, 0);
-
 }
 
 void databaseDestroy(Database *db) {

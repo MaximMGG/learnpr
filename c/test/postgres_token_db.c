@@ -58,14 +58,14 @@ static void checkTableExists(PGconn *conn, PGresult *res, char *table_name) {
 
 
 int main() {
-  const char *connect = "dbname=mydb sslmode=disable";
+  const char *connect = "dbname=mydb user=maxim password=maxim sslmode=disable";
   PGconn *conn;
   PGresult *res;
 
   conn = PQconnectdb(connect);
 
   if (PQstatus(conn) != CONNECTION_OK) {
-    fprintf(stderr, "PQ connect error\n");
+    fprintf(stderr, "PQ connect error: %s\n", PQerrorMessage(conn));
     return 1;
   }
   printf("Connected\n");
