@@ -27,7 +27,8 @@ const str create_table_quary = "CREATE TABLE token ("
           "count INT)";
 
 const str check_exist_quary = "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'tokens'";
-
+const str delete_from_token_table = "DELETE FROM * token WHERE id = $1";
+const str get_token_relation = "SELECT * FROM token_relation";    
 
 static void databaseCreateTable(Database *db) {
   log(INFO, "Start creaing table tokens");
@@ -97,6 +98,13 @@ void databaseInsertToken(Database *db, Token *t) {
   PQexecPrepared(db->conn, DB_TOKENS_INSERT, 15, null, null, null, 0);
 }
 
-void databaseDestroy(Database *db) {
-  PQfinish(db->conn);
+void databaseDestroy(Database *db) { PQfinish(db->conn); }
+
+void databaseGetTokenRelation(Database *db) {
+  db->res = PQexec(db->conn, get_token_relation);
+  if (PQresultStatus(db->res) != PGRES_TUPLES_OK) {
+    log(ERROR, "get_token_relation err: ", PQerrorMessage(db->conn));
+    return;
+  }
+  
 }

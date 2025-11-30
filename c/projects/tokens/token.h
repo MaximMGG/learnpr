@@ -27,6 +27,7 @@ typedef struct {
   SSL *ssl;
   SSL_CTX *ctx;
   str token_symbol;
+  i32 token_id;
   str request;
   str request_hystorical;
   str response;
