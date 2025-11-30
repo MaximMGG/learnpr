@@ -1,4 +1,5 @@
 #include "window.h"
+#include <cstdext/container/list.h>
 #include <stdarg.h>
 
 Window *windowCreate() {
@@ -11,6 +12,7 @@ Window *windowCreate() {
   noecho();
   keypad(w, true);
   refresh();
+  log(INFO, "Create window");
   return window;
 }
 
@@ -55,12 +57,14 @@ str windowGetInput(Window *w) {
   if (exit) {
     return null;
   }
+  log(INFO, "Input window done");
   return str_copy(in);
 }
 
 void windowAddToken(Window *w, str token_name) {
   Token *t = tokenCreate(token_name);
   list_append(w->tokens, t);
+  log(INFO, "windowAddToken done");
 }
 
 static void windowErrorSetMsg(Window *w, str fmt, ...) {
@@ -91,7 +95,9 @@ void windowRemoveToken(Window *w, str token_name) {
   }
   if (!removed) {
     windowErrorSetMsg(w, "windowRemoveToken => Do not find token: %s", token_name);
+    log(ERROR, "do not find token: %s", token_name);
   }
+  log(INFO, "Remove token: %s", token_name);
 }
 
 #define WINDOW_DRAW_TIKER_PLATE   \
@@ -118,6 +124,7 @@ void windowDraw(Window *w) {
   }
   windowErrorClear(w);
   refresh();
+  log(INFO, "Window draw");
 }
 
 void windowDestroy(Window *w) {
@@ -132,12 +139,14 @@ void windowDestroy(Window *w) {
   list_destroy(w->errors);
   json_connection_close(w->config);
   dealloc(w);
+  log(INFO, "Window destroy");
 }
 
 void windowRequest(Window *w) {
   for(i32 i = 0; i < w->tokens->len; i++) {
     tokenRequest(list_get(w->tokens, i));
   }
+  log(INFO, "window request done");
 }
 
 void windowParseConfig(Window *w) {
@@ -147,5 +156,6 @@ void windowParseConfig(Window *w) {
     windowAddToken(w, tokens->arr[i]->val.str_val);
   }
   w->config = config;
+  log(INFO, "window parse config done");
 }
 

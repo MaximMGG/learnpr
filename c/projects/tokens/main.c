@@ -19,9 +19,11 @@ int main() {
   while(true) {
     ch = getch();
     if (ch == 'q') {
+      log(INFO, "Quit from main cycle");
       break;
     }
     if (ch == 'i') {
+      log(INFO, "Open input window");
       timeout(500000);
       str new_token = windowGetInput(w);
       if (new_token != null) {

@@ -1,4 +1,5 @@
 #include "ticker.h"
+#include <cstdext/io/logger.h>
 
 Ticker *tickerCreate(str raw_ticker) {
   str raw_s = str_replace_any(raw_ticker, "{}", "");
@@ -113,11 +114,13 @@ Ticker *tickerCreate(str raw_ticker) {
   }
   list_destroy(l);
   dealloc(raw_s);
+  log(INFO, "Create new ticker: %s", raw_ticker);
 
   return t;
 }
 
 void tickerDestroy(Ticker *t) {
+  log(INFO, "Destroy ticker: %s", t->symbol);
   dealloc(t->symbol);
   dealloc(t);
 }
@@ -155,6 +158,7 @@ str tickerToString(Ticker *ticker) {
                                 ticker->firstId,
                                 ticker->lastId,
                                 ticker->count);
+  log(INFO, "Call tickerToString");
   return s;
 }
 
@@ -221,10 +225,12 @@ TickerHystorical *tickerHystoricalCreate(str raw_ticker) {
       } break;
     }
   }
+  log(INFO, "Create TickerHystrorical: %s", raw_ticker);
   return th;
 }
 
 void tickerHystoricalDestroy(TickerHystorical *th) {
+  log(INFO, "Destroy tickerHystorical");
   dealloc(th);
 }
 
@@ -257,5 +263,6 @@ str tickerHystoricalToString(TickerHystorical *th) {
     th->takerBuyQuote,
     th->ignore);
 
+  log(INFO, "TickerHystorical to String");
   return s;
 }

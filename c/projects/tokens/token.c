@@ -57,6 +57,7 @@ Token *tokenCreate(str ticker) {
     dealloc(t);
     return null;
   }
+  log(INFO, "Create token and made connection");
   return t;
 }
 
@@ -77,6 +78,7 @@ void tokenDestroy(Token *t) {
     list_destroy(t->tickerHystorical);
   }
 
+  log(INFO, "Destroy token: %s", t->token_symbol);
   SSL_shutdown(t->ssl);
   SSL_free(t->ssl);
   SSL_CTX_free(t->ctx);
@@ -115,6 +117,7 @@ void tokenRequest(Token *t) {
   tmp += 4;
   t->response = str_copy(tmp);
   tokenParseResponse(t);
+  log(INFO, "Token: %s request done", t->token_symbol);
 }
 
 static void tokenParseHystoricalData(Token *t, str hystoric) {
@@ -148,6 +151,7 @@ static i32 tokenLoadHystricalGetContentLength(str cont) {
   cont += strlen("Content-Length: ");
   i8 buf[128] = {0};
   strncpy(buf, cont, endLine - cont);
+  log(INFO, "laodtokenHystoricalLength");
   return atol(buf);
 }
 

@@ -11,7 +11,7 @@ typedef struct {
   PGresult *res;
 } Database;
 
-Database *databaseCreate(str database_name);
+Database *databaseConnect(str database_name);
 void databaseInsertToken(Database *db, Token *t);
 void databaseDestroy(Database *db);
 

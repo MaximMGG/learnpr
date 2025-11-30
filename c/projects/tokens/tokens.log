@@ -1,2 +1,143 @@
 2025-11-29 21:39:31 [INFO] main.c:12 main Initialize token application
 2025-11-29 21:39:37 [INFO] main.c:37 main Shutdown token application
+2025-11-30 11:45:15 [INFO] main.c:12 main Initialize token application
+2025-11-30 11:45:15 [INFO] window.c:15 windowCreate Create window
+2025-11-30 11:45:15 [INFO] token.c:60 tokenCreate Create token and made connection
+2025-11-30 11:45:15 [INFO] window.c:67 windowAddToken windowAddToken done
+2025-11-30 11:45:15 [INFO] token.c:60 tokenCreate Create token and made connection
+2025-11-30 11:45:15 [INFO] window.c:67 windowAddToken windowAddToken done
+2025-11-30 11:45:15 [INFO] token.c:60 tokenCreate Create token and made connection
+2025-11-30 11:45:15 [INFO] window.c:67 windowAddToken windowAddToken done
+2025-11-30 11:45:15 [INFO] token.c:60 tokenCreate Create token and made connection
+2025-11-30 11:45:15 [INFO] window.c:67 windowAddToken windowAddToken done
+2025-11-30 11:45:15 [INFO] token.c:60 tokenCreate Create token and made connection
+2025-11-30 11:45:15 [INFO] window.c:67 windowAddToken windowAddToken done
+2025-11-30 11:45:15 [INFO] window.c:159 windowParseConfig window parse config done
+2025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"836.44000000","priceChangePercent":"0.923","weightedAvgPrice":"90840.018872025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:16 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"6.60000000","priceChangePercent":"0.220","weightedAvgPrice":"2995.054684702025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:16 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.85000000","priceChangePercent":"-0.210","weightedAvgPrice":"875.59775692025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:16 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.27000000","priceChangePercent":"-0.320","weightedAvgPrice":"84.028823582025-11-30 11:45:16 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:16 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.048462025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:17 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:17 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:17 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:17 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.048472025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:17 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:17 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.84000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055108452025-11-30 11:45:17 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:17 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:18 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.94000000","priceChangePercent":"-0.220","weightedAvgPrice":"875.59797022025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:18 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:18 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.27000000","priceChangePercent":"-0.320","weightedAvgPrice":"84.028823672025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:18 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:18 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.65000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.048722025-11-30 11:45:18 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:18 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:18 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:18 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:19 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.65000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.048722025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:19 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:19 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.84000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055108452025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:19 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:19 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.94000000","priceChangePercent":"-0.220","weightedAvgPrice":"875.59797482025-11-30 11:45:19 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:19 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:20 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.27000000","priceChangePercent":"-0.320","weightedAvgPrice":"84.028823702025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:20 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:20 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.65000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.049182025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:20 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:20 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:20 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:20 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.65000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.049182025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:20 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:20 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.84000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055109402025-11-30 11:45:20 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:20 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:21 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.94000000","priceChangePercent":"-0.220","weightedAvgPrice":"875.59797582025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:21 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:21 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.27000000","priceChangePercent":"-0.320","weightedAvgPrice":"84.028823732025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:21 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:21 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.054592025-11-30 11:45:21 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:21 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:21 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:21 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:22 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:22 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.054592025-11-30 11:45:22 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:22 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:22 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:22 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.83000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055112662025-11-30 11:45:22 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:22 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:23 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.94000000","priceChangePercent":"-0.220","weightedAvgPrice":"875.59797852025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:23 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:23 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.26000000","priceChangePercent":"-0.308","weightedAvgPrice":"84.028824112025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:23 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:23 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.061322025-11-30 11:45:23 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:23 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:23 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:23 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:23 [INFO] main.c:26 main Open input window
+2025-11-30 11:45:25 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"821.64000000","priceChangePercent":"0.907","weightedAvgPrice":"90840.061442025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:25 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:25 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.84000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055135062025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:25 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:25 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.95000000","priceChangePercent":"-0.222","weightedAvgPrice":"875.59798572025-11-30 11:45:25 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:25 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:26 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.26000000","priceChangePercent":"-0.308","weightedAvgPrice":"84.028824112025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:26 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:26 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"823.93000000","priceChangePercent":"0.910","weightedAvgPrice":"90840.062472025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:26 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:26 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:26 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:26 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"823.93000000","priceChangePercent":"0.910","weightedAvgPrice":"90840.062472025-11-30 11:45:26 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:26 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:27 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:27 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"ETHUSDT","priceChange":"5.83000000","priceChangePercent":"0.194","weightedAvgPrice":"2995.055147822025-11-30 11:45:27 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:27 [INFO] token.c:120 tokenRequest Token: ETHUSDT request done
+2025-11-30 11:45:27 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:27 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BNBUSDT","priceChange":"-1.95000000","priceChangePercent":"-0.222","weightedAvgPrice":"875.59799092025-11-30 11:45:27 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:27 [INFO] token.c:120 tokenRequest Token: BNBUSDT request done
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"LTCUSDT","priceChange":"-0.26000000","priceChangePercent":"-0.308","weightedAvgPrice":"84.028824112025-11-30 11:45:28 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:28 [INFO] token.c:120 tokenRequest Token: LTCUSDT request done
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:117 tickerCreate Create new ticker: {"symbol":"BTCUSDT","priceChange":"834.11000000","priceChangePercent":"0.921","weightedAvgPrice":"90840.067532025-11-30 11:45:28 [INFO] ticker.c:117 tickerCreate 
+2025-11-30 11:45:28 [INFO] token.c:120 tokenRequest Token: BTCUSDT request done
+2025-11-30 11:45:28 [INFO] window.c:149 windowRequest window request done
+2025-11-30 11:45:28 [INFO] window.c:127 windowDraw Window draw
+2025-11-30 11:45:28 [INFO] main.c:22 main Quit from main cycle
+2025-11-30 11:45:28 [INFO] main.c:39 main Shutdown token application
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: BTCUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: ETHUSDT
+2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: ETHUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BNBUSDT
+2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: BNBUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: LTCUSDT
+2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: LTCUSDT
+2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
+2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: BTCUSDT
+2025-11-30 11:45:28 [INFO] window.c:142 windowDestroy Window destroy
