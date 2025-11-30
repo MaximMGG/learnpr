@@ -1,4 +1,6 @@
 #include <libpq-fe.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 //   str symbol;
 //   f64 priceChange;
@@ -59,6 +61,9 @@ static void checkTableExists(PGconn *conn, PGresult *res, char *table_name) {
 
 int main() {
   const char *connect = "dbname=mydb user=maxim password=maxim sslmode=disable";
+  const char *insert = "INSERT INTO token_relation(symbol) VALUES($1)";
+  const char *select = "SELECT id FROM token_relation WHERE symbol = $1";
+  const char *symbol[1] = {"LTCUSDT"};
   PGconn *conn;
   PGresult *res;
 
@@ -70,27 +75,21 @@ int main() {
   }
   printf("Connected\n");
 
-
-  printf("Try to DROP TABLE\n");
-
-  res = PQexec(conn, dropTable);
-
+  res = PQexecParams(conn, insert, 1, NULL, symbol, NULL, NULL, 0);
   if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-    fprintf(stderr, "PQexe error: %s\n", PQerrorMessage(conn));
+    fprintf(stderr, "insert err: %s\n", PQerrorMessage(conn));
     return 1;
   }
-  printf("Table is DROPED\n");
   PQclear(res);
-  
-  res = PQexec(conn, quary);
-  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-    fprintf(stderr, "PQexec error: %s\n", PQerrorMessage(conn));
-    PQfinish(conn);
+
+  res = PQexecParams(conn, select, 1, NULL, symbol, NULL, NULL, 0);
+  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+    fprintf(stderr, "Select err: %s\n", PQerrorMessage(conn));
     return 1;
   }
-  printf("Create table\n");
 
-  checkTableExists(conn, res, "token");
+  printf("ID: %d\n", (int)atol(PQgetvalue(res, 0, 0)));
+  PQclear(res);
   
   PQfinish(conn);
   return 0;

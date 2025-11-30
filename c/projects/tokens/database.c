@@ -29,6 +29,8 @@ const str create_table_quary = "CREATE TABLE token ("
 const str check_exist_quary = "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'tokens'";
 const str delete_from_token_table = "DELETE FROM * token WHERE id = $1";
 const str get_token_relation = "SELECT * FROM token_relation";    
+const str insert_token_relation = "INSERT INTO token_ralation(symbol) VALUES($1)";
+const str select_token_relation = "SELECT id FROM token_ralation WHERE symbol = '$1'";
 
 static void databaseCreateTable(Database *db) {
   log(INFO, "Start creaing table tokens");
@@ -98,13 +100,44 @@ void databaseInsertToken(Database *db, Token *t) {
   PQexecPrepared(db->conn, DB_TOKENS_INSERT, 15, null, null, null, 0);
 }
 
-void databaseDestroy(Database *db) { PQfinish(db->conn); }
+void databaseDestroy(Database *db) { 
+  PQfinish(db->conn); 
+}
 
-void databaseGetTokenRelation(Database *db) {
+map *databaseGetTokenRelation(Database *db) {
+  log(INFO, "Get token relation start");
   db->res = PQexec(db->conn, get_token_relation);
   if (PQresultStatus(db->res) != PGRES_TUPLES_OK) {
     log(ERROR, "get_token_relation err: ", PQerrorMessage(db->conn));
-    return;
+    return null; 
   }
-  
+  map *m = map_create(STR, I32, null, null);
+  i32 rows = PQntuples(db->res);
+  for(i32 i = 0; i < rows; i++) {
+    str symbol = PQgetvalue(db->res, i, 0);
+    i32 id = atol(PQgetvalue(db->res, i, 1));
+    map_put(m, symbol, &id);
+  }
+  PQclear(db->res);
+  log(INFO, "Get token relation done");
+  return m;
+}
+
+i32 databaseInserToken(Database *db, str symbol) {
+  log(INFO, "Insert Token func");
+  const char *symbolParam[1] = {symbol};
+  db->res = PQexecParams(db->conn, insert_token_relation, 1, null, symbolParam, null, null, 0);
+  if (PQresultStatus(db->res) != PGRES_COMMAND_OK) {
+    log(ERROR, "insert_token_relation: %s", PQerrorMessage(db->conn));
+    return -1;
+  }
+  PQclear(db->res);
+  db->res = PQexecParams(db->conn, select_token_relation, 1, null, symbolParam, null, null, 0);
+  if (PQresultStatus(db->res) != PGRES_TUPLES_OK) {
+    log(ERROR, "select_token_relation: %s", PQerrorMessage(db->conn));
+    return -1;
+  }
+  i32 res = atol(PQgetvalue(db->res, 0, 0));
+  log(INFO, "Insert token done, id: %d", res);
+  return res;
 }
