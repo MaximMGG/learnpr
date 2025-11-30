@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "token.h"
 #include "window.h"
+#include "database.h"
 #include <cstdext/io/logger.h>
 
 void initLogger() {
@@ -12,7 +13,10 @@ int main() {
   log(INFO, "Initialize token application");
   Window *w = windowCreate();
 
+
   windowParseConfig(w);
+  Database *db = databaseConnect("", "", "");
+  windowGetTokens(w, db);
   timeout(50);
  
   i32 ch;
@@ -27,7 +31,7 @@ int main() {
       timeout(500000);
       str new_token = windowGetInput(w);
       if (new_token != null) {
-        windowAddToken(w, new_token);
+        windowAddToken(w, new_token, -1);
         json_add_to_arr(json_get_obj(w->config, "tokens"), json_create_str(null, new_token));
         dealloc(new_token);
       }

@@ -36,7 +36,7 @@ typedef struct {
   list *tickerHystorical;
 } Token;
 
-Token *tokenCreate(str symbol);
+Token *tokenCreate(str symbol, i32 id);
 void tokenDestroy(Token *t);
 void tokenRequest(Token *t);
 void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime);

@@ -61,8 +61,14 @@ str windowGetInput(Window *w) {
   return str_copy(in);
 }
 
-void windowAddToken(Window *w, str token_name) {
-  Token *t = tokenCreate(token_name);
+void windowAddToken(Window *w, Database *db, str token_name, i32 id) {
+  Token *t;
+  if (id != -1) {
+    i32 token_id = databaseAddToken(db, token_name);
+    t = tokenCreate(token_name, token_id);
+  } else {
+    t = tokenCreate(token_name, id);
+  }
   list_append(w->tokens, t);
   log(INFO, "windowAddToken done");
 }
@@ -150,12 +156,10 @@ void windowRequest(Window *w) {
 }
 
 void windowParseConfig(Window *w) {
-  json_obj *config = json_connection("./config.json");
-  json_obj *tokens = json_get_obj(config, "tokens");
-  for(i32 i = 0; i < tokens->arr_len; i++) {
-    windowAddToken(w, tokens->arr[i]->val.str_val);
-  }
-  w->config = config;
+  //TODO(maxim) parse config from .config/tokens/token.config
   log(INFO, "window parse config done");
 }
 
+void windowGetTokens(Window *w, Database *db) {
+
+}

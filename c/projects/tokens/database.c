@@ -123,7 +123,26 @@ map *databaseGetTokenRelation(Database *db) {
   return m;
 }
 
-i32 databaseInserToken(Database *db, str symbol) {
+static bool databaseCheckSymbolExists(Database *db, str symbol) {
+  const char *symbolParam[1] = {symbol};
+
+  db->res = PQexecParams(db->conn, select_token_relation, 1, null, symbolParam, null, null, 0);
+  if (PQresultStatus(db->res) != PGRES_TUPLES_OK) {
+    log(ERROR, "select_token_relation err: %s", PQerrorMessage(db->conn));
+    return false;
+  }
+  i32 r = PQntuples(db->res);
+  if (r == 0) {
+    return false;
+  }
+  PQclear(db->res);
+  return true;
+}
+
+i32 databaseAddToken(Database *db, str symbol) {
+  if (!databaseCheckSymbolExists(db, symbol)) {
+    return -1;
+  }
   log(INFO, "Insert Token func");
   const char *symbolParam[1] = {symbol};
   db->res = PQexecParams(db->conn, insert_token_relation, 1, null, symbolParam, null, null, 0);

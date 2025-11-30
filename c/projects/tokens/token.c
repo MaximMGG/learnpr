@@ -1,8 +1,9 @@
 #include "token.h"
 
-Token *tokenCreate(str ticker) {
+Token *tokenCreate(str ticker, i32 id) {
   Token *t = make(Token);
   t->token_symbol = str_copy(ticker);
+  t->token_id = id;
   t->request = str_create_fmt(REQUEST, ticker);
   t->request_hystorical = null;
   t->response = null;

@@ -16,6 +16,6 @@ Database *databaseConnect(str database_name, str user, str password);
 void databaseInsertToken(Database *db, Token *t);
 void databaseDestroy(Database *db);
 map *databaseGetTokenRelation(Database *db);
-i32 databaseInserToken(Database *db, str symbol);
+i32 databaseAddToken(Database *db, str symbol);
 
 #endif //DATABASE_H

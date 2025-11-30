@@ -62,7 +62,7 @@ static void checkTableExists(PGconn *conn, PGresult *res, char *table_name) {
 int main() {
   const char *connect = "dbname=mydb user=maxim password=maxim sslmode=disable";
   const char *insert = "INSERT INTO token_relation(symbol) VALUES($1)";
-  const char *select = "SELECT id FROM token_relation WHERE symbol = $1";
+  const char *select = "SELECT id FROM token_relation WHERE symbol = 'OIJWER'";
   const char *symbol[1] = {"LTCUSDT"};
   PGconn *conn;
   PGresult *res;
@@ -75,17 +75,14 @@ int main() {
   }
   printf("Connected\n");
 
-  res = PQexecParams(conn, insert, 1, NULL, symbol, NULL, NULL, 0);
-  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-    fprintf(stderr, "insert err: %s\n", PQerrorMessage(conn));
-    return 1;
-  }
-  PQclear(res);
-
-  res = PQexecParams(conn, select, 1, NULL, symbol, NULL, NULL, 0);
+  res = PQexec(conn, select);
   if (PQresultStatus(res) != PGRES_TUPLES_OK) {
     fprintf(stderr, "Select err: %s\n", PQerrorMessage(conn));
     return 1;
+  }
+  int rows = PQntuples(res);
+  if (rows == 0) {
+    printf("Symbol does not exist in token_relation\n");
   }
 
   printf("ID: %d\n", (int)atol(PQgetvalue(res, 0, 0)));

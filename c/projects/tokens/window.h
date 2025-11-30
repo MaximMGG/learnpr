@@ -1,6 +1,7 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 #include "token.h"
+#include "database.h"
 #include <cstdext/container/list.h>
 #include <cstdext/io/json.h>
 #include <ncurses.h>
@@ -10,16 +11,20 @@ typedef struct {
   WINDOW *w;
   list *errors;
   json_obj *config;
+  str db_name;
+  str user_name;
+  str user_password;
   //bool config_change;
 } Window;
 
 Window *windowCreate();
-void windowAddToken(Window *w, str token_name);
+void windowAddToken(Window *w, Database *db, str token_name, i32 id);
 void windowRemoveToken(Window *w, str token_name);
 void windowDestroy(Window *w);
 void windowDraw(Window *w);
 void windowRequest(Window *w);
 void windowParseConfig(Window *w);
+void windowGetTokens(Window *w, Database *db);
 str windowGetInput(Window *w);
 
 #endif //WINDOW_H
