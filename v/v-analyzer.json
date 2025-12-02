@@ -1,0 +1,7 @@
+{
+    "enableExperimentalFeatures": true,
+    "global_vroot_path": "/path/to/v",
+    "additionalRoots": [
+       "."
+    ]
+}
