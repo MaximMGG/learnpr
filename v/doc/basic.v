@@ -55,6 +55,9 @@ fn main() {
 	//	s2 := arr.bytestr()
 	println('Format ouput')
 	format_out()
+
+  println("Array test")
+  arrays_test()
 }
 
 fn add(x int, y int) int {
@@ -125,3 +128,22 @@ fn format_out() {
 
 	println('${bobby} age is ${int(x).str()}')
 }
+
+fn arrays_test() {
+  mut arr := [i32(1), 2, 3]
+  arr << 4
+  arr << [i32(5), 6, 7]
+  println("${arr}")
+  println(8 in arr)
+
+  mut names := ["Peter", "John", "Mary"]
+  names << "Bobby"
+  println(names)
+  println("billy" in names)
+  if "billy" in names {
+    println("Billy here")
+  } else {
+    println("Not here")
+  }
+}
+
