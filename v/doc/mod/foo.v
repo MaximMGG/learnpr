@@ -1,5 +1,4 @@
 module main
-
 import abs
 
 pub fn foo1() string {

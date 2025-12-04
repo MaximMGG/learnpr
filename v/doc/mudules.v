@@ -1,5 +1,6 @@
 import time
 import math
+import mod.abs
 
 type MyTime = time.Time
 
@@ -15,4 +16,5 @@ fn main() {
   }
   println(time.new(my_time).utc_string())
   println("Century: ${my_time.century()}")
+	println(abs.add_m(213123, 123123))
 }
