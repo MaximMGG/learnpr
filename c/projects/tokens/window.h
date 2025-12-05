@@ -5,6 +5,9 @@
 #include <cstdext/container/list.h>
 #include <cstdext/io/json.h>
 #include <ncurses.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 typedef struct {
   list *tokens;
@@ -14,7 +17,8 @@ typedef struct {
   str db_name;
   str user_name;
   str user_password;
-  //bool config_change;
+  str system_user;
+  map *token_ralation;
 } Window;
 
 Window *windowCreate();
@@ -24,7 +28,7 @@ void windowDestroy(Window *w);
 void windowDraw(Window *w);
 void windowRequest(Window *w);
 void windowParseConfig(Window *w);
-void windowGetTokens(Window *w, Database *db);
-str windowGetInput(Window *w);
+void windowSetTokens(Window *w, Database *db);
+str windowGetInput(Window *w, str header);
 
 #endif //WINDOW_H

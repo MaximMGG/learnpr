@@ -15,8 +15,8 @@ int main() {
 
 
   windowParseConfig(w);
-  Database *db = databaseConnect("", "", "");
-  windowGetTokens(w, db);
+  Database *db = databaseConnect(w->db_name, w->user_name, w->user_password);
+  windowSetTokens(w, db);
   timeout(50);
  
   i32 ch;
@@ -29,9 +29,9 @@ int main() {
     if (ch == 'i') {
       log(INFO, "Open input window");
       timeout(500000);
-      str new_token = windowGetInput(w);
+      str new_token = windowGetInput(w, "Enter token");
       if (new_token != null) {
-        windowAddToken(w, new_token, -1);
+        windowAddToken(w, db, new_token, -1);
         json_add_to_arr(json_get_obj(w->config, "tokens"), json_create_str(null, new_token));
         dealloc(new_token);
       }

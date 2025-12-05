@@ -8,6 +8,7 @@ Window *windowCreate() {
   window->w = w;
   window->tokens = list_create(PTR);
   window->errors = list_create(STR);
+  window->system_user = getenv("USERNAME");
   raw();
   noecho();
   keypad(w, true);
@@ -16,10 +17,10 @@ Window *windowCreate() {
   return window;
 }
 
-str windowGetInput(Window *w) {
+str windowGetInput(Window *w, str header) {
   WINDOW *input = newwin(3, COLS / 1.5, LINES - (LINES / 8), COLS / 8);
   box(input, 0, 0);
-  mvwprintw(input, 0, (COLS / 1.5) / 2, "Enter here:");
+  mvwprintw(input, 0, (COLS / 1.5) / 2, "%s", header);
   wrefresh(input);
   wmove(input, 1, 1);
   i32 ch;
@@ -155,11 +156,67 @@ void windowRequest(Window *w) {
   log(INFO, "window request done");
 }
 
+static void windowSetUserConfig(Window *w, str config_path) {
+  clear();
+  str dbname = windowGetInput(w, "Enter db name");
+  refresh();
+  str user_name = windowGetInput(w, "Enter db user name");
+  refresh();
+  str user_password = windowGetInput(w, "Enter user password");
+  refresh();
+  json_obj *obj = json_connection(config_path);
+  json_add_to_obj(obj, json_create_str("dbname", dbname));
+  json_add_to_obj(obj, json_create_str("user_name", user_name));
+  json_add_to_obj(obj, json_create_str("password", user_password));
+  json_connection_close(obj);
+}
+
+static void windowCheckConfigExists(Window *w) {
+  i8 dir_access_buf[256] = {0};
+  sprintf(dir_access_buf, "/home/%s/.config/token", w->system_user);
+  if (access(dir_access_buf, F_OK) != 0) {
+    mkdir(dir_access_buf, 0777);
+  }
+  str config_access = str_create_fmt("%s/config.json", dir_access_buf);
+  if (access(config_access, F_OK) != 0) {
+    i32 fd = open(config_access, O_CREAT | O_RDWR, S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP); 
+    if (fd <= 0) {
+      log(ERROR, "Cant create file %s", config_access);
+      dealloc(config_access);
+      return;
+    }
+    close(fd);
+  }
+  dealloc(config_access);
+}
+
+
 void windowParseConfig(Window *w) {
-  //TODO(maxim) parse config from .config/tokens/token.config
+  log(INFO, "window parse config done");
+  str config = str_create_fmt("/home/%s/.config/token/config.json", w->system_user);
+  json_obj *obj = json_connection(config);
+  dealloc(config);
+  if (obj == null) {
+    log(ERROR, "open config.json error");
+    return;
+  }
+  
+  json_obj *dbname = json_get_obj(obj, "dbname");
+  w->db_name = str_copy(dbname->val.str_val);
+  json_obj *user_name = json_get_obj(obj, "user_name");
+  w->user_name = str_copy(user_name->val.str_val);
+  json_obj *password = json_get_obj(obj, "password");
+  w->user_password = str_copy(password->val.str_val);
+  json_connection_close(obj);
   log(INFO, "window parse config done");
 }
 
-void windowGetTokens(Window *w, Database *db) {
-
+void windowSetTokens(Window *w, Database *db) {
+  w->token_ralation = databaseGetTokenRelation(db);
+  iterator *it = map_iterator(w->token_ralation);
+  KV kv = map_it_next(it);
+  while(kv.key != null) {
+    windowAddToken(w, db, kv.key, *(i32 *)kv.val);
+    kv = map_it_next(it);
+  }
 }
