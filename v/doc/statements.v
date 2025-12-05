@@ -24,6 +24,12 @@ fn main() {
 	match_example()
 	println("in examples")
 	in_examples()
+	println("for loop examples")
+	for_loop_examples()
+	println("Custom iterator")
+	iter_examples()
+	println("Defer examples")
+	defer_example()
 }
 
 
@@ -43,6 +49,9 @@ struct User2 {
 	name string
 }
 
+fn (u &User2) get_name() string {
+	return u.name
+}
 
 fn if_unwraped() {
 	arr := [User2{"John"}]
@@ -248,5 +257,102 @@ struct Parser{
 }
 
 
+fn for_loop_examples() {
+	nums := [1, 2, 3, 4, 5]
+
+	for i in nums {
+		println("${i}")
+	}
+
+	mut nums2 := [0, 1, 2, 3, 4]
+	for mut i in nums2 {
+		i++
+	}
+	println(nums2)
+
+	mut users := [User2{name: "Bobby"}, User2{name: "Mickle"}]
+	users << User2{name: "Bill"}
+
+
+	for u in users {
+		println("User size: ${sizeof(u)}")
+		println("${u.get_name()}")
+	}
+
+	for u in &users {
+		println("User size: ${sizeof(u)}")
+		println("${u.get_name()}")
+	}
+
+	m := {
+		'one': 123
+		'two': 234
+		'three': 345
+	}
+
+	for k, v in m {
+		println("${k} -> ${v}")
+	}
+
+	for _, v in m {
+		println("${v}")
+	}
+
+	for i in 0..users.len {
+		println(users[i])
+	}
+
+
+	mut sum := 0
+	mut i := 0
+	for i <= 100 {
+		sum += i
+		i++
+	}
+
+	println(sum)
+
+	for j := 0; j < 20; j += 2 {
+		println(j)
+	}
+
+
+	outer: for j := 4; true; j++ {
+		println(j)
+		for {
+			if j < 7 {
+				continue outer
+			} else {
+				break outer
+			}
+		}
+	}
+}
+
+struct SquareIterator {
+	arr []int
+mut:
+	idx int
+}
+
+fn (mut iter SquareIterator) next() ?int {
+	if iter.idx >= iter.arr.len {
+		return none
+	}
+	defer {
+		iter.idx++
+	}
+	return iter.arr[iter.idx] * iter.arr[iter.idx]
+}
+
+fn iter_examples() {
+	nums := [1, 2, 3, 4, 5]
+
+	iter := SquareIterator{arr: nums}
+
+	for sq in iter {
+		println(sq)
+	}
+}
 
 
