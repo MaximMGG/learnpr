@@ -1,28 +1,32 @@
 package main
 import DB "database"
+import N "window"
+
+
 import "core:fmt"
+import "core:c"
+import "core:testing"
+
 
 
 main :: proc() {
-  conn := DB.PQconnectdb("dbname=mydb user=maxim password=maxim")
-  defer DB.PQfinish(conn)
-  if DB.PQstatus(conn) != DB.CONNECTION_OK {
-    fmt.eprintln("Connection bad")
-  }
+    fmt.println("Hello")
+}
 
-  res := DB.PQexec(conn, "select * from token")
-  if DB.PQresultStatus(res) != DB.PGRES_TUPLES_OK {
-    fmt.eprintln("PQexe failed:", DB.PQerrorMessage(conn))
-    return
-  }
-  fmt.println("Connected to DB")
+@(test)
+ncureses_test :: proc(t: ^testing.T) {
+    stdscr := N.initscr()
+    N.raw()
+    N.noecho()
+    N.keypad(stdscr, true)
 
-  rows := DB.PQntuples(res)
+    ch: c.int
+    for ch != 'q' {
+	N.clear()
+	ch = N.getch()
 
-  for i in 0..<rows {
-    fmt.println(DB.PQgetvalue(res, i, 0))
-    fmt.println(DB.PQgetvalue(res, i, 1))
-  }
-  DB.PQclear(res)
-
+	N.refresh()
+    }
+    testing.expect_value(t, int('q'), int(ch))
+    N.endwin()    
 }
