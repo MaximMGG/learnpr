@@ -3,9 +3,9 @@
 #define DB_TOKENS_INSERT "tokens_insert"
 
 #define DB_TOKENS_INSERT_QUARY \
-  "INSERT INTO tokens (symbol, priceChange, priceChangePercent,"          \
-  "weightedAvgPrice, openPrice, highPrice, lowPrice, volume, quoteVolume,"\
-  "openTime, closeTime, firstId, count) VALUES ($1, $2, $3, $4, $5, $6,"  \
+  "INSERT INTO token (symbol, priceChange, priceChangePercent,"          \
+  "weightedAvgPrice, openPrice, highPrice, lowPrice, lastPrice, volume, quoteVolume,"\
+  "openTime, closeTime, firstId, lastId, count) VALUES ($1, $2, $3, $4, $5, $6,"  \
   "$7, $8, $9, $10, $11, $12, $13, $14, $15)"
 
 
@@ -26,7 +26,7 @@ const str create_table_quary = "CREATE TABLE token ("
           "lastId INT,"
           "count INT)";
 
-const str check_exist_quary = "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'tokens'";
+const str check_exist_quary = "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'token'";
 const str delete_from_token_table = "DELETE FROM * token WHERE id = $1";
 const str get_token_relation = "SELECT * FROM token_relation";    
 const str insert_token_relation = "INSERT INTO token_ralation(symbol) VALUES($1)";
@@ -38,10 +38,8 @@ static void databaseCreateTable(Database *db) {
   db->res = PQexec(db->conn, create_table_quary);
   if (PQresultStatus(db->res) != PGRES_COMMAND_OK) {
     log(ERROR, "Creation of table tokens error: %s", PQerrorMessage(db->conn));
-    PQclear(db->res);
     return;
   }
-  PQclear(db->res);
   log(INFO, "Creating table done");
 }
 
@@ -53,19 +51,19 @@ static void databaseCheckTableExists(Database *db) {
     log(ERROR, "%s error", check_exist_quary);
     return;
   }
-  PQclear(db->res);
+  log(INFO, "Table Token exists: %s", PQgetvalue(db->res, 0, 0));
   if (strcmp("1", PQgetvalue(db->res, 0, 0)) != 0) {
     databaseCreateTable(db);
   } else {
     log(INFO, "Data base exists");    
   }
+  PQclear(db->res);
 }
 
 Database *databaseConnect(str database_name, str user, str password) {
   log(INFO, "databaseCreate begining");
   Database *db = make(Database);
-  db->database_name = str_copy(database_name);
-  str conn_str = str_create_fmt(DB_CONNECTION_FMT, database_name);
+  str conn_str = str_create_fmt(DB_CONNECTION_FMT, database_name, user, password);
 
   db->conn = PQconnectdb(conn_str);
   dealloc(conn_str);

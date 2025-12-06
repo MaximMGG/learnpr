@@ -31,9 +31,10 @@ process_dir :: proc(dir_name: string, level: int) {
         if f.name[0] == '.' {
             continue
         }
-        if f.mode == os.File_Mode_Dir {
+        if f.is_dir {
             new_path := strings.concatenate([]string{dir_name, "/", f.name})
             process_dir(new_path, level + 1)
+            delete(new_path)
             continue
         } else if (f.mode & os.S_IXUSR) > 1 {
             print_level(level)

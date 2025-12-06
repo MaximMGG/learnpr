@@ -141,3 +141,411 @@
 2025-11-30 11:45:28 [INFO] ticker.c:123 tickerDestroy Destroy ticker: BTCUSDT
 2025-11-30 11:45:28 [INFO] token.c:81 tokenDestroy Destroy token: BTCUSDT
 2025-11-30 11:45:28 [INFO] window.c:142 windowDestroy Window destroy
+2025-12-06 18:03:38 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:03:38 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:03:38 [INFO] window.c:195 windowParseConfig window parse config done
+2025-12-06 18:03:38 [ERROR] window.c:200 windowParseConfig open config.json error
+2025-12-06 18:03:38 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:04:02 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:04:04 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:04:09 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:04:23 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:04:32 [INFO] window.c:195 windowParseConfig window parse config done
+2025-12-06 18:04:49 [ERROR] window.c:200 windowParseConfig open config.json error
+2025-12-06 18:05:28 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:05:28 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:05:28 [INFO] window.c:196 windowParseConfig window parse config done
+2025-12-06 18:05:59 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:05:59 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:06:01 [INFO] window.c:196 windowParseConfig window parse config done
+2025-12-06 18:06:13 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:06:13 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:07:04 [INFO] window.c:196 windowParseConfig window parse config done
+2025-12-06 18:08:47 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:08:49 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:09:22 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:09:22 [INFO] window.c:16 windowCreate Create window
+2025-12-06 18:09:22 [INFO] window.c:197 windowParseConfig window parse config done
+2025-12-06 18:14:55 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:14:55 [INFO] window.c:54 windowCreate Create window
+2025-12-06 18:14:55 [INFO] window.c:198 windowParseConfig window parse config done
+2025-12-06 18:14:55 [ERROR] window.c:203 windowParseConfig open config.json error
+2025-12-06 18:14:55 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:15:06 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:15:29 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:16:09 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:17:37 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:17:37 [INFO] window.c:55 windowCreate Create window
+2025-12-06 18:17:37 [INFO] window.c:199 windowParseConfig window parse config done
+2025-12-06 18:18:13 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:18:13 [INFO] window.c:55 windowCreate Create window
+2025-12-06 18:18:13 [INFO] window.c:199 windowParseConfig window parse config done
+2025-12-06 18:18:22 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:19:51 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:20:15 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:20:35 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:21:16 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:28:45 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:28:45 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:28:45 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:28:45 [INFO] window.c:206 windowParseConfig window parse config done
+2025-12-06 18:28:45 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:43:20 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:43:20 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:43:20 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:43:20 [INFO] window.c:206 windowParseConfig window parse config done
+2025-12-06 18:43:20 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:43:39 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:43:53 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:43:59 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:44:21 [INFO] window.c:206 windowParseConfig window parse config done
+2025-12-06 18:44:25 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:46:50 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:46:50 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:46:50 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:46:54 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:46:54 [INFO] window.c:211 windowParseConfig window parse config done
+2025-12-06 18:46:54 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:49:09 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:49:09 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:49:09 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:49:11 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:49:15 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:49:17 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:49:17 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 18:49:17 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:49:49 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:49:49 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:49:49 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:51:03 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:51:05 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:51:06 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:51:30 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 18:51:45 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:52:39 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:52:39 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:52:39 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:52:43 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:52:46 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:52:47 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:52:47 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 18:52:47 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:53:27 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:53:27 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:53:27 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:54:35 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:55:37 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:55:38 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:55:45 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 18:55:50 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:57:26 [INFO] main.c:13 main Initialize token application
+2025-12-06 18:57:26 [INFO] window.c:46 windowCreate Create window
+2025-12-06 18:57:26 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 18:57:29 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:57:30 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:57:32 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 18:57:32 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 18:57:32 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 18:57:32 [INFO] database.c:36 databaseCreateTable Start creaing table tokens
+2025-12-06 18:57:32 [ERROR] database.c:40 databaseCreateTable Creation of table tokens error: ERROR:  relation "token" already exists
+
+2025-12-06 19:07:53 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:07:53 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:07:53 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:08:28 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:08:29 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:08:31 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:08:34 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:08:38 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 19:08:38 [INFO] database.c:36 databaseCreateTable Start creaing table tokens
+2025-12-06 19:08:38 [ERROR] database.c:40 databaseCreateTable Creation of table tokens error: ERROR:  relation "token" already exists
+
+2025-12-06 19:09:07 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:09:07 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:09:07 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:09:32 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:09:34 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:09:35 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:09:38 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:09:41 [INFO] database.c:65 databaseConnect databaseCreate begining
+2025-12-06 19:10:00 [INFO] database.c:36 databaseCreateTable Start creaing table tokens
+2025-12-06 19:10:10 [ERROR] database.c:40 databaseCreateTable Creation of table tokens error: ERROR:  relation "token" already exists
+
+2025-12-06 19:11:55 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:11:55 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:11:55 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:11:57 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:11:59 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:12:00 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:12:00 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:12:00 [INFO] database.c:64 databaseConnect databaseCreate begining
+2025-12-06 19:12:00 [INFO] database.c:54 databaseCheckTableExists Table Token exists: 0
+2025-12-06 19:12:00 [INFO] database.c:36 databaseCreateTable Start creaing table tokens
+2025-12-06 19:12:00 [ERROR] database.c:40 databaseCreateTable Creation of table tokens error: ERROR:  relation "token" already exists
+
+.
+                    ^
+ [ERROR] database.c:78 databaseConnect PQprepare error: ERROR:  relation "tokens" does not exist
+LINE 1: INSERT INTO tokens (symbol, priceChange, priceChangePercent,...
+                    ^
+
+2025-12-06 19:12:00 [INFO] database.c:106 databaseGetTokenRelation Get token relation start
+2025-12-06 19:12:53 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:12:53 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:12:53 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:12:54 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:12:56 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:12:57 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:12:57 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:12:57 [INFO] database.c:64 databaseConnect databaseCreate begining
+2025-12-06 19:12:57 [INFO] database.c:54 databaseCheckTableExists Table Token exists: 1
+2025-12-06 19:12:57 [INFO] database.c:58 databaseCheckTableExists Data base exists
+.
+                    ^
+ [ERROR] database.c:78 databaseConnect PQprepare error: ERROR:  relation "tokens" does not exist
+LINE 1: INSERT INTO tokens (symbol, priceChange, priceChangePercent,...
+                    ^
+
+2025-12-06 19:12:57 [INFO] database.c:106 databaseGetTokenRelation Get token relation start
+2025-12-06 19:14:14 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:14:14 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:14:14 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:14:17 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:14:18 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:14:19 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:14:19 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:14:19 [INFO] database.c:64 databaseConnect databaseCreate begining
+2025-12-06 19:14:19 [INFO] database.c:54 databaseCheckTableExists Table Token exists: 1
+2025-12-06 19:14:19 [INFO] database.c:58 databaseCheckTableExists Data base exists
+, $13, $14, $15)
+                                                              ^
+ [ERROR] database.c:78 databaseConnect PQprepare error: ERROR:  INSERT has more expressions than target columns
+LINE 1: ...$2, $3, $4, $5, $6,$7, $8, $9, $10, $11, $12, $13, $14, $15)
+                                                              ^
+
+2025-12-06 19:14:19 [INFO] database.c:106 databaseGetTokenRelation Get token relation start
+2025-12-06 19:15:51 [INFO] main.c:13 main Initialize token application
+2025-12-06 19:15:51 [INFO] window.c:46 windowCreate Create window
+2025-12-06 19:15:51 [INFO] window.c:190 windowParseConfig window parse config done
+2025-12-06 19:15:52 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:15:53 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:15:54 [INFO] window.c:91 windowGetInput Input window done
+2025-12-06 19:15:54 [INFO] window.c:221 windowParseConfig window parse config done
+2025-12-06 19:15:54 [INFO] database.c:64 databaseConnect databaseCreate begining
+2025-12-06 19:15:54 [INFO] database.c:54 databaseCheckTableExists Table Token exists: 1
+2025-12-06 19:15:54 [INFO] database.c:58 databaseCheckTableExists Data base exists
+2025-12-06 19:15:54 [INFO] database.c:82 databaseConnect Database connect done
+2025-12-06 19:15:54 [INFO] database.c:106 databaseGetTokenRelation Get token relation start
+2025-12-06 19:15:54 [INFO] database.c:120 databaseGetTokenRelation Get token relation done
+ '$1'
+                       ^
+ [ERROR] database.c:129 databaseCheckSymbolExists select_token_relation err: ERROR:  relation "token_ralation" does not exist
+LINE 1: SELECT id FROM token_ralation WHERE symbol = '$1'
+                       ^
+
+2025-12-06 19:15:55 [INFO] token.c:61 tokenCreate Create token and made connection
+2025-12-06 19:15:55 [INFO] window.c:104 windowAddToken windowAddToken done
+ '$1'
+                       ^
+ [ERROR] database.c:129 databaseCheckSymbolExists select_token_relation err: ERROR:  relation "token_ralation" does not exist
+LINE 1: SELECT id FROM token_ralation WHERE symbol = '$1'
+                       ^
+
+2025-12-06 19:15:55 [INFO] token.c:61 tokenCreate Create token and made connection
+2025-12-06 19:15:55 [INFO] window.c:104 windowAddToken windowAddToken done
+2025-12-06 19:15:55 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:55 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:15:56 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:56 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:15:56 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:15:56 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:15:56 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:56 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:56 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:15:57 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:57 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:57 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:15:57 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:15:57 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:15:57 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:57 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:57 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:15:57 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:57 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:57 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:15:57 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:15:57 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:15:58 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:58 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:58 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:15:58 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:58 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:58 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:15:58 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:15:58 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:15:59 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:59 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:59 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:15:59 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:59 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:59 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:15:59 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:15:59 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:15:59 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:15:59 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:15:59 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:00 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:00 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:00 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:00 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:00 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:00 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:00 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:00 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:01 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:01 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:01 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:01 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:01 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:01 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:01 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:01 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:01 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:01 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:01 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:01 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:01 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:02 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:02 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:02 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:02 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:02 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:02 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:02 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:02 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:03 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:03 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:03 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:03 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:03 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:03 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:03 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:03 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:04 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:04 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:04 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:05 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:05 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:05 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:05 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:05 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:05 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:05 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:05 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:05 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:05 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:05 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:05 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:05 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:06 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:06 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:06 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:07 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:07 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:07 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:07 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:07 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:07 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:07 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:07 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:08 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:08 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:08 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:08 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:08 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:08 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:08 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:08 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:08 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:08 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:08 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:08 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:08 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:08 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:08 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:08 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:09 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:09 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:09 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:09 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:09 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:10 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:10 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:10 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:10 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:10 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:10 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:10 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:10 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:11 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:11 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:11 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:11 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:11 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:11 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:11 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:11 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:12 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:12 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:12 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:12 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:12 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:12 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:12 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:12 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:13 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:13 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:13 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:13 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:13 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:13 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:13 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:13 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:13 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:13 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:13 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:14 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:14 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:14 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:14 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:14 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:14 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:14 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:14 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:15 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:15 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:15 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:15 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:15 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:15 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:15 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:15 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:16 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:16 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:16 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:16 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:16 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:16 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:16 [INFO] token.c:121 tokenRequest Token: 1 request done
+2025-12-06 19:16:17 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:17 [INFO] ticker.c:117 tickerCreate Create new ticker: {"code":-1121,"msg":"Invalid symbol."}
+2025-12-06 19:16:17 [INFO] token.c:121 tokenRequest Token: 3 request done
+2025-12-06 19:16:17 [INFO] window.c:186 windowRequest window request done
+2025-12-06 19:16:17 [INFO] window.c:164 windowDraw Window draw
+2025-12-06 19:16:17 [INFO] main.c:26 main Quit from main cycle
+2025-12-06 19:16:17 [INFO] main.c:43 main Shutdown token application
+2025-12-06 19:16:17 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:17 [INFO] token.c:82 tokenDestroy Destroy token: 1
+2025-12-06 19:16:17 [INFO] ticker.c:123 tickerDestroy Destroy ticker: 1121
+2025-12-06 19:16:17 [INFO] token.c:82 tokenDestroy Destroy token: 3

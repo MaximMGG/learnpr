@@ -2,6 +2,35 @@
 #include <cstdext/container/list.h>
 #include <stdarg.h>
 
+static void windowSetUserConfig(Window *w, str config_path) {
+  json_obj *obj = json_create_obj(null);
+  json_add_to_obj(obj, json_create_str("dbname", ""));
+  json_add_to_obj(obj, json_create_str("user_name", ""));
+  json_add_to_obj(obj, json_create_str("password", ""));
+  json_write_to_file(obj, config_path);
+  json_destroy_obj(obj);
+}
+
+static void windowCheckConfigExists(Window *w) {
+  i8 dir_access_buf[256] = {0};
+  sprintf(dir_access_buf, "/home/%s/.config/token", w->system_user);
+  if (access(dir_access_buf, F_OK) != 0) {
+    mkdir(dir_access_buf, 0777);
+  }
+  str config_access = str_create_fmt("%s/config.json", dir_access_buf);
+  if (access(config_access, F_OK) != 0) {
+    i32 fd = open(config_access, O_CREAT | O_RDWR, S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP); 
+    if (fd <= 0) {
+      log(ERROR, "Cant create file %s", config_access);
+      dealloc(config_access);
+      return;
+    }
+    close(fd);
+    windowSetUserConfig(w, config_access);
+  }
+  dealloc(config_access);
+}
+
 Window *windowCreate() {
   Window *window = make(Window);
   WINDOW *w = initscr();
@@ -9,6 +38,7 @@ Window *windowCreate() {
   window->tokens = list_create(PTR);
   window->errors = list_create(STR);
   window->system_user = getenv("USERNAME");
+  windowCheckConfigExists(window);
   raw();
   noecho();
   keypad(w, true);
@@ -156,41 +186,6 @@ void windowRequest(Window *w) {
   log(INFO, "window request done");
 }
 
-static void windowSetUserConfig(Window *w, str config_path) {
-  clear();
-  str dbname = windowGetInput(w, "Enter db name");
-  refresh();
-  str user_name = windowGetInput(w, "Enter db user name");
-  refresh();
-  str user_password = windowGetInput(w, "Enter user password");
-  refresh();
-  json_obj *obj = json_connection(config_path);
-  json_add_to_obj(obj, json_create_str("dbname", dbname));
-  json_add_to_obj(obj, json_create_str("user_name", user_name));
-  json_add_to_obj(obj, json_create_str("password", user_password));
-  json_connection_close(obj);
-}
-
-static void windowCheckConfigExists(Window *w) {
-  i8 dir_access_buf[256] = {0};
-  sprintf(dir_access_buf, "/home/%s/.config/token", w->system_user);
-  if (access(dir_access_buf, F_OK) != 0) {
-    mkdir(dir_access_buf, 0777);
-  }
-  str config_access = str_create_fmt("%s/config.json", dir_access_buf);
-  if (access(config_access, F_OK) != 0) {
-    i32 fd = open(config_access, O_CREAT | O_RDWR, S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP); 
-    if (fd <= 0) {
-      log(ERROR, "Cant create file %s", config_access);
-      dealloc(config_access);
-      return;
-    }
-    close(fd);
-  }
-  dealloc(config_access);
-}
-
-
 void windowParseConfig(Window *w) {
   log(INFO, "window parse config done");
   str config = str_create_fmt("/home/%s/.config/token/config.json", w->system_user);
@@ -203,10 +198,25 @@ void windowParseConfig(Window *w) {
   
   json_obj *dbname = json_get_obj(obj, "dbname");
   w->db_name = str_copy(dbname->val.str_val);
+  if (strlen(w->db_name) == 0) {
+    str db_name = windowGetInput(w, "Enter db name");
+    dealloc(w->db_name);
+    w->db_name = db_name;
+  }
   json_obj *user_name = json_get_obj(obj, "user_name");
   w->user_name = str_copy(user_name->val.str_val);
+  if (strlen(w->user_name) == 0) {
+    str user_name = windowGetInput(w, "Enter user name");
+    dealloc(w->user_name);
+    w->user_name = user_name;
+  }
   json_obj *password = json_get_obj(obj, "password");
   w->user_password = str_copy(password->val.str_val);
+  if (strlen(w->user_password) == 0) {
+    str user_password = windowGetInput(w, "Enter user password");
+    dealloc(w->user_password);
+    w->user_password = user_password;
+  }
   json_connection_close(obj);
   log(INFO, "window parse config done");
 }
