@@ -1,6 +1,7 @@
 
 
 
+
 proc getAlphabet(): string =
   var accm = ""
   for letter in 'a'..'z':

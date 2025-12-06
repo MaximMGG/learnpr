@@ -27,6 +27,10 @@ proc findo(s: string, c: char): Option[int] =
         inc i
 
 var res = "Nim".findo('i')
+if res.isNone():
+  echo "res is empty"
+
+  
 if res.isSome:
     echo res.get
 
