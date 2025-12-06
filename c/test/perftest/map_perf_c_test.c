@@ -30,7 +30,7 @@ int main() {
   strcpy(key, "Key000000");
   i32 val = 1;
   while(increment_key(key, 9)) {
-    map_put(m, key, &val);
+    map_put(m, str_copy(key), &val);
     val++;
   }
 
@@ -40,6 +40,7 @@ int main() {
   while(kv.key != null) {
     values++;
     printf("Key -> %s, Val -> %d\n", (str)kv.key, *(i32 *)kv.val);
+    dealloc(kv.key);
     kv = map_it_next(it);
     printf("Values - %ld\n", values);
     
