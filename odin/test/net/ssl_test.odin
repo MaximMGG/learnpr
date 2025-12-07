@@ -9,7 +9,7 @@ import "vendor:curl"
 import "core:mem"
 import "core:strings"
 import "core:slice"
-
+import "base:runtime"
 
 memory :: struct {
     response: []byte,
@@ -17,10 +17,11 @@ memory :: struct {
 }
 
 cb :: proc(data: [^]byte, size: libc.size_t, nitems: libc.size_t, outstream: rawptr) -> libc.size_t {
+    context = runtime.default_context()
     realsize: libc.size_t = nitems
     m: ^memory = cast(^memory)outstream
-    new_ptr := libc.malloc(realsize + m.size + 1)
-    m.response = slice.from_ptr(cast([^]u8)new_ptr, int(realsize + m.size + 1))
+    new_ptr := make([]byte, realsize + m.size + 1)
+    m.response = new_ptr
     mem.copy(&m.response[m.size], data, int(realsize))
     m.size += realsize
     m.response[m.size] = 0
@@ -44,6 +45,7 @@ main :: proc() {
 	curl.easy_cleanup(Curl)
     }
     s: string = strings.clone_from(chunk.response)
-    defer libc.free(raw_data(chunk.response))
+    defer delete(s)
+    defer delete(chunk.response)
     fmt.println("Response: ", s)
 }

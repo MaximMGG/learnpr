@@ -74,8 +74,15 @@ main :: proc() {
     val, json_err := json.parse_string(resp)
     a := val.(json.Object)
 
+    i: u32 = 0
     for k, v in a {
-      fmt.println("Key -> ", k, ", val -> ", v.(json.Integer))
+      switch i {
+      case 0:
+        fmt.println("Key -> ", k, ", val -> ", v.(json.String))
+      case 1..=14:
+        fmt.println("Key -> ", k, ", val -> ", v.(json.Integer))
+      }
+      i += 1
     }
 
     json.destroy_value(val)

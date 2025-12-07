@@ -28,6 +28,7 @@ create_ticker :: proc(s: string) -> ^Ticker {
     for i in 0..<len(list) {
 	switch i {
 	case 0:
+	    
 	case 1:
 	case 2:
 	 
