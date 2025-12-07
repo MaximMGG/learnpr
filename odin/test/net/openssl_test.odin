@@ -74,25 +74,12 @@ main :: proc() {
     val, json_err := json.parse_string(resp)
     a := val.(json.Object)
 
-
-    
-    for k in a {
-      switch a[k] in json.Value {
-      case json.Integer:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.Integer))
-      case json.Float:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.Float))
-      case json.Boolean:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.Boolean))
-      case json.String:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.String))
-      case json.Array:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.Array))
-      case json.Object:
-          fmt.println("Key -> ", k, ", val ", a[k].(json.Object))
-      }
+    for k, v in a {
+      fmt.println("Key -> ", k, ", val -> ", v.(json.Integer))
     }
-    
+
+    json.destroy_value(val)
+
     SSL_shutdown(ssl)
     SSL_free(ssl)
     SSL_CTX_free(ctx)
