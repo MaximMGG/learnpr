@@ -50,7 +50,8 @@ User :: struct {
     maney: u64,
     dick_size: f32,
 }
-select_query :: proc(t: $T) -> string {
+
+insert_query :: proc(t: $T) -> string {
     //TODO(maxim) its for tests, on the future need do with pointers
     if intrinsics.type_is_pointer(T) {
 	fmt.eprintln("No pointers, only struct")
@@ -145,7 +146,7 @@ read_to_struct :: proc($T: typeid) {
 read_to_struct_test :: proc(t: ^testing.T) {
     read_to_struct(User)
     u: User = {name = "Billy", age = 33, best_fiest = "Mickle", maney = 111, dick_size = 7}
-    s := select_query(u)
+    s := insert_query(u)
     defer delete(s)
     fmt.println("Select query: ", s)
 }
@@ -160,9 +161,11 @@ main :: proc() {
 		   age = rand.int32_range(0, 99), best_fiest = "Mickle", maney = rand.uint64_range(0, 1_000_000), dick_size = rand.float32_range(3.1, 19.4)}
 	/* u: User = {name = "Billy", */
 	/* 	   age = 12, best_fiest = "Mickle", maney = 12314, dick_size = 2.1} */
-	s := select_query(u)
+	s := insert_query(u)
 	defer delete(s)
 	fmt.println("Iteration: ", i, "User: ", s)
     }
     fmt.println("End")
+
+    strings.split_lines_iterator()
 }
