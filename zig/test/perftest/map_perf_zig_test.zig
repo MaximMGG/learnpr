@@ -23,27 +23,33 @@ fn increment_key(key: []u8) bool {
     return true;
 }
 
-
-
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     var buf: [4096]u8 = undefined;
     var stdout_writer = std.fs.File.stdout().writer(&buf);
     stdout = &stdout_writer.interface;
+    const def_key = try allocator.dupe(u8, "Key000000");
+    defer allocator.free(def_key);
 
-    var key = [_]u8{'K', 'e', 'y', '0','0','0','0','0','0'};
-    var val: i32 = 1;
-
-    var m = std.StringHashMap(i32).init(allocator);
-    defer m.deinit();
-
-    while(increment_key(key[0..])) {
-        try m.put(key[0..], val);
-        val += 1;
+    var map = std.StringHashMap(i32).init(allocator);
+    defer map.deinit();
+    var idx: i32 = 1;
+    while(increment_key(def_key)) {
+        const k = try allocator.alloc(u8, def_key.len);
+        @memcpy(k, def_key);
+        //std.mem.copyForwards(u8, k, def_key);
+        try map.put(k, idx);
+        idx += 1;
     }
 
-    var it = m.iterator();
-    while(it.next()) |kv| {
-        try stdout.print("Key -> {s}, Val -> {d}\n", .{kv.key_ptr.*, kv.value_ptr.*});
+    var it = map.iterator();
+
+    var count: u64 = 0;
+    while(it.next()) |entry| {
+        try stdout.print("Key -> {s}, val -> {d}\n", .{entry.key_ptr.*, entry.value_ptr.*});
+        allocator.free(entry.key_ptr.*);
+        count += 1;
     }
+    std.debug.print("Total elements: {d}\n", .{count});
+    try stdout.flush();
 }
