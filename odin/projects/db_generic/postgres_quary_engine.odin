@@ -24,7 +24,7 @@ engine_connect :: proc(db_name: string, user_name: string, user_password: string
     defer delete(con_str)
     db := new(Database)
     db.conn = PQconnectdb(cstring(raw_data(con_str)))
-    if db.conn == nil {
+    if PQstatus(db.conn) != CONNECTION_OK {
 	fmt.eprintln("PQconnect with conn string: ", con_str, " error!")
 	free(db)
     }
@@ -116,14 +116,33 @@ engine_insert_struct :: proc(db: ^Database, t: $T, mapping_name: string = "") ->
     ti := tin.base.variant.(runtime.Type_Info_Struct)
 
     args := make([]any, ti.field_count)
-    base := uintptr(&t)
+    tmp := t
+    base := uintptr(&tmp)
     for i in 0..<ti.field_count {
-	args[i] = (base + uintptr(ti.offsets[i]))^
+	switch ti.types[i].id {
+	case i8: fallthrough
+	case u8: fallthrough
+	case i16: fallthrough
+	case u16: fallthrough
+	case i32: fallthrough
+	case u32: fallthrough	
+	case i64: fallthrough
+	case u64: fallthrough
+	case int:
+	    args[i] = ((^int)(base + uintptr(ti.offsets[i])))^
+	case f32:
+	    args[i] = ((^f32)(base + uintptr(ti.offsets[i])))^
+	case f64:
+	    args[i] = ((^f64)(base + uintptr(ti.offsets[i])))^
+	case cstring: fallthrough
+	case string:
+	    args[i] = ((^string)(base + uintptr(ti.offsets[i])))^
+	}
     }
-    buf := fmt.aprintf(quary, args)
+    buf := fmt.aprintf(quary, ..args)
     defer delete(buf)
-    db.res = PQexec(db.conn, raw_data(buf))
-    if db.res != PGRES_RESULT_OK {
+    db.res = PQexec(db.conn, cstring(raw_data(buf)))
+    if PQresultStatus(db.res) != PGRES_COMMAND_OK {
 	log.error("PQexec ", buf, " error")
 	return false
     }
@@ -131,13 +150,12 @@ engine_insert_struct :: proc(db: ^Database, t: $T, mapping_name: string = "") ->
     return true
 }
 
-destroy :: proc(db: ^Database) {
-    if db.res != nil {
-	PQclear(db.res)
-    }
+engine_destroy :: proc(db: ^Database) {
     PQfinish(db.conn)
     for k, v in db.prepared_inserts {
 	delete(v)
     }
     free(db)
 }
+
+

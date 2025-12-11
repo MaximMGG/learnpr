@@ -13,6 +13,13 @@ main :: proc() {
     args[3] = 9999
     args[4] = 8
 
+    fmt_str := "INSERT INTO names (id, id2, s, id3, id4) VALUES (%d %f '%s' %d %d)" 
+
+    buf := fmt.aprintf(fmt_str, ..args)
+    defer delete(buf)
+    
     fmt.println(args)
+
+    fmt.println(buf)
     
 }

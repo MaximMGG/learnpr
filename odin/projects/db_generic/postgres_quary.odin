@@ -1,18 +1,14 @@
 package postgres_api
 
-
-
 import "core:fmt"
-import "base:builtin"
 import "base:intrinsics"
 import "base:runtime"
 import "core:testing"
 
 
 import "core:c"
-import "core:os"
 import "core:strings"
-import "core:math/rand"
+
 
 
 foreign import DB {
@@ -24,6 +20,7 @@ PGconn :: struct {}
 
 CONNECTION_OK : c.int : 0
 PGRES_TUPLES_OK : c.int : 2
+PGRES_COMMAND_OK : c.int : 1
 
 @(default_calling_convention = "c")
 foreign DB {
@@ -152,20 +149,16 @@ read_to_struct_test :: proc(t: ^testing.T) {
 }
 
 ITERATION :: 1000
-
+names :: struct {
+    id: int,
+    name: string,
+}
 
 main :: proc() {
-    fmt.println("Begin")
-    #no_bounds_check for i in 0..<ITERATION {
-	u: User = {name = "Billy",
-		   age = rand.int32_range(0, 99), best_fiest = "Mickle", maney = rand.uint64_range(0, 1_000_000), dick_size = rand.float32_range(3.1, 19.4)}
-	/* u: User = {name = "Billy", */
-	/* 	   age = 12, best_fiest = "Mickle", maney = 12314, dick_size = 2.1} */
-	s := insert_query(u)
-	defer delete(s)
-	fmt.println("Iteration: ", i, "User: ", s)
-    }
-    fmt.println("End")
-
-    strings.split_lines_iterator()
+    db := engine_connect("mydb", "maxim", "maxim")
+    defer engine_destroy(db)
+    n := names{id = 4, name = "Mickle"}
+    engine_insert_struct(db, n, "")
 }
+
+
