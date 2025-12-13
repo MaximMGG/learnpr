@@ -1,4 +1,4 @@
-package postgres_api
+package quary_engine
 
 import "core:c"
 import "core:fmt"
@@ -45,20 +45,21 @@ Database :: struct {
 
 CONNECT_STRING :: "dbname=%s user=%s password=%s"
 
-engine_connect :: proc(db_name: string, user_name: string, user_password: string) -> ^Database {
+engine_connect :: proc(db_name: string, user_name: string, user_password: string) -> (db: ^Database, ok: bool) {
 	con_str := fmt.aprintf(CONNECT_STRING, db_name, user_name, user_password)
 	defer delete(con_str)
-	db := new(Database)
+	db = new(Database)
 	db.conn = PQconnectdb(cstring(raw_data(con_str)))
 	if PQstatus(db.conn) != CONNECTION_OK {
 		fmt.eprintln("PQconnect with conn string: ", con_str, " error!")
 		free(db)
+    return nil, false
 	}
 	db.db_name = db_name
 	db.user_name = user_name
 	db.user_password = user_password
 
-	return db
+	return db, true
 }
 
 @(private)

@@ -46,6 +46,10 @@ SSL_load_error_strings :: proc() {
 
 Token :: struct {
     symbol: string,
-    index: i32
+    index: i32,
+    ticker: Ticker
 }
+
+
+
 

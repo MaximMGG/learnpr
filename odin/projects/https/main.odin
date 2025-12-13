@@ -3,10 +3,8 @@ package https_example
 import "core:fmt"
 import "core:net"
 
-
 host :: "example.com"
 port :: "443"
-
 
 main :: proc() {
     tcp, err := net.dial_tcp(host + ":" + port)
@@ -15,5 +13,4 @@ main :: proc() {
         return
     }
     defer net.close(tcp)
-
 }
