@@ -328,9 +328,9 @@ engine_select_struct_quary :: proc(
 		return []T{}
 	}
 	rows := PQntuples(db.res)
-	res := make([]T, rows)
+	res_struct := make([]T, rows)
 	for i in 0 ..< rows {
-		base := uintptr(&res[i])
+		base := uintptr(&res_struct[i])
 		for j in 0 ..< ti.field_count {
 			switch ti.types[i].id {
 			case i8:
@@ -397,7 +397,7 @@ engine_select_struct_quary :: proc(
 	}
 
 	PQclear(db.res)
-	return res
+	return res_struct
 }
 
 engine_destroy :: proc(db: ^Database) {
