@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:net"
 import "core:c"
 import "core:log"
+import "core:strings"
 
 
 HOST :: "api.binance.com"
@@ -46,10 +47,70 @@ SSL_load_error_strings :: proc() {
 
 Token :: struct {
     symbol: string,
-    index: i32,
-    ticker: Ticker
+    id: i32,
+    ticker: ^Ticker,
+    request: string,
+    response: []u8,
+    ctx: SSL_CTX,
+    ssl: SSL,
+    socket: i32,
 }
 
+create :: proc(token: string) -> (t: ^Token) {
+    t = new(Token)
+    t.symbol = strings.clone(token)
+    t.request = fmt.aprintf(REQUEST, token)
+    SSL_library_init()
+    SSL_load_error_strings()
+
+    t.ctx = SSL_CTX_new(TLS_client_method())
+    if t.ctx != nil {
+	log.error("SSL_CTX_new error")
+	free(t)
+	return nil
+    }
+
+    connection_string := strings.concatenate([]string{HOST, ":", PORT})
+
+    s, s_ok := net.dial_tcp_from_hostname_and_port_string(connection_string)
+    if s_ok != nil {
+	log.error("TCP connection error")
+	free(t)
+	return nil
+    }
+    t.socket = i32(s)
+    t.ssl = SSL_new(t.ctx)
+    SSL_set_fd(t.ssl, t.socket)
+    if SSL_connect(t.ssl) <= 0 {
+	log.error("SSL_connect error")
+	net.close(net.TCP_Socket(t.socket))
+	SSL_free(t.ssl)
+	free(t)
+	return nil
+    }
+    log.info("Create socket and made SSL connection")
+    return
+}
+
+destroy :: proc(t: ^Token) {
+    delete(t.symbol)
+    if t.response != nil {
+	delete(t.response)
+    }
+    delete(t.request)
+    if t.ticker != nil {
+	ticker_destroy(t.ticker)
+    }
+    SSL_shutdown(t.ssl)
+    SSL_free(t.ssl)
+    SSL_CTX_free(t.ctx)
+    net.close(net.TCP_Socket(t.socket))
+    free(t)
+}
+
+request :: proc(t: ^Token) {
+    
+}
 
 
 
