@@ -100,6 +100,7 @@ ticker_create :: proc(s: string) -> ^Ticker {
 
 ticker_destroy :: proc(t: ^Ticker) {
     delete(t.symbol)
+    free(t)
 }
 
 @(test)
@@ -107,11 +108,10 @@ ticker_create_test :: proc(t: ^testing.T) {
   ticker_string :=
   "{\"symbol\":\"ETHUSDT\",\"priceChange\":\"32.73000000\",\"priceChangePercent\":\"1.065\",\"weightedAvgPrice\":\"3100.04489724\",\"openPrice\":\"3072.18000000\",\"highPrice\":\"3135.68000000\",\"lowPrice\":\"3063.57000000\",\"lastPrice\":\"3104.91000000\",\"volume\":\"148079.63130000\",\"quoteVolume\":\"459053505.39733200\",\"openTime\":1765566600000,\"closeTime\":1765653050963,\"firstId\":3322769341,\"lastId\":3324954086,\"count\":2184746}"
 
-  t := ticker_create(ticker_string)
-  defer free(t)
+    t := ticker_create(ticker_string)
+    defer ticker_destroy(t)
 
   assert(t.symbol == "ETHUSDT")
   assert(t.count == 2184746)
-  ticker_destroy(t)
 }
 

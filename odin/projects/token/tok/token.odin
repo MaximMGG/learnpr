@@ -5,6 +5,7 @@ import "core:net"
 import "core:c"
 import "core:log"
 import "core:strings"
+import "core:testing"
 
 
 HOST :: "api.binance.com"
@@ -50,7 +51,7 @@ Token :: struct {
     id: i32,
     ticker: ^Ticker,
     request: string,
-    response: []u8,
+    response: string,
     ctx: SSL_CTX,
     ssl: SSL,
     socket: i32,
@@ -64,13 +65,14 @@ create :: proc(token: string) -> (t: ^Token) {
     SSL_load_error_strings()
 
     t.ctx = SSL_CTX_new(TLS_client_method())
-    if t.ctx != nil {
+    if t.ctx == nil {
 	log.error("SSL_CTX_new error")
 	free(t)
 	return nil
     }
 
     connection_string := strings.concatenate([]string{HOST, ":", PORT})
+    defer delete(connection_string)
 
     s, s_ok := net.dial_tcp_from_hostname_and_port_string(connection_string)
     if s_ok != nil {
@@ -94,7 +96,7 @@ create :: proc(token: string) -> (t: ^Token) {
 
 destroy :: proc(t: ^Token) {
     delete(t.symbol)
-    if t.response != nil {
+    if len(t.response) != 0 {
 	delete(t.response)
     }
     delete(t.request)
@@ -109,8 +111,33 @@ destroy :: proc(t: ^Token) {
 }
 
 request :: proc(t: ^Token) {
-    
+    write_bytes := SSL_write(t.ssl, cstring(raw_data(t.request)), len(t.request))
+    if write_bytes != i32(len(t.request)) {
+	log.error("SSL_write error, write bytes: ", write_bytes, "request len:", len(t.request))
+	return
+    }
+    buf := make([]u8, 4096)
+    defer delete(buf)
+    read_bytes := SSL_read(t.ssl, raw_data(buf), 4096)
+    content_index := strings.index(string(buf[0:read_bytes]), "\r\n\r\n")
+
+    if len(t.response) != 0 {
+	delete(t.response)
+    }
+    t.response = strings.clone(string(buf[content_index + 4:read_bytes]))
+    if t.ticker != nil {
+	ticker_destroy(t.ticker)
+    }
+    t.ticker = ticker_create(t.response)
+    log.info("Token:", t.symbol, "request DONE")
 }
 
 
-
+@(test)
+tocket_create_parse_test :: proc(t: ^testing.T) {
+    token := create("BTCUSDT")
+    defer destroy(token)
+    request(token)
+    assert(token.socket != 0)
+    fmt.println(token)
+}
