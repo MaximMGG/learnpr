@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 
 int main() {
   printf("Init postgresql connection test\n");
-  const char *conninfo = "dbname=testdb sslmode=disable";
+  const char *conninfo = "dbname=mydb user=maxim password=maxim";
   PGconn *conn;
   PGresult *res;
 
@@ -14,28 +14,16 @@ int main() {
   }
   printf("Connected\n");
 
-  res = PQexec(conn, "SELECT * FROM names");
+  res = PQexec(conn, "SELECT id FROM token_relation WHERE symbol = 'BTCUSDT'");
   if (PQresultStatus(res) != PGRES_TUPLES_OK) {
     fprintf(stderr, "Quary failed: %s\n", PQerrorMessage(conn));
     return 1;
   }
-
   int rows = PQntuples(res);
-  int cols = PQnfields(res);
+	int cols = PQnfields(res);
+  printf("Rows: %d, Cols: %d\n", rows, cols);
+	printf("Res: %s\n", PQgetvalue(res, 0, 0));
 
-  for(int i = 0; i < cols; i++) {
-    printf("%s\t", PQfname(res, i));
-  }
-
-  printf("\n\n");
-  
-  for(int i = 0; i < rows; i++) {
-    for(int j = 0; j < cols; j++) {
-      printf("%s\t", PQgetvalue(res, i, j));
-    }
-    printf("\n");
-  }
-  
   PQclear(res);
   PQfinish(conn);
 

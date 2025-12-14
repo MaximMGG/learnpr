@@ -1,5 +1,7 @@
 package postgres_api
 
+import "core:testing"
+
 import "core:c"
 import "core:fmt"
 import "core:log"
@@ -31,6 +33,7 @@ foreign DB {
 	PQerrorMessage :: proc(conn: ^PGconn) -> cstring ---
 	PQprepare :: proc(conn: ^PGconn, stmtName: cstring, query: cstring, nParams: c.int, paramTypes: rawptr) -> ^PGresult ---
 	PQexecParams :: proc(conn: ^PGconn, command: cstring, nParams: c.int, paramTypes: rawptr, paramValues: []cstring, paramLength: ^c.int, paramFormats: ^c.int, resultFormat: c.int) -> PGresult ---
+	PQnfields :: proc(res: ^PGresult) -> c.int ---
 }
 
 Database :: struct {
@@ -400,6 +403,47 @@ engine_select_struct_quary :: proc(
 	return res_struct
 }
 
+
+engine_exec_quary_without_result :: proc(db: ^Database, quary: string) -> bool {
+	db.res = PQexec(db.conn, cstring(raw_data(quary)))
+	defer PQclear(db.res)
+	if PQresultStatus(db.res) != PGRES_COMMAND_OK {
+		log.error("PQexec:", quary, "error")
+		return false
+	}
+	return true
+}
+
+engine_exec_quary_with_result :: proc(db: ^Database, quary: string) -> ([][]string, bool) {
+	db.res = PQexec(db.conn, cstring(raw_data(quary)))
+	defer PQclear(db.res)
+	if PQresultStatus(db.res) != PGRES_TUPLES_OK {
+		log.error("PQexec:", quary, "error")
+		return [][]string{}, false
+	}
+	rows := PQntuples(db.res)
+	cols := PQnfields(db.res)
+	res := make([][]string, rows)
+	for i in 0 ..< rows {
+		res[i] = make([]string, cols)
+	}
+
+	for i in 0 ..< rows {
+		for j in 0 ..< cols {
+			res[i][j] = string(PQgetvalue(db.res, i, j))
+		}
+	}
+
+	return res, true
+}
+
+engine_clear_result :: proc(res: [][]string) {
+	for i in 0 ..< len(res) {
+		delete(res[i])
+	}
+	delete(res)
+}
+
 engine_destroy :: proc(db: ^Database) {
 	PQfinish(db.conn)
 	for k, v in db.prepared_inserts {
@@ -409,4 +453,15 @@ engine_destroy :: proc(db: ^Database) {
 		delete(v)
 	}
 	free(db)
+}
+
+@(test)
+select_non_exists :: proc(t: ^testing.T) {
+	db := engine_connect("mydb", "maxim", "maxim")
+	res, res_ok := engine_exec_quary_with_result(
+		db,
+		"SELECT id FROM token_relation WHERE symbol = 'BTCUSDT'",
+	)
+	defer engine_clear_result(res)
+	fmt.println(res)
 }
