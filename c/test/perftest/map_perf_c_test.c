@@ -35,16 +35,15 @@ int main() {
   }
 
   iterator *it = map_iterator(m);
-  KV kv = map_it_next(it);
   i64 values = 0;
-  while(kv.key != null) {
+  while(map_it_next(it)) {
     values++;
-//    printf("Key -> %s, Val -> %d\n", (str)kv.key, *(i32 *)kv.val);
-    dealloc(kv.key);
-    kv = map_it_next(it);
+    // printf("Key -> %s, Val -> %d\n", MAP_IKEY(str, it), MAP_IVAL(i32, it));
+    dealloc(it->key);
   }
   printf("Values - %ld\n", values);
 
+  map_it_destroy(it);
   dealloc(key);
   map_destroy(m);
   return 0;
