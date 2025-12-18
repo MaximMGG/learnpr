@@ -11,10 +11,10 @@ main :: proc() {
     m: map[i32]u64
 
     for count != 0 {
-	m[k] = val
-	k += 1
-	val += 123
-	count -= 1
+      m[k] = val
+      k += 1
+      val += 123
+      count -= 1
     }
 
     total_sum: u64

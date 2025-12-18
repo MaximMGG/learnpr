@@ -38,7 +38,7 @@ int main() {
   std::cout << "Finish inserting into map\n";
   
   for(auto i = m.begin(); i != m.end(); i++) {
-    std::cout << "Key -> " << i->first << ", Val -> " << i->second << '\n';
+//    std::cout << "Key -> " << i->first << ", Val -> " << i->second << '\n';
   }
 
   std::cout  << "Map size is: " << m.size() << '\n';

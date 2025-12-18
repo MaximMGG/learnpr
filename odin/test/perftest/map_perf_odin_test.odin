@@ -36,9 +36,10 @@ main :: proc() {
     val += 1
   }
 
-  for k, v in m {
-    fmt.println("Key -> ", k, ", Val -> ", v)
+  #no_bounds_check for k, v in m {
+    //fmt.println("Key -> ", k, ", Val -> ", v)
     delete(k)
   }
+
   fmt.println("Total elemens: ", len(m))
 }

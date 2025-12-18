@@ -39,12 +39,11 @@ int main() {
   i64 values = 0;
   while(kv.key != null) {
     values++;
-    printf("Key -> %s, Val -> %d\n", (str)kv.key, *(i32 *)kv.val);
+//    printf("Key -> %s, Val -> %d\n", (str)kv.key, *(i32 *)kv.val);
     dealloc(kv.key);
     kv = map_it_next(it);
-    printf("Values - %ld\n", values);
-    
   }
+  printf("Values - %ld\n", values);
 
   dealloc(key);
   map_destroy(m);
