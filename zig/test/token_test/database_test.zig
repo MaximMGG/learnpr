@@ -12,9 +12,9 @@ const Database = struct {
     allocator: std.mem.Allocator,
 };
 
-fn db_connect(allocator: std.mem.Allocator, dbname: []const u8, user_name: []const u8, user_password: []const u8)  !?*Database {
+fn db_connect(allocator: std.mem.Allocator, dbname: []const u8, user_name: []const u8, user_password: []const u8) !?*Database {
     const dbase = try allocator.create(Database);
-    const connect_string = try std.fmt.allocPrint(allocator, "dbname={s} user={s} password={s}", .{dbname, user_name, user_password});
+    const connect_string = try std.fmt.allocPrint(allocator, "dbname={s} user={s} password={s}", .{ dbname, user_name, user_password });
     std.debug.print("{s}\n", .{connect_string});
     defer allocator.free(connect_string);
     dbase.conn = db.PQconnectdb(connect_string.ptr) orelse return null;
@@ -31,6 +31,25 @@ fn db_connect(allocator: std.mem.Allocator, dbname: []const u8, user_name: []con
     return dbase;
 }
 
+fn db_select(database: *Database, query: []u8) !?[][][]u8 {
+    database.res = db.PQexec(database.conn, query.ptr).?;
+    if (db.PQresultStatus(database.res) != db.PGRES_TUPLES_OK) {
+        std.log.err("PQexec with query {s} error -> {s}\n", .{query, db.PQerrorMessage(database.conn)});
+        return null;
+    }
+    const rows = db.PQntuples(database.res);
+    const cols = db.PQnfields(database.res);
+    const res = try database.allocator.alloc([][]u8, @intCast(rows));
+
+    for(res) |row| {
+        row = try database.allocator.alloc([]u8, @intCast(cols));
+        for(row) |c| {
+            c = try database.allocator.dupe(u8, db.PQgetvalue(database.conn));
+        }
+    }
+    return res;
+}
+
 fn db_disconect(dbase: *Database) void {
     dbase.allocator.free(dbase.dbname);
     dbase.allocator.free(dbase.user_name);
@@ -38,7 +57,6 @@ fn db_disconect(dbase: *Database) void {
     db.PQfinish(dbase.conn);
     dbase.allocator.destroy(dbase);
 }
-
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -52,4 +70,8 @@ test "connect_to_db" {
     const conn = try db_connect(allocator, "mydb", "maxim", "maxim") orelse return;
     defer db_disconect(conn);
     try std.testing.expectEqualStrings(conn.user_name, "maxim");
+
+    const res = try db_select(conn, "select * from token_relation");
+    _ = res;
+
 }

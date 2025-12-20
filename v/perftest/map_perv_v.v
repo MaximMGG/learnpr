@@ -25,8 +25,7 @@ fn main() {
 
 	mut key_buf := key.bytes()
 	for increase_key(mut key_buf) {
-		k := key_buf.bytestr()
-		m[string(k)] = val
+		m[key] = val
 		val++
 	}
 
