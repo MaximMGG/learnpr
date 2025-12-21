@@ -1,8 +1,7 @@
 const std = @import("std");
 const List = @import("list.zig");
 
-
-pub fn main() !void{
+pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
