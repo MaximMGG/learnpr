@@ -12,6 +12,7 @@ fn int main(String[] args) {
   bin_data();
   statement_main();
   functions_main();
+  io::printf("Hello world %s", "finally\n");
 
   return 0; 
 }
