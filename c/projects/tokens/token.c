@@ -170,13 +170,13 @@ void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime) 
   i64 total_read = 0;
   i32 read_bytes;
   i8 buf[4096] = {0};
-  str_buf *hystoric = str_buf_create();
+  strbuf *hystoric = strbuf_create();
   read_bytes = SSL_read(t->ssl, buf, 4096);
   str content_length = strstr(buf, "Content-Length:");
   i32 need_to_read = tokenLoadHystricalGetContentLength(content_length);
 
   while(read_bytes > 0) {
-    str_buf_append(hystoric, buf);
+    strbuf_append(hystoric, buf);
     memset(buf, 0, 4096);
     total_read += read_bytes;
     if (total_read >= need_to_read) {
@@ -186,10 +186,10 @@ void tokenLoadHystricalData(Token *t, struct tm *startTime, struct tm *endTime) 
   }
 
   log(INFO, "Total read %ld bytes", total_read);
-  str tmp_str = str_buf_to_string(hystoric);
+  str tmp_str = strbuf_to_string(hystoric);
   str tmp = strstr(tmp_str, "\r\n\r\n");
   tmp += 4;
   tokenParseHystoricalData(t, tmp);
   dealloc(tmp_str);
-  str_buf_destroy(hystoric);
+  strbuf_destroy(hystoric);
 }

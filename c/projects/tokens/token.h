@@ -17,7 +17,7 @@
 
 #define HOST "api.binance.com"
 #define PORT "443"
-#define REQUEST "GET /api/v3/ticker?symbol=%s HTTP/1.1\r\nHost: api.binance.com\r\nConection: open\r\n\r\n"
+#define REQUEST "GET /api/v3/ticker?symbol=%s HTTP/1.1\r\nHost: api.binance.com\r\nConnection: keep-alive\r\n\r\n"
 #define REQUEST_HYSTORICAL "GET /api/v3/klines?symbol=%s&interval=5m&startTime=%ld&endTime=%ld HTTP/1.1\r\nHost: api.binance.com\r\nConection: open\r\n\r\n"
 
 #define EXAMPLE_FROM_HYSTORIC_DATA "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=5m&startTime=1764012189000&endTime=1764184989000"
