@@ -9,6 +9,14 @@ const Person = struct {
 
 fn struct_reflect(comptime t: type, val: anytype) void {
     const fields = @typeInfo(t).@"struct".fields;
+
+    const type_name = @typeName(t);
+    const dot_index = std.mem.lastIndexOf(u8, type_name, ".").?;
+    std.debug.print("Name of type: {s}\n", .{type_name[dot_index + 1..type_name.len]});
+
+
+
+    
     inline for(fields) |f| {
         std.debug.print("{s}\n", .{f.name});
         const n = @field(val, f.name);
