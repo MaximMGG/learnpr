@@ -1,8 +1,9 @@
 const std = @import("std");
 const db = @cImport(@cInclude("libpq-fe.h"));
+const testing = std.testing;
 
 const Database = struct {
-    conn: ?*db.PGconn,
+    conn: *db.PGconn,
     res: *db.PGresult,
 
     dbname: []const u8,
@@ -14,14 +15,10 @@ const Database = struct {
 
 fn db_connect(allocator: std.mem.Allocator, dbname: []const u8, user_name: []const u8, user_password: []const u8) !?*Database {
     const dbase = try allocator.create(Database);
-    const connect_string = try std.fmt.allocPrint(allocator, "dbname={s} user={s} password={s}\x00", .{ dbname, user_name, user_password });
+    const connect_string = try std.fmt.allocPrint(allocator, "dbname={s} user={s} password={s}", .{ dbname, user_name, user_password });
     std.debug.print("{s}\n", .{connect_string});
     defer allocator.free(connect_string);
-    dbase.conn = db.PQconnectdb(connect_string.ptr);
-    if (dbase.conn == null) {
-        std.debug.print("connect is null\n", .{});
-        return null;
-    }
+    dbase.conn = db.PQconnectdb(@ptrCast(connect_string.ptr)).?;
     if (db.PQstatus(dbase.conn) != db.CONNECTION_OK) {
         std.log.err("PQconnectdb error with conn_string: {s}\n", .{connect_string});
         return null;
@@ -77,7 +74,14 @@ pub fn main() !void {
     }
 }
 
-test "connect_to_db" {
-    const conn = db.PQconnectdb("dbname=mydb").?;
-    db.PQfinish(conn);
+
+test "insert into db test" {
+    const allocator = testing.allocator;
+    var dbase = (try db_connect(allocator, "mydb", "maxim", "maxim")).?;
+    db_disconect(dbase);
+    dbase.res = db.PQexec(dbase.conn, "INSET INTO test_table(id, value, price) VALUES(11, 123, 777,222)").?;
+    if (db.PQresultStatus(dbase.res) != db.PGRES_COMMAND_OK) {
+        const err = std.mem.span(db.PQerrorMessage(dbase.conn));
+        std.debug.print("Error: {s}\n", .{err});
+    }
 }
