@@ -14,15 +14,10 @@ int main() {
   }
   printf("Connected\n");
 
-  res = PQexec(conn, "SELECT id FROM token_relation WHERE symbol = 'BTCUSDT'");
-  if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-    fprintf(stderr, "Quary failed: %s\n", PQerrorMessage(conn));
-    return 1;
+  res = PQexec(conn, "INSERT INTO test_table(id, value, price) VALUES(11, 777, 1313.777)");
+  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    fprintf(stderr, "ERROR: %s\n", PQerrorMessage(conn));
   }
-  int rows = PQntuples(res);
-	int cols = PQnfields(res);
-  printf("Rows: %d, Cols: %d\n", rows, cols);
-	printf("Res: %s\n", PQgetvalue(res, 0, 0));
 
   PQclear(res);
   PQfinish(conn);
