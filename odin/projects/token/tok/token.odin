@@ -97,11 +97,11 @@ create :: proc(token: string) -> (t: ^Token) {
 destroy :: proc(t: ^Token) {
     delete(t.symbol)
     if len(t.response) != 0 {
-	delete(t.response)
+    	delete(t.response)
     }
     delete(t.request)
     if t.ticker != nil {
-	ticker_destroy(t.ticker)
+    	ticker_destroy(t.ticker)
     }
     SSL_shutdown(t.ssl)
     SSL_free(t.ssl)
@@ -113,8 +113,8 @@ destroy :: proc(t: ^Token) {
 request :: proc(t: ^Token) {
     write_bytes := SSL_write(t.ssl, cstring(raw_data(t.request)), len(t.request))
     if write_bytes != i32(len(t.request)) {
-	log.error("SSL_write error, write bytes: ", write_bytes, "request len:", len(t.request))
-	return
+    	log.error("SSL_write error, write bytes: ", write_bytes, "request len:", len(t.request))
+    	return
     }
     buf := make([]u8, 4096)
     defer delete(buf)
@@ -122,11 +122,11 @@ request :: proc(t: ^Token) {
     content_index := strings.index(string(buf[0:read_bytes]), "\r\n\r\n")
 
     if len(t.response) != 0 {
-	delete(t.response)
+    	delete(t.response)
     }
     t.response = strings.clone(string(buf[content_index + 4:read_bytes]))
     if t.ticker != nil {
-	ticker_destroy(t.ticker)
+    	ticker_destroy(t.ticker)
     }
     t.ticker = ticker_create(t.response)
     log.info("Token:", t.symbol, "request DONE")
