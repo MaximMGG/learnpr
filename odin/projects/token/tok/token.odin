@@ -66,9 +66,9 @@ create :: proc(token: string) -> (t: ^Token) {
 
     t.ctx = SSL_CTX_new(TLS_client_method())
     if t.ctx == nil {
-	log.error("SSL_CTX_new error")
-	free(t)
-	return nil
+    	log.error("SSL_CTX_new error")
+    	free(t)
+    	return nil
     }
 
     connection_string := strings.concatenate([]string{HOST, ":", PORT})
@@ -76,19 +76,19 @@ create :: proc(token: string) -> (t: ^Token) {
 
     s, s_ok := net.dial_tcp_from_hostname_and_port_string(connection_string)
     if s_ok != nil {
-	log.error("TCP connection error")
-	free(t)
-	return nil
+    	log.error("TCP connection error")
+    	free(t)
+    	return nil
     }
     t.socket = i32(s)
     t.ssl = SSL_new(t.ctx)
     SSL_set_fd(t.ssl, t.socket)
     if SSL_connect(t.ssl) <= 0 {
-	log.error("SSL_connect error")
-	net.close(net.TCP_Socket(t.socket))
-	SSL_free(t.ssl)
-	free(t)
-	return nil
+    	log.error("SSL_connect error")
+    	net.close(net.TCP_Socket(t.socket))
+    	SSL_free(t.ssl)
+    	free(t)
+    	return nil
     }
     log.info("Create socket and made SSL connection")
     return

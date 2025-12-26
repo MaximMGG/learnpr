@@ -2,6 +2,7 @@ package window
 
 import "core:c"
 import "core:c/libc"
+import token "../tok"
 
 foreign import ncurses {
   "system:ncurses",
@@ -10,6 +11,11 @@ foreign import ncurses {
 WINDOW :: struct {}
 
 stdscr: ^WINDOW 
+
+Window :: struct {
+  tokens: [dynamic]^token.Token
+}
+
 
 @(default_calling_convention = "c")
 foreign ncurses {
@@ -47,6 +53,7 @@ initncurses :: proc() -> ^WINDOW {
   return stdscr
 }
 
+
 clear :: #force_inline proc() -> c.int {
   return wclear(stdscr)
 }
@@ -56,36 +63,60 @@ refresh :: #force_inline proc() -> c.int {
 }
 
 FMT_HEADER : cstring : "%-20s %-20s %-20s %-20s"
-FMT_FMT : cstring : "%-20s %-20lf %-20ld %-20s"
+FMT_FMT : cstring : "%-20s %-20lf %-20lf %-20s"
 
-run :: proc(w: ^WINDOW) {
+run :: proc(w: ^Window) {
   ch: c.int
   i: c.int = 1
   j: c.int = 1
   for ch != 'q' {
+
     i = 1
     j = 1
+
+    for tok in w.tokens {
+      token.request(tok)
+    }
+    
     clear()
-    mvprintw(i, j, FMT_HEADER, cstring("TOKEN"), cstring("PRICE"),
-      cstring("VOLUME"), cstring("-TEST-"))
+    mvprintw(i, j, FMT_HEADER, cstring("TOKEN"), cstring("PRICE"), cstring("VOLUME"), cstring("-TEST-"))
     i += 1
-    mvprintw(i, j, FMT_FMT, cstring("BTCUSDT"), 112.1, 191919, cstring("-test-"))
-    refresh()
+    for tok in w.tokens {
+      mvprintw(i, j, FMT_FMT,  cstring(raw_data(tok.symbol)), tok.ticker.lastPrice, tok.ticker.volume, cstring("-test-"))
+      i += 1
+      refresh()
+    }
     ch = getch()
   }
 }
 
+create_window :: proc() -> ^Window {
+  w := new(Window)
+  return w
+}
+
+destroy_window :: proc(win: ^Window) {
+  for tok in win.tokens {
+    token.destroy(tok)
+  }
+  delete(win.tokens)
+  free(win)
+}
 
 main :: proc() {
-  
-  w := initscr()
+  w := initncurses()
   raw()
   noecho()
   keypad(w, true)
-  refresh()
   timeout(50)
 
-  run(w)
+  win := create_window()
+  append(&win.tokens, token.create("BTCUSDT"))
+  append(&win.tokens, token.create("LTCUSDT"))
+
+  run(win)
+
+  destroy_window(win)
 
   endwin()
 }
