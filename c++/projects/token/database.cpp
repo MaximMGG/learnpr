@@ -1,4 +1,5 @@
 #include "database.hpp"
+#include <iostream>
 
 
 #define DB_CONN_FMT "dbname=%s user=%s password=%s"
@@ -42,7 +43,7 @@
 
 
 
-Database::Database(char *dbname, char *user, char *password) {
+Database::Database(const char *dbname, const char *user, const char *password) {
   char buf[256] = {0};
   sprintf(buf, DB_CONN_FMT, dbname, user, password);
   this->conn = PQconnectdb(buf);
@@ -90,20 +91,146 @@ bool Database::insertToken(Token *t) {
   return true;
 }
 
-int Database::setTokenRelation(std::string symsol) {
-  return -1;
+int Database::setTokenRelation(std::string &symbol) {
+  if (getTokenRelation(symbol) != -1) {
+    std::cout << "Token relation " << symbol << "exists\n";
+    return -1;
+  }
+  i8 buf[512]{0};
+  sprintf(buf, DB_INSERT_TOKEN_RELATION, symbol.c_str());
+  this->res = PQexec(this->conn, buf);
+  if (PQresultStatus(this->res) != PGRES_COMMAND_OK) {
+    std::cerr << "PQexec: " << buf << "Error\n";
+    PQclear(this->res);
+    return -1;
+  }
+  PQclear(this->res);
+  memset(buf, 0, 512);
+
+  sprintf(buf, DB_SELECT_TOKEN_RELATION_ID_WHERE, symbol.c_str());
+  this->res = PQexec(this->conn, buf);
+  if (PQresultStatus(this->res) != PGRES_TUPLES_OK) {
+    std::cerr << "PQexec: " << buf << "Error\n";
+    PQclear(this->res);
+    return -1;
+  }
+  
+  i32 rows = PQntuples(this->res);
+  if (rows == 0) {
+    std::cerr << "Token relation: " << symbol << "doesn't exists\n";
+    return -1;
+  }
+
+  i32 id = atol(PQgetvalue(this->res, 0, 0));
+  PQclear(this->res);
+
+  return id;
 } 
-std::vector<std::vector<std::string>> Database::getTokenRelations() {
+
+std::vector<std::vector<std::string>> *Database::getTokenRelations() {
+  i8 buf[512]{0};
+  sprintf(buf, DB_SELECT_TOKEN_RELATION);
+  this->res = PQexec(this->conn, buf);
+  if (PQresultStatus(this->res) != PGRES_TUPLES_OK) {
+    std::cerr << "PQexec: " << buf << "Error\n";
+    return NULL;
+  }
+  i32 rows = PQntuples(this->res);
+  if (rows == 0) {
+    std::cout << "No tuples evelable\n";
+    PQclear(this->res);
+    return NULL;
+  }
+  auto res = new std::vector<std::vector<std::string>>();
+  
+  for(i32 i = 0; i < rows; i++) {
+    res->push_back({});
+  }
+
+  i32 cols = PQnfields(this->res);
+
+  for(i32 i = 0; i < rows; i++) {
+    for(i32 j = 0; j < cols; j++) {
+      (*res)[i].push_back(PQgetvalue(this->res, i, j));
+    }
+  }
+  PQclear(this->res);
+
+  return res;
 } 
-int Database::getTokenRelation(std::string symbol) {
+
+int Database::getTokenRelation(std::string &symbol) {
+  i8 buf[512]{0};
+
+  sprintf(buf, DB_SELECT_TOKEN_RELATION_ID_WHERE, symbol.c_str());
+  this->res = PQexec(this->conn, buf);
+  if (PQresultStatus(this->res) != PGRES_TUPLES_OK) {
+    std::cerr << "PQexec: " << buf << "Error\n";
+    PQclear(this->res);
+    return -1;
+  }
+  
+  i32 rows = PQntuples(this->res);
+  if (rows == 0) {
+    std::cerr << "Token relation: " << symbol << "doesn't exists\n";
+    return -1;
+  }
+
+  i32 id = atol(PQgetvalue(this->res, 0, 0));
+  PQclear(this->res);
+
+  return id;
 } 
-void Database::deleteTokenRelation(std::string symbol) {
+
+void Database::deleteTokenRelation(std::string &symbol) {
+  i8 buf[512]{0};
+  sprintf(buf, DB_DELETE_TOKEN_RELATION, symbol.c_str());
+  this->res = PQexec(this->conn, buf);
+  if (PQresultStatus(this->res) != PGRES_COMMAND_OK) {
+    std::cerr << "PQexec: " << buf << "Error\n";
+  }
+  PQclear(this->res);
 } 
-void Database::clearResult(std::vector<std::vector<std::string>> res) {
+
+void Database::clearResult(std::vector<std::vector<std::string>> *res) {
+  delete res;
 } 
-bool Database::query(std::string query) {
+
+bool Database::query(std::string &query) {
+  this->res = PQexec(this->conn, query.c_str());
+  if (PQresultStatus(this->res) != PGRES_COMMAND_OK) {
+    std::cerr << "Pexec: " << query << "Error\n";
+    PQclear(this->res);
+    return false;
+  }
+  PQclear(this->res);
+  return true;
 }  
-std::vector<std::vector<std::string>> Database::queryWithResult(std::string query) {
+
+std::vector<std::vector<std::string>> *Database::queryWithResult(std::string &query) {
+  this->res = PQexec(this->conn, query.c_str());
+  if (PQresultStatus(this->res) != PGRES_TUPLES_OK) {
+    std::cerr << "PQexe: " << query << "Error\n";
+    return nullptr;
+  }
+  return getResult();
 }  
-std::vector<std::vector<std::string>> Database::getResult() {
+
+std::vector<std::vector<std::string>> *Database::getResult() {
+  i32 rows = PQntuples(this->res);
+  if (rows == 0) {
+    std::cout << "No tuples evelable\n";
+    PQclear(this->res);
+    return NULL;
+  }
+  auto res = new std::vector<std::vector<std::string>>;
+  i32 cols = PQnfields(this->res);
+
+  for(i32 i = 0; i < rows; i++) {
+    for(i32 j = 0; j < cols; j++) {
+      res[i][j].push_back(PQgetvalue(this->res, i, j));
+    }
+  }
+  PQclear(this->res);
+  return res;
 }  
