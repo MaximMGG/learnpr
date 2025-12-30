@@ -12,6 +12,7 @@ pub fn main() !void {
     _ = c.raw();
     _ = c.noecho();
     _ = c.keypad(window, true);
+    
 
     var ch: c_int = 0;
     while (@as(u8, @intCast(ch)) != 'q') {

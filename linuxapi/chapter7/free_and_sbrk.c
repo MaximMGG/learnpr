@@ -7,7 +7,7 @@
 #define MAX_ALLOCS 1000000
 
 int main(int argc, char **argv) {
-  setenv("MALLOC_TRACE", "/home/maxim/learnpr/linuxapi/chapter7/malloc_trace.txt", 1);
+  //setenv("MALLOC_TRACE", "/home/maxim/learnpr/linuxapi/chapter7/malloc_trace.txt", 1);
   mtrace();
 
   char *ptr[MAX_ALLOCS];
@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
   }
   printf("After free(), program brek is:    %10p\n", sbrk(0));
 
-  muntrace();
-  exit(EXIT_SUCCESS);
+  // muntrace();
+  //exit(EXIT_SUCCESS);
+  return 0;
 }
