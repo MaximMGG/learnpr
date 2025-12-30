@@ -42,7 +42,55 @@ SSL_load_error_strings :: proc() {
 	OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, nil)
 }
 
+foreign import ncurses {
+	"system:ncurses",
+}
 
+WINDOW :: struct {}
+
+@(default_calling_convention = "c")
+foreign ncurses {
+  COLS: c.int
+  LINES: c.int
+  stdscr: ^WINDOW
+  initscr :: proc() -> ^WINDOW ---
+  raw :: proc() -> c.int ---
+  cbreak :: proc() -> c.int ---
+  timeout :: proc(delay: c.int) ---
+  noecho :: proc() -> c.int ---
+  keypad :: proc(widnow: ^WINDOW, param: c.bool) -> c.int ---
+  // refresh :: proc() -> c.int ---
+  wrefresh :: proc(win: ^WINDOW) -> c.int ---
+  mvwprintw :: proc(windwo: ^WINDOW, y: c.int, x: c.int, fmt: cstring, #c_vararg args: ..any) -> c.int ---
+  mvprintw :: proc(y: c.int, x: c.int, fmt: cstring, #c_vararg args: ..any) -> c.int ---
+  box :: proc(win: ^WINDOW, verch: c.char, horch: c.char) -> c.int ---
+  border :: proc(ls, rc, ts, bs, tl, tr, bl, br: c.char) -> c.int ---
+  wborder :: proc(win: ^WINDOW, ls, rc, ts, bs, tl, tr, bl, br: c.char) -> c.int ---
+  move :: proc(y, x: c.int) -> c.int ---
+  wmove :: proc(win: ^WINDOW, y, x: c.int) -> c.int ---
+  addch :: proc(ch: c.char) -> c.int ---
+  waddch :: proc(win: ^WINDOW, ch: c.char) -> c.int ---
+  mvwaddch :: proc(win: ^WINDOW, y, x: c.int, ch: c.char) -> c.int ---
+  mvaddch :: proc(y, x: c.int, ch: c.char) -> c.int ---
+  newwin :: proc(nlines, ncols, begin_y, begin_x: c.int) -> ^WINDOW ---
+  delwin :: proc(win: ^WINDOW) -> c.int ---
+  endwin :: proc() -> c.int ---
+  wgetch :: proc(win: ^WINDOW) -> c.int ---
+  // clear :: proc() -> c.int ---
+  wclear :: proc(win: ^WINDOW) -> c.int ---
+}
+
+clear :: #force_inline proc() -> c.int {
+	return wclear(stdscr)
+}
+
+refresh :: #force_inline proc() -> c.int {
+  return wrefresh(stdscr)
+}
+
+getch :: #force_inline proc() -> c.int {
+		return wgetch(stdscr)
+}
 
 Ticker :: struct {
     id: i32,
@@ -181,6 +229,23 @@ ssl_deinit :: proc() {
   net.close(net.TCP_Socket(socket))
 }
 
+DRAW_HEADER: cstring : "%-20s %-20s %-20s %-20s"
+DRAW_FMT: cstring : "%-20s %-20lf %-20lf %-20s"
+
+ncurses_init :: proc() {
+  initscr()
+  raw()
+  noecho()
+  keypad(stdscr, true)
+  timeout(50)
+  refresh()
+}
+
+ncurses_deinit :: proc() {
+  endwin()
+}
+
+
 main :: proc() {
 
   when ODIN_DEBUG {
@@ -193,12 +258,16 @@ main :: proc() {
   ssl_init()
   defer ssl_deinit()
 
+  ncurses_init()
+  defer ncurses_deinit()
+
   request := "GET /api/v3/ticker?symbol=BTCUSDT HTTP/1.1\r\nHost: api.binance.com\r\nConnection: keep-alive\r\n\r\n"
   response := [4096]u8{0..<4096 = 0}
 
-  iter := 10
+  ch: c.int = 0
 
-  for iter > 0 {
+  for ch != 'q' {
+    clear()
     write_bytes := SSL_write(ssl, cstring(raw_data(request)), len(request))
     if write_bytes <= 0 {
       fmt.eprintln("SSL_write error")
@@ -216,9 +285,16 @@ main :: proc() {
 
     t := ticker_create(transmute(string)response[pattern + 4:read_bytes], 1)
     defer ticker_destroy(t)
-    fmt.println(t)
 
-    iter -= 1
+    i: c.int = 1
+    j: c.int = 1
+
+    mvprintw(i, j, DRAW_HEADER, cstring("SYMBOL"), cstring("PRICE"), cstring("VOLUME"), cstring("TEST"))
+    i += 1
+    mvprintw(i, j, DRAW_FMT, cstring("BTCUSDT"), t.lastPrice, t.volume, cstring("-test-"))
+
+    refresh()
+    ch = getch()
   }
 
   when ODIN_DEBUG {
