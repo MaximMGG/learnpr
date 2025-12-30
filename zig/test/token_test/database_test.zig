@@ -6,8 +6,6 @@ const Database = struct {
     conn: *db.PGconn,
     res: *db.PGresult,
 
-
-
     fn connect(allocator: std.mem.Allocator, dbname: []const u8, user: []const u8, password: []const u8) !*Database {
         const dbase = try allocator.create(Database);
         const connstr = try std.fmt.allocPrint(allocator, "dbname={s} user={s} password={s}", .{dbname, user, password});
