@@ -59,7 +59,6 @@ foreign ncurses {
   timeout :: proc(delay: c.int) ---
   noecho :: proc() -> c.int ---
   keypad :: proc(widnow: ^WINDOW, param: c.bool) -> c.int ---
-  // refresh :: proc() -> c.int ---
   wrefresh :: proc(win: ^WINDOW) -> c.int ---
   mvwprintw :: proc(windwo: ^WINDOW, y: c.int, x: c.int, fmt: cstring, #c_vararg args: ..any) -> c.int ---
   mvprintw :: proc(y: c.int, x: c.int, fmt: cstring, #c_vararg args: ..any) -> c.int ---
@@ -76,7 +75,6 @@ foreign ncurses {
   delwin :: proc(win: ^WINDOW) -> c.int ---
   endwin :: proc() -> c.int ---
   wgetch :: proc(win: ^WINDOW) -> c.int ---
-  // clear :: proc() -> c.int ---
   wclear :: proc(win: ^WINDOW) -> c.int ---
 }
 
