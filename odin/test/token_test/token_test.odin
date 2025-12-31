@@ -1,6 +1,7 @@
 package odin_test
 
 
+import "core:testing"
 import "core:fmt"
 import "core:strings"
 import "core:strconv"
@@ -290,6 +291,7 @@ main :: proc() {
     mvprintw(i, j, DRAW_HEADER, cstring("SYMBOL"), cstring("PRICE"), cstring("VOLUME"), cstring("TEST"))
     i += 1
     mvprintw(i, j, DRAW_FMT, cstring("BTCUSDT"), t.lastPrice, t.volume, cstring("-test-"))
+    mvprintw(10, 10, "COLS: %d LINES %d", COLS, LINES)
 
     refresh()
     ch = getch()
@@ -302,3 +304,9 @@ main :: proc() {
   }
 
 }
+
+@(test)
+print_cols_and_lines :: proc(t: ^testing.T) {
+  fmt.println(COLS, LINES)
+}
+
