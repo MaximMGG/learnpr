@@ -13,6 +13,7 @@ int main(int argc, char **argv) {
   char *ptr[MAX_ALLOCS];
   int freeStep, freeMin, freeMax, blockSize, numAllocs, j;
 
+
   if (argc < 3 || strcmp(argv[1], "--help") == 0) {
     fprintf(stderr, "%s num-allocs block-size [step [min [max]]]\n", argv[0]);
     return 0;
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
   }
   printf("After free(), program brek is:    %10p\n", sbrk(0));
 
-  // muntrace();
-  //exit(EXIT_SUCCESS);
-  return 0;
+  muntrace();
+  exit(EXIT_SUCCESS);
+
 }
