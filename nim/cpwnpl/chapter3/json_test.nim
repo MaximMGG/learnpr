@@ -1,9 +1,5 @@
 import std/json
 
-
-
-
-
 proc main() =
   var
     dbname: string
@@ -16,7 +12,6 @@ proc main() =
   user_name = stdin.readLine()
   echo "Enter password: "
   password = stdin.readLine()
-
 
   const json_name = "test.json"
 
