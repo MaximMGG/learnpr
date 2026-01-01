@@ -75,6 +75,27 @@ build_huffman_tree :: proc(queue: ^pq.Priority_Queue(Frequency)) -> ^Node {
   return base
 }
 
+wolk_huffman_tree :: proc(base: ^Node) {
+  fmt.println("Base weight:", base.weight)
+  if base.is_leaf {
+    fmt.printf("Char: %c, frequency: %d\n", base.freq.letter, base.freq.frequency)
+  } else {
+    wolk_huffman_tree(base.left)
+    wolk_huffman_tree(base.right)
+  }
+}
+
+destroy_huffman_tree :: proc(base: ^Node) {
+  if base != nil {
+    if base.is_leaf {
+      free(base)
+    } else {
+      destroy_huffman_tree(base.left)
+      destroy_huffman_tree(base.right)
+      free(base)
+    }
+  }
+}
 
 less :: proc(a, b: Frequency) -> bool {
   if a.frequency < b.frequency {
@@ -82,7 +103,6 @@ less :: proc(a, b: Frequency) -> bool {
   }
   return false
 } 
-
 
 swap :: proc(f: []Frequency, i, j: int) {
   tmp: Frequency =  f[i]
@@ -162,15 +182,20 @@ main :: proc() {
     pq.push(&queue, tmp)
   }
 
-  for pq.len(queue) > 0 {
-    tmp := pq.pop(&queue)
-    fmt.println(tmp)
-  }
+  base := build_huffman_tree(&queue)
+  wolk_huffman_tree(base)
+  destroy_huffman_tree(base)
+
+  // for pq.len(queue) > 0 {
+  //   tmp := pq.pop(&queue)
+  //   fmt.println(tmp)
+  // }
 
 
-  when ODIN_DEBUG {
-    for k, v in table {
-      fmt.printf("%c(%d) appeard %d types\n", k, k, v)
-    }
-  }
+
+  // when ODIN_DEBUG {
+  //   for k, v in table {
+  //     fmt.printf("%c(%d) appeard %d types\n", k, k, v)
+  //   }
+  // }
 }
