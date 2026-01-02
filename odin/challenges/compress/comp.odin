@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:os"
 import "core:io"
 import "core:mem"
+import "core:strings"
 import pq "core:container/priority_queue"
 
 Frequency :: struct {
@@ -17,6 +18,23 @@ Node :: struct {
   right: ^Node,
   weight: u64,
   is_leaf: bool
+}
+
+
+build_header :: proc(queue: ^pq.Priority_Queue(Frequency)) -> []u8 {
+  sb: strings.Builder
+  sb = strings.builder_init(&sb)^
+  defer strings.builder_destroy(&sb)
+
+  for freq in queue.queue {
+    strings.write_byte(&sb, freq.letter)
+    strings.write_byte(&sb, ',')
+    strings.write_u64(&sb, freq.frequency)
+    strings.write_byte(&sb, ',')
+  }
+  strings.write_byte(&sb, ';')
+
+  return transmute([]u8)strings.clone(strings.to_string(sb))
 }
 
 build_huffman_tree :: proc(queue: ^pq.Priority_Queue(Frequency)) -> ^Node {
@@ -124,6 +142,15 @@ build_table :: proc(buf: []u8) -> map[u8]int {
 }
 
 
+encrypt_header :: proc(header: []u8, key: u8) {
+  key := key
+  for &c in header {
+    c ~= key
+    key += 1
+  }
+}
+
+
 main :: proc() {
 
   when ODIN_DEBUG {
@@ -182,9 +209,23 @@ main :: proc() {
     pq.push(&queue, tmp)
   }
 
-  base := build_huffman_tree(&queue)
-  wolk_huffman_tree(base)
-  destroy_huffman_tree(base)
+  header := build_header(&queue)
+  fmt.printf("%s\n", transmute(string)header)
+  encrypt_header(header, 12)
+  fmt.printf("\n\n")
+  fmt.printf("%s\n", transmute(string)header)
+  encrypt_header(header, 12)
+  fmt.printf("\n\n")
+  fmt.printf("%s\n", transmute(string)header)
+
+  fmt.println("Header len:", len(header))
+
+  _len := u32(len(header))
+  p: ^u8 = transmute(^i8)&_len
+
+  // base := build_huffman_tree(&queue)
+  // wolk_huffman_tree(base)
+  // destroy_huffman_tree(base)
 
   // for pq.len(queue) > 0 {
   //   tmp := pq.pop(&queue)
