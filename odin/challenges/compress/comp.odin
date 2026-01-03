@@ -48,6 +48,26 @@ build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
   return pq.pop(queue)
 }
 
+_helper :: proc(base: ^Node, path: []u8, path_len: uint, lookup: ^map[u8][]u8) {
+  new_path := path
+  path_len := path_len
+  if base.is_leaf {
+    lookup[base.letter] = slice.clone(path[:path_len])
+    return
+  } else {
+    new_path[path_len] = 0
+    _helper(base.left, new_path, path_len + 1, lookup)
+    new_path[path_len] = 1
+    _helper(base.right, new_path, path_len + 1, lookup)
+  }
+} 
+
+build_lookup_table :: proc(base: ^Node) -> map[u8][]u8{
+  res: map[u8][]u8
+  path: [1024]u8
+  _helper(base, path[:], 0, &res)
+  return res
+}
 
 encrypt_huffman_tree :: proc(base: ^Node, text: []u8) -> []u8 {
   sb_base: strings.Builder
@@ -58,7 +78,6 @@ encrypt_huffman_tree :: proc(base: ^Node, text: []u8) -> []u8 {
   offset: uint = 0
 
   for letter in text {
-
 
   }
 
@@ -205,7 +224,17 @@ main :: proc() {
 
 
   base := build_huffman_tree(&queue)
-  wolk_huffman_tree(base, 0)
+  //wolk_huffman_tree(base, 0)
+
+  lookup := build_lookup_table(base)
+  defer delete(lookup)
+
+
+  for k, v in lookup {
+    fmt.printf("Char: %c, path: %v\n", k, v)
+    delete(v)
+  }
+
   destroy_huffman_tree(base)
 
   // for pq.len(queue) > 0 {
