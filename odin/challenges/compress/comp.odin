@@ -69,7 +69,7 @@ build_lookup_table :: proc(base: ^Node) -> map[u8][]u8{
   return res
 }
 
-encrypt_huffman_tree :: proc(base: ^Node, text: []u8) -> []u8 {
+encrypt_huffman_tree :: proc(base: ^Node, text: []u8, lookup: map[u8][]u8) -> []u8 {
   sb_base: strings.Builder
   sb := strings.builder_init(&sb_base)
   defer strings.builder_destroy(sb)
@@ -78,6 +78,25 @@ encrypt_huffman_tree :: proc(base: ^Node, text: []u8) -> []u8 {
   offset: uint = 0
 
   for letter in text {
+    if letter in lookup {
+      path := lookup[letter]
+      for bit in path {
+        b |= bit
+        //0b00000000
+        //offset = 6
+        if offset == 7 {
+          strings.write_byte(sb, b)
+          b = 0
+          offset = 0
+        } else {
+          b <<= 1
+          offset += 1
+        }
+      }
+    } else {
+      fmt.eprintf("Letter: %c doesn' t contains in lookup table", letter)
+      panic("I'm done")
+    }
 
   }
 
