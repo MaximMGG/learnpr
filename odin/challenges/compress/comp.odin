@@ -5,23 +5,20 @@ import "core:os"
 import "core:io"
 import "core:mem"
 import "core:strings"
+import "core:strconv"
+import "core:slice"
 import pq "core:container/priority_queue"
 
-Frequency :: struct {
-  letter: u8,
-  frequency: u64,
-}
-
 Node :: struct {
-  freq: Frequency,
+  letter: u8,
+  weight: u64,
+  is_leaf: bool,
   left: ^Node,
   right: ^Node,
-  weight: u64,
-  is_leaf: bool
 }
 
 
-build_header :: proc(queue: ^pq.Priority_Queue(Frequency)) -> []u8 {
+build_header :: proc(queue: ^pq.Priority_Queue(^Node)) -> []u8 {
   sb: strings.Builder
   sb = strings.builder_init(&sb)^
   defer strings.builder_destroy(&sb)
@@ -29,7 +26,7 @@ build_header :: proc(queue: ^pq.Priority_Queue(Frequency)) -> []u8 {
   for freq in queue.queue {
     strings.write_byte(&sb, freq.letter)
     strings.write_byte(&sb, ',')
-    strings.write_u64(&sb, freq.frequency)
+    strings.write_u64(&sb, freq.weight)
     strings.write_byte(&sb, ',')
   }
   strings.write_byte(&sb, ';')
@@ -37,69 +34,46 @@ build_header :: proc(queue: ^pq.Priority_Queue(Frequency)) -> []u8 {
   return transmute([]u8)strings.clone(strings.to_string(sb))
 }
 
-build_huffman_tree :: proc(queue: ^pq.Priority_Queue(Frequency)) -> ^Node {
-  a: Frequency = pq.pop(queue)
-  b: Frequency = pq.pop(queue)
-
-  a_node: ^Node = new(Node)
-  a_node.freq = a
-  a_node.is_leaf = true
-  a_node.weight = a.frequency
-
-  b_node: ^Node = new(Node)
-  b_node.freq = b
-  b_node.is_leaf = true
-  b_node.weight = b.frequency
-
-  base: ^Node = new(Node)
-  base.is_leaf = false
-  base.weight = a_node.weight + b_node.weight
-  base.left = a.frequency > b.frequency ? b_node : a_node
-  base.right = a.frequency > b.frequency ? a_node : b_node
-
-  for pq.len(queue^) > 0 {
-    tmp_freq := pq.pop(queue)
-    if tmp_freq.frequency < base.weight {
-      a_node := new(Node)
-      a_node.freq = tmp_freq
-      a_node.is_leaf = true
-      a_node.left = nil
-      a_node.right = nil
-      a_node.weight = tmp_freq.frequency
-      b_node = base
-
-      base = new(Node)
-      base.weight = a_node.weight + b_node.weight
-      base.left = a_node
-      base.right = b_node
-      base.is_leaf = false
-      continue
-    } else if tmp_freq.frequency > base.weight {
-      b_node := new(Node)
-      b_node.freq = tmp_freq
-      b_node.is_leaf = true
-      b_node.left = nil
-      b_node.right = nil
-      b_node.weight = tmp_freq.frequency
-      a_node = base
-
-      base = new(Node)
-      base.weight = a_node.weight + b_node.weight
-      base.left = a_node
-      base.right = b_node
-      base.is_leaf = false
-    } 
+build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
+  for pq.len(queue^) > 1 {
+    a := pq.pop(queue)
+    b := pq.pop(queue)
+    new_node := new(Node)
+    new_node.is_leaf = false
+    new_node.left = a.weight > b.weight ? b : a
+    new_node.right = a.weight > b.weight ? a : b
+    new_node.weight = a.weight + b.weight
+    pq.push(queue, new_node)
   }
-  return base
+  return pq.pop(queue)
 }
 
-wolk_huffman_tree :: proc(base: ^Node) {
-  fmt.println("Base weight:", base.weight)
+
+encrypt_huffman_tree :: proc(base: ^Node, text: []u8) -> []u8 {
+  sb_base: strings.Builder
+  sb := strings.builder_init(&sb_base)
+  defer strings.builder_destroy(sb)
+
+  b: u8
+  offset: uint = 0
+
+  for letter in text {
+
+
+  }
+
+  return []u8{}
+}
+
+wolk_huffman_tree :: proc(base: ^Node, layer: int) {
   if base.is_leaf {
-    fmt.printf("Char: %c, frequency: %d\n", base.freq.letter, base.freq.frequency)
+    fmt.printf("Char: %c, frequency: %d ==> LAYER: %d\n", base.letter, base.weight, layer)
   } else {
-    wolk_huffman_tree(base.left)
-    wolk_huffman_tree(base.right)
+    fmt.println("WEIGHT:", base.weight, "Going left side ==> LAYER:", layer)
+    wolk_huffman_tree(base.left, layer + 1)
+
+    fmt.println("WEIGHT:", base.weight ,"Going right side ==> LAYER:", layer)
+    wolk_huffman_tree(base.right, layer + 1)
   }
 }
 
@@ -115,15 +89,15 @@ destroy_huffman_tree :: proc(base: ^Node) {
   }
 }
 
-less :: proc(a, b: Frequency) -> bool {
-  if a.frequency < b.frequency {
+less :: proc(a, b: ^Node) -> bool {
+  if a.weight < b.weight {
     return true
   }
   return false
 } 
 
-swap :: proc(f: []Frequency, i, j: int) {
-  tmp: Frequency =  f[i]
+swap :: proc(f: []^Node, i, j: int) {
+  tmp: ^Node =  f[i]
   f[i] = f[j]
   f[j] = tmp
 }
@@ -167,7 +141,7 @@ main :: proc() {
     }
   }
 
-  queue: pq.Priority_Queue(Frequency)
+  queue: pq.Priority_Queue(^Node)
 
   pq.init(&queue, less, swap)
   defer pq.destroy(&queue)
@@ -183,6 +157,7 @@ main :: proc() {
     fmt.eprintln("Cant open file:", os.args[1])
     return
   }
+
   defer os.close(f)
   stat, stat_ok := os.fstat(f)
   if stat_ok != nil {
@@ -205,27 +180,22 @@ main :: proc() {
   defer delete(table)
 
   for k, v in table {
-    tmp := Frequency{letter = k, frequency = u64(v)}
+    tmp := new(Node)
+    tmp.weight = u64(v)
+    tmp.letter = k
+    tmp.left = nil
+    tmp.right = nil
+    tmp.is_leaf = true
     pq.push(&queue, tmp)
   }
 
   header := build_header(&queue)
-  fmt.printf("%s\n", transmute(string)header)
-  encrypt_header(header, 12)
-  fmt.printf("\n\n")
-  fmt.printf("%s\n", transmute(string)header)
-  encrypt_header(header, 12)
-  fmt.printf("\n\n")
-  fmt.printf("%s\n", transmute(string)header)
+  fmt.println(transmute(string)header)
 
-  fmt.println("Header len:", len(header))
 
-  _len := u32(len(header))
-  p: ^u8 = transmute(^i8)&_len
-
-  // base := build_huffman_tree(&queue)
-  // wolk_huffman_tree(base)
-  // destroy_huffman_tree(base)
+  base := build_huffman_tree(&queue)
+  wolk_huffman_tree(base, 0)
+  destroy_huffman_tree(base)
 
   // for pq.len(queue) > 0 {
   //   tmp := pq.pop(&queue)
@@ -234,9 +204,4 @@ main :: proc() {
 
 
 
-  // when ODIN_DEBUG {
-  //   for k, v in table {
-  //     fmt.printf("%c(%d) appeard %d types\n", k, k, v)
-  //   }
-  // }
 }
