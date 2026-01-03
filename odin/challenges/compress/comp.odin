@@ -93,6 +93,16 @@ less :: proc(a, b: ^Node) -> bool {
   if a.weight < b.weight {
     return true
   }
+  if a.weight > b.weight {
+    return false;
+  }
+  if a.is_leaf && b.is_leaf {
+    if a.letter < b.letter {
+      return true;
+    } else {
+      return false;
+    }
+  }
   return false
 } 
 
@@ -190,6 +200,7 @@ main :: proc() {
   }
 
   header := build_header(&queue)
+  defer delete(header)
   fmt.println(transmute(string)header)
 
 
