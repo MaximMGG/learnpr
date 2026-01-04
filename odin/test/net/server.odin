@@ -31,14 +31,20 @@ main :: proc() {
 
   recv_buf: [1024]u8
 
-  bytes_recv, recv_err := net.recv(client_socket, recv_buf[:])
-  if recv_err != nil {
-    fmt.eprintln(recv_err)
-    return
+  for {
+    bytes_recv, recv_err := net.recv(client_socket, recv_buf[:])
+    if recv_err != nil {
+      fmt.eprintln(recv_err)
+      return
+    }
+
+    fmt.println("Recv:", transmute(string)recv_buf[:bytes_recv])
+    if transmute(string)recv_buf[:bytes_recv] == "quit\n" {
+      fmt.println("Disconnect")
+      break
+    }
+    hello := "Hello from server"
+
+    bytes_write, send_err := net.send(client_socket, transmute([]u8)hello)
   }
-
-  fmt.println("Recv:", transmute(string)recv_buf[:bytes_recv])
-  hello := "Hello from server"
-
-  bytes_write, send_err := net.send(client_socket, transmute([]u8)hello)
 }
