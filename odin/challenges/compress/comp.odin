@@ -69,6 +69,13 @@ build_lookup_table :: proc(base: ^Node) -> map[u8][]u8{
   return res
 }
 
+destroy_lookup_table :: proc(lookup: ^map[u8][]u8) {
+  for k, v in lookup {
+    delete(v)
+  }
+  delete(lookup^)
+}
+
 encrypt_huffman_tree :: proc(base: ^Node, text: []u8, lookup: map[u8][]u8) -> []u8 {
   sb_base: strings.Builder
   sb := strings.builder_init(&sb_base)
@@ -82,8 +89,6 @@ encrypt_huffman_tree :: proc(base: ^Node, text: []u8, lookup: map[u8][]u8) -> []
       path := lookup[letter]
       for bit in path {
         b |= bit
-        //0b00000000
-        //offset = 6
         if offset == 7 {
           strings.write_byte(sb, b)
           b = 0
@@ -97,10 +102,13 @@ encrypt_huffman_tree :: proc(base: ^Node, text: []u8, lookup: map[u8][]u8) -> []
       fmt.eprintf("Letter: %c doesn' t contains in lookup table", letter)
       panic("I'm done")
     }
-
   }
 
-  return []u8{}
+  if offset != 0 && offset < 7 {
+    strings.write_byte(sb, b)
+  }
+  res := slice.clone(sb.buf[:strings.builder_len(sb^)])
+  return res
 }
 
 wolk_huffman_tree :: proc(base: ^Node, layer: int) {
@@ -113,6 +121,20 @@ wolk_huffman_tree :: proc(base: ^Node, layer: int) {
     fmt.println("WEIGHT:", base.weight ,"Going right side ==> LAYER:", layer)
     wolk_huffman_tree(base.right, layer + 1)
   }
+}
+
+write_encrypt_file :: proc(header: []u8, encrypt_buf: []u8, file_name: string) {
+  encrypt_name := strings.concatenate([]string{file_name[:strings.index(file_name, ".")], ".", "hf"})
+  defer delete(encrypt_name)
+
+  encrypt_file, encrypt_file_ok := os.open(encrypt_name, os.O_CREATE | os.O_RDWR, os.S_IRUSR | os.S_IWUSR | os.S_IRGRP | os.S_IWGRP)
+  if encrypt_file_ok != nil {
+    fmt.eprintln("Cant create file:", encrypt_name)
+  }
+  defer os.close(encrypt_file)
+  encrypt_write_bytes, _ := os.write(encrypt_file, header)
+
+  _, _ = os.write(encrypt_file, encrypt_buf)
 }
 
 destroy_huffman_tree :: proc(base: ^Node) {
@@ -246,13 +268,17 @@ main :: proc() {
   //wolk_huffman_tree(base, 0)
 
   lookup := build_lookup_table(base)
-  defer delete(lookup)
+  defer destroy_lookup_table(&lookup)
 
+  encrypt_buf := encrypt_huffman_tree(base, buf, lookup)
+  defer delete(encrypt_buf)
 
-  for k, v in lookup {
-    fmt.printf("Char: %c, path: %v\n", k, v)
-    delete(v)
-  }
+  write_encrypt_file(header, encrypt_buf, os.args[1])
+
+  // for k, v in lookup {
+  //   fmt.printf("Char: %c, path: %v\n", k, v)
+  //   delete(v)
+  // }
 
   destroy_huffman_tree(base)
 
