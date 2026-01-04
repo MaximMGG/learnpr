@@ -1,8 +1,5 @@
 module test;
 
-
-
-import std::io::dir;
 import std::io;
 import std::io::file;
 
@@ -10,13 +7,28 @@ fn void file_test() {
 
   String s = "hello";
 
-  io::File f = file::open("main.c3", "r")?;
+  File f = file::open("main.c3", "r")!!;
   defer f.close()!!;
 
   f.seek(0, io::Seek.SET)!!;
 
-  ichar [4096]buf;
-  f.read(buf[..])!!;
 
-  io::printn(buf);
+  File *stderr = std::io::stderr();
+
+  ichar [4096]buf;
+  usz read_bytes = f.read(buf[..])!!;
+  io::printn((String)buf[0..read_bytes]);
+
+  stderr.write("Errorrororro\n")!!;
+  io::file::open()
+
+
+}
+
+
+fn int main() {
+  file_test();
+
+
+  return 0;
 }
