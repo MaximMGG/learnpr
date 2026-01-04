@@ -20,15 +20,4 @@ fn void file_test() {
   io::printn((String)buf[0..read_bytes]);
 
   stderr.write("Errorrororro\n")!!;
-  io::file::open()
-
-
-}
-
-
-fn int main() {
-  file_test();
-
-
-  return 0;
 }

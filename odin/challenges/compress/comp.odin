@@ -185,13 +185,43 @@ build_table :: proc(buf: []u8) -> map[u8]int {
   return res
 }
 
-
 encrypt_header :: proc(header: []u8, key: u8) {
   key := key
   for &c in header {
     c ~= key
     key += 1
   }
+}
+
+read_header :: proc(buf: []u8) -> (map[u8]u64, int) {
+  i: int
+  letter: u8
+  freq_num: [dynamic]u8 
+  header_map: map[u8]u64
+  defer delete(freq_num)
+  for {
+    if buf[i] == ';' {
+      break
+    }
+    letter = buf[i]
+    i += 1
+    if buf[i] == ',' {
+      i += 1
+    }
+    for buf[i] != ',' {
+      append(&freq_num, buf[i])
+      i += 1
+    }
+    i += 1
+    num, num_ok := strconv.parse_u64(transmute(string)freq_num[:len(freq_num)])
+    if num_ok {
+      header_map[letter] = num
+    }
+    clear(&freq_num)
+  }
+
+  i += 1
+  return header_map, i
 }
 
 
@@ -210,6 +240,38 @@ main :: proc() {
       mem.tracking_allocator_destroy(&track)
     }
   }
+
+  if os.args[1] == "-e" && len(os.args) == 3 {
+    decrypt_file, decrypt_file_ok := os.open(os.args[2])
+    if decrypt_file_ok != nil {
+      fmt.println("Cant open file for decrypt:", os.args[2])
+      return
+    }
+    defer os.close(decrypt_file)
+    decrypt_file_stat, decrypt_file_stat_ok := os.fstat(decrypt_file)
+    if decrypt_file_stat_ok != nil {
+      fmt.eprintln("Cant open file stat:", os.args[2])
+      return
+    }
+    defer os.file_info_delete(decrypt_file_stat)
+    decrypt_buf := make([]u8, decrypt_file_stat.size)
+    defer delete(decrypt_buf)
+    decrypt_read, decrypt_read_ok := os.read(decrypt_file, decrypt_buf)
+    if decrypt_read_ok != nil {
+      fmt.eprintln("Cant read file:", os.args[2])
+      return
+    }
+
+    header_map, buf_index := read_header(decrypt_buf)
+    defer delete(header_map)
+
+    for k, v in header_map {
+      fmt.printf("Char: %c, frequency: %d\n", k, v)
+    }
+
+    return
+  }
+
 
   queue: pq.Priority_Queue(^Node)
 
