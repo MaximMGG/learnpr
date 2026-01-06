@@ -1,6 +1,8 @@
 module methods;
 
 import std::io;
+import std::os;
+import std;
 
 struct Point {
   int x;
@@ -22,6 +24,7 @@ fn void example() {
 
   p.sub(11);
   io::printn(p);
+
 }
 
 
