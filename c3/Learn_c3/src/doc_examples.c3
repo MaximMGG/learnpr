@@ -3,7 +3,6 @@ import std::io;
 
 fn int main() {
   call_bar(8);
-
   return 0;
 }
 
