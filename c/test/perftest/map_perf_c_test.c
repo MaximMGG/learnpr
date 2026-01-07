@@ -38,7 +38,7 @@ int main() {
   i64 values = 0;
   while(map_it_next(it)) {
     values++;
-    // printf("Key -> %s, Val -> %d\n", MAP_IKEY(str, it), MAP_IVAL(i32, it));
+    printf("Key -> %s, Val -> %d\n", (str)it->key, *(i32 *)it->val);
     dealloc(it->key);
   }
   printf("Values - %ld\n", values);
