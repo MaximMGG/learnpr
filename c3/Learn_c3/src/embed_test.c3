@@ -1,3 +1,4 @@
+
 module embed_test;
 
 import std::io;
