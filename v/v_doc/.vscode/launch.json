@@ -1,0 +1,11 @@
+{
+  "type": "lldb",
+  "request": "launch",
+  "name": "Debug V",
+  "program": "${workspaceFolder}/types",
+  "cwd": "${workspaceFolder}",
+  "configurations": [
+
+
+  ]
+}
