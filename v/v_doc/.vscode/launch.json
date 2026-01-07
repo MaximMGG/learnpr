@@ -1,11 +1,19 @@
 {
-  "type": "lldb",
-  "request": "launch",
-  "name": "Debug V",
-  "program": "${workspaceFolder}/types",
-  "cwd": "${workspaceFolder}",
+  "version": "0.2.0",
   "configurations": [
-
-
+    {
+      "name": "(lldb) Start",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "miDebuggerPath": "/usr/bin/lldb",
+      "preLaunchTask": "build"
+    },
   ]
 }
