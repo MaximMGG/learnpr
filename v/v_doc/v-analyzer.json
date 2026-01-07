@@ -1,0 +1,5 @@
+{
+    "enableExperimentalFeatures": true,
+    "global_vroot_path": "/home/maxim/progs/v",
+    "additionalRoots": ["."]
+}
