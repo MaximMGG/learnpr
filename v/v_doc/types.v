@@ -5,7 +5,7 @@ struct User {
 
 fn formatting() {
 	x := 123.4567
-	print('x:.2\t:')
+  print('x:.2\t:')
 	println('[${x:.2}]')
 	print('x:10\t:')
 	println('[${x:10}]')
@@ -51,7 +51,35 @@ fn arrays() {
 	println(num)
 	num << [4, 5, 6]
 	println(num)
+  arr := []int{len: 5, init: index}
+
+  println("${arr}")
 }
+
+
+fn multy_array() {
+  mut a := [][]int{len: 2, init: []int{len: 3}}
+  for i in 0 .. a.len {
+    for j in 0 .. a[i].len {
+      a[i][j] = j * i + i
+    }
+  }
+  println("${a}")
+
+  mut b := [][][]int{len: 2, init: [][]int{len: 3, init: []int{len: 3, init: 0}}}
+  mut index := i32(0)
+
+  for mut i in b {
+    for mut j in i {
+      for mut k in j {
+        k = index
+        index++
+      }
+    }
+  }
+  println("${b}")
+}
+
 
 fn main() {
 	s := 'hello'
@@ -62,10 +90,10 @@ fn main() {
 
 	println('${s}, ${arr}')
 
-	s2 := arr.bytestr()
+	s1 := arr.bytestr()
 	s3 := r'hello\nworld'
 
-	assert s == s2
+	assert s == s1
 	println('${s3}')
 
 	o := 'age = ${arr.len}'
@@ -73,4 +101,6 @@ fn main() {
 	formatting()
 	string_operations()
 	arrays()
+  println("Multy arrays")
+  multy_array()
 }
