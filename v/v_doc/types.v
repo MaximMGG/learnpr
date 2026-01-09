@@ -137,7 +137,7 @@ fn arr_methods() {
 fn safe_slice() {
   mut a := [0, 1, 2, 3, 4, 5, 6, 7]
 
-  mut b := a[2..4]
+  mut b := a[2..4].clone()
   b[0] = 7
   println(a)
   b << 9
@@ -172,6 +172,37 @@ fn unsafe_slice2() {
 
 }
 
+fn array_negative() {
+  a := []int{len: 10, init: index}
+  println(a#[-3..])
+  println(a[a.len - 3..])
+  println(a#[-10..-8])
+
+}
+
+fn array_chaining() {
+
+  files := ['pippo.jpg', '01.bmp', '_v.txt', 'img_02.jpg', 'img_01.JPG']
+
+  arr := files.filter(it#[-4..].to_lower() == '.jpg').map(it.to_upper())
+  println(arr)
+}
+
+
+fn map_simple() {
+  pair := {
+    'one': 1
+    'two': 2
+  }
+
+  println(pair)
+
+  val := pair['oijj'] or {123}
+  println(val)
+
+}
+
+
 fn main() {
 	s := 'hello'
 	assert s.len == 5
@@ -202,5 +233,10 @@ fn main() {
   safe_slice()
   println("Unsafe slice 2")
   unsafe_slice2()
-
+  println("Array # negative")
+  array_negative()
+  println("Array chaining")
+  array_chaining()
+  println("Map simple")
+  map_simple()
 }
