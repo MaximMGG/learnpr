@@ -14,7 +14,6 @@ typedef struct Node {
     bool leaf;
     struct Node *left;
     struct Node *right;
-
 } Node;
 
 
