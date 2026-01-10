@@ -50,6 +50,9 @@ build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
 		// new_node.left = a.weight > b.weight ? b : a
 		// new_node.right = a.weight > b.weight ? a : b
 		new_node.weight = a.weight + b.weight
+    if ODIN_DEBUG {
+      fmt.println("Build node: weight ->", new_node.weight)
+    }
 		pq.push(queue, new_node)
 	}
 	return pq.pop(queue)
@@ -170,6 +173,9 @@ less :: proc(a, b: ^Node) -> bool {
 	if a.weight < b.weight {
 		return true
 	}
+  if ODIN_DEBUG {
+    return false
+  }
 	if a.weight > b.weight {
 		return false
 	}
@@ -418,6 +424,7 @@ main :: proc() {
   //     defer free(t)
   //     fmt.println(t)
   //   }
+  //   return
   // }
 
   header := build_header(&queue)
