@@ -231,39 +231,38 @@ read_header :: proc(buf: []u8) -> (map[u8]u64, int) {
 }
 
 decrypt :: proc(base: ^Node, text: []u8) -> []u8 {
-  res: [dynamic]u8
-  defer delete(res)
-  offset: u32 = 7
-  cur_node := base
-  for b in text {
-    inner: for {
-      if ((b >> offset) & 0x1) == 1 {
-        if cur_node.right.is_leaf {
-          append(&res, cur_node.right.letter)
-          cur_node = base
-        } else {
-          cur_node = cur_node.right
-        }
-      } else {
-        if cur_node.left.is_leaf {
-          append(&res, cur_node.left.letter)
-          cur_node = base
-        } else {
-          cur_node = cur_node.left
-        }
-      }
-      if offset == 0 {
-        offset = 7
-        break inner
-      }
-      offset -= 1
-    }
-  }
+	res: [dynamic]u8
+	defer delete(res)
+	offset: u32 = 7
+	cur_node := base
+	for b in text {
+		inner: for {
+			if ((b >> offset) & 0x1) == 1 {
+				if cur_node.right.is_leaf {
+					append(&res, cur_node.right.letter)
+					cur_node = base
+				} else {
+					cur_node = cur_node.right
+				}
+			} else {
+				if cur_node.left.is_leaf {
+					append(&res, cur_node.left.letter)
+					cur_node = base
+				} else {
+					cur_node = cur_node.left
+				}
+			}
+			if offset == 0 {
+				offset = 7
+				break inner
+			}
+			offset -= 1
+		}
+	}
 
 
-  return slice.clone(res[0:len(res)])
+	return slice.clone(res[0:len(res)])
 }
-
 
 
 main :: proc() {
@@ -309,9 +308,9 @@ main :: proc() {
 		// 	fmt.printf("Char: %c, frequency: %d\n", k, v)
 		// }
 
-    decrypt_pq: pq.Priority_Queue(^Node)
-    pq.init(&decrypt_pq, less, swap)
-    defer pq.destroy(&decrypt_pq)
+		decrypt_pq: pq.Priority_Queue(^Node)
+		pq.init(&decrypt_pq, less, swap)
+		defer pq.destroy(&decrypt_pq)
 
 		for k, v in header_map {
 			tmp := new(Node)
@@ -323,13 +322,21 @@ main :: proc() {
 			pq.push(&decrypt_pq, tmp)
 		}
 
-    base := build_huffman_tree(&decrypt_pq)
-    defer destroy_huffman_tree(base)
-    result := decrypt(base, decrypt_buf[buf_index +1:])
-    defer delete(result)
+		base := build_huffman_tree(&decrypt_pq)
+		defer destroy_huffman_tree(base)
+		result := decrypt(base, decrypt_buf[buf_index + 1:])
+		defer delete(result)
 
-    fmt.println("Result len:", len(result))
-    fmt.println(result)
+		fmt.println("Result len:", len(result))
+		//fmt.println(transmute(string)result)
+
+    new_file, new_file_ok := os.open("result.txt", os.O_CREATE | os.O_RDWR, os.S_IRUSR | os.S_IWUSR | os.S_IRGRP | os.S_IWGRP)
+    if new_file_ok != nil {
+      fmt.eprintln("Can't create file after decrypting")
+      return
+    }
+    defer os.close(new_file)
+    os.write(new_file, result)
 
 		return
 	}
