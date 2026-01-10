@@ -173,9 +173,6 @@ less :: proc(a, b: ^Node) -> bool {
 	if a.weight < b.weight {
 		return true
 	}
-  if ODIN_DEBUG {
-    return false
-  }
 	if a.weight > b.weight {
 		return false
 	}
@@ -433,11 +430,11 @@ main :: proc() {
 
 
   base := build_huffman_tree(&queue)
-  if ODIN_DEBUG {
-    wolk_huffman_tree(base, 0)
-    destroy_huffman_tree(base)
-    return
-  }
+  // if ODIN_DEBUG {
+  //   wolk_huffman_tree(base, 0)
+  //   destroy_huffman_tree(base)
+  //   return
+  // }
 
   lookup := build_lookup_table(base)
   defer destroy_lookup_table(&lookup)
