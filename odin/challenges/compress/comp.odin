@@ -230,9 +230,43 @@ read_header :: proc(buf: []u8) -> (map[u8]u64, int) {
 	return header_map, i
 }
 
+decrypt :: proc(base: ^Node, text: []u8) -> []u8 {
+  res: [dynamic]u8
+  defer delete(res)
+  offset: u32 = 7
+  cur_node := base
+  for b in text {
+    inner: for {
+      if ((b >> offset) & 0x1) == 1 {
+        if cur_node.right.is_leaf {
+          append(&res, cur_node.right.letter)
+          cur_node = base
+        } else {
+          cur_node = cur_node.right
+        }
+      } else {
+        if cur_node.left.is_leaf {
+          append(&res, cur_node.left.letter)
+          cur_node = base
+        } else {
+          cur_node = cur_node.left
+        }
+      }
+      if offset == 0 {
+        offset = 7
+        break inner
+      }
+      offset -= 1
+    }
+  }
+
+
+  return slice.clone(res[0:len(res)])
+}
+
+
 
 main :: proc() {
-
 	when ODIN_DEBUG {
 		track: mem.Tracking_Allocator
 		mem.tracking_allocator_init(&track, context.allocator)
@@ -289,9 +323,13 @@ main :: proc() {
 			pq.push(&decrypt_pq, tmp)
 		}
 
-    for n in decrypt_pq.queue {
-      fmt.println(n)
-    }
+    base := build_huffman_tree(&decrypt_pq)
+    defer destroy_huffman_tree(base)
+    result := decrypt(base, decrypt_buf[buf_index +1:])
+    defer delete(result)
+
+    fmt.println("Result len:", len(result))
+    fmt.println(result)
 
 		return
 	}
