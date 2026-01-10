@@ -78,10 +78,14 @@ main :: proc() {
       }
     }
   }
-  if offset != 0 {
-    fmt.printf("%b\n", b)
-    strings.write_byte(&sb, b)
+
+  for offset != 7 {
+    b <<= 1;
+    offset += 1
   }
+  strings.write_byte(&sb, b)
+  fmt.printf("%b\n", b)
+
 
   os.write(file, sb.buf[:strings.builder_len(sb)])
   os.close(file)

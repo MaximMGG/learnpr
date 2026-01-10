@@ -40,8 +40,15 @@ build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
 		b := pq.pop(queue)
 		new_node := new(Node)
 		new_node.is_leaf = false
-		new_node.left = a.weight > b.weight ? b : a
-		new_node.right = a.weight > b.weight ? a : b
+    if a.weight > b.weight {
+      new_node.left = a;
+      new_node.right = b;
+    } else {
+      new_node.left = b;
+      new_node.right = a;
+    }
+		// new_node.left = a.weight > b.weight ? b : a
+		// new_node.right = a.weight > b.weight ? a : b
 		new_node.weight = a.weight + b.weight
 		pq.push(queue, new_node)
 	}
@@ -104,9 +111,13 @@ encrypt_huffman_tree :: proc(base: ^Node, text: []u8, lookup: map[u8][]u8) -> []
 		}
 	}
 
-	if offset != 0 && offset < 7 {
-		strings.write_byte(sb, b)
-	}
+  for offset != 7 {
+    b <<=1
+    offset += 1
+  }
+
+  strings.write_byte(sb, b)
+
 	res := slice.clone(sb.buf[:strings.builder_len(sb^)])
 	return res
 }
@@ -235,7 +246,9 @@ decrypt :: proc(base: ^Node, text: []u8) -> []u8 {
 	defer delete(res)
 	offset: u32 = 7
 	cur_node := base
+
 	for b in text {
+    offset = 7
 		inner: for {
 			if ((b >> offset) & 0x1) == 1 {
 				if cur_node.right.is_leaf {
@@ -265,69 +278,79 @@ decrypt :: proc(base: ^Node, text: []u8) -> []u8 {
 
 
 main :: proc() {
-	when ODIN_DEBUG {
-		track: mem.Tracking_Allocator
-		mem.tracking_allocator_init(&track, context.allocator)
-		context.allocator = mem.tracking_allocator(&track)
-	}
-	defer {
-		when ODIN_DEBUG {
-			for _, leak in track.allocation_map {
-				fmt.printf("%v leaked %m\n", leak.location, leak.size)
-			}
-			mem.tracking_allocator_destroy(&track)
-		}
-	}
+  when ODIN_DEBUG {
+    track: mem.Tracking_Allocator
+    mem.tracking_allocator_init(&track, context.allocator)
+    context.allocator = mem.tracking_allocator(&track)
+  }
+  defer {
+    when ODIN_DEBUG {
+      for _, leak in track.allocation_map {
+        fmt.printf("%v leaked %m\n", leak.location, leak.size)
+      }
+      mem.tracking_allocator_destroy(&track)
+    }
+  }
 
-	if os.args[1] == "-e" && len(os.args) == 3 {
-		decrypt_file, decrypt_file_ok := os.open(os.args[2])
-		if decrypt_file_ok != nil {
-			fmt.println("Cant open file for decrypt:", os.args[2])
-			return
-		}
-		defer os.close(decrypt_file)
-		decrypt_file_stat, decrypt_file_stat_ok := os.fstat(decrypt_file)
-		if decrypt_file_stat_ok != nil {
-			fmt.eprintln("Cant open file stat:", os.args[2])
-			return
-		}
-		defer os.file_info_delete(decrypt_file_stat)
-		decrypt_buf := make([]u8, decrypt_file_stat.size)
-		defer delete(decrypt_buf)
-		decrypt_read, decrypt_read_ok := os.read(decrypt_file, decrypt_buf)
-		if decrypt_read_ok != nil {
-			fmt.eprintln("Cant read file:", os.args[2])
-			return
-		}
+  if os.args[1] == "-e" && len(os.args) == 3 {
+    decrypt_file, decrypt_file_ok := os.open(os.args[2])
+    if decrypt_file_ok != nil {
+      fmt.println("Cant open file for decrypt:", os.args[2])
+      return
+    }
+    defer os.close(decrypt_file)
+    decrypt_file_stat, decrypt_file_stat_ok := os.fstat(decrypt_file)
+    if decrypt_file_stat_ok != nil {
+      fmt.eprintln("Cant open file stat:", os.args[2])
+      return
+    }
+    defer os.file_info_delete(decrypt_file_stat)
+    decrypt_buf := make([]u8, decrypt_file_stat.size)
+    defer delete(decrypt_buf)
+    decrypt_read, decrypt_read_ok := os.read(decrypt_file, decrypt_buf)
+    if decrypt_read_ok != nil {
+      fmt.eprintln("Cant read file:", os.args[2])
+      return
+    }
 
-		header_map, buf_index := read_header(decrypt_buf)
-		defer delete(header_map)
+    header_map, buf_index := read_header(decrypt_buf)
+    defer delete(header_map)
 
-		// for k, v in header_map {
-		// 	fmt.printf("Char: %c, frequency: %d\n", k, v)
-		// }
+    // for k, v in header_map {
+    // 	fmt.printf("Char: %c, frequency: %d\n", k, v)
+    // }
 
-		decrypt_pq: pq.Priority_Queue(^Node)
-		pq.init(&decrypt_pq, less, swap)
-		defer pq.destroy(&decrypt_pq)
+    decrypt_pq: pq.Priority_Queue(^Node)
+    pq.init(&decrypt_pq, less, swap)
+    defer pq.destroy(&decrypt_pq)
 
-		for k, v in header_map {
-			tmp := new(Node)
-			tmp.weight = u64(v)
-			tmp.letter = k
-			tmp.left = nil
-			tmp.right = nil
-			tmp.is_leaf = true
-			pq.push(&decrypt_pq, tmp)
-		}
+    for k, v in header_map {
+      tmp := new(Node)
+      tmp.weight = u64(v)
+      tmp.letter = k
+      tmp.left = nil
+      tmp.right = nil
+      tmp.is_leaf = true
+      pq.push(&decrypt_pq, tmp)
+    }
 
-		base := build_huffman_tree(&decrypt_pq)
-		defer destroy_huffman_tree(base)
-		result := decrypt(base, decrypt_buf[buf_index + 1:])
-		defer delete(result)
 
-		fmt.println("Result len:", len(result))
-		//fmt.println(transmute(string)result)
+    if ODIN_DEBUG {
+      for pq.len(decrypt_pq) != 0 {
+        t := pq.pop(&decrypt_pq)
+        defer free(t)
+        fmt.println(t)
+      }
+      return
+    }
+
+    base := build_huffman_tree(&decrypt_pq)
+    defer destroy_huffman_tree(base)
+    result := decrypt(base, decrypt_buf[buf_index + 1:])
+    defer delete(result)
+
+    fmt.println("Result len:", len(result))
+    //fmt.println(transmute(string)result)
 
     new_file, new_file_ok := os.open("result.txt", os.O_CREATE | os.O_RDWR, os.S_IRUSR | os.S_IWUSR | os.S_IRGRP | os.S_IWGRP)
     if new_file_ok != nil {
@@ -337,84 +360,96 @@ main :: proc() {
     defer os.close(new_file)
     os.write(new_file, result)
 
-		return
-	}
+    return
+  }
 
 
-	queue: pq.Priority_Queue(^Node)
+  queue: pq.Priority_Queue(^Node)
 
-	pq.init(&queue, less, swap)
-	defer pq.destroy(&queue)
-
-
-	if len(os.args) < 2 {
-		fmt.eprintf("Usage comp [file_name]\n")
-		return
-	}
-
-	f, f_ok := os.open(os.args[1])
-	if f_ok != nil {
-		fmt.eprintln("Cant open file:", os.args[1])
-		return
-	}
-
-	defer os.close(f)
-	stat, stat_ok := os.fstat(f)
-	if stat_ok != nil {
-		fmt.eprintln("os.fstat error")
-		return
-	}
-	defer os.file_info_delete(stat)
-
-	buf: []u8 = make([]u8, stat.size)
-	defer delete(buf)
-
-	reader := io.to_reader(os.stream_from_handle(f))
-
-	read_bytes, read_err := io.read(reader, buf)
-	if read_err != nil {
-		fmt.eprintln("read error")
-		return
-	}
-	table := build_table(buf)
-	defer delete(table)
-
-	for k, v in table {
-		tmp := new(Node)
-		tmp.weight = u64(v)
-		tmp.letter = k
-		tmp.left = nil
-		tmp.right = nil
-		tmp.is_leaf = true
-		pq.push(&queue, tmp)
-	}
-
-	header := build_header(&queue)
-	defer delete(header)
-	fmt.println(transmute(string)header)
+  pq.init(&queue, less, swap)
+  defer pq.destroy(&queue)
 
 
-	base := build_huffman_tree(&queue)
-	//wolk_huffman_tree(base, 0)
+  if len(os.args) < 2 {
+    fmt.eprintf("Usage comp [file_name]\n")
+    return
+  }
 
-	lookup := build_lookup_table(base)
-	defer destroy_lookup_table(&lookup)
+  f, f_ok := os.open(os.args[1])
+  if f_ok != nil {
+    fmt.eprintln("Cant open file:", os.args[1])
+    return
+  }
 
-	encrypt_buf := encrypt_huffman_tree(base, buf, lookup)
-	defer delete(encrypt_buf)
+  defer os.close(f)
+  stat, stat_ok := os.fstat(f)
+  if stat_ok != nil {
+    fmt.eprintln("os.fstat error")
+    return
+  }
+  defer os.file_info_delete(stat)
 
-	write_encrypt_file(header, encrypt_buf, os.args[1])
+  buf: []u8 = make([]u8, stat.size)
+  defer delete(buf)
 
-	for k, v in lookup {
-	  fmt.printf("Char: %c, path: %v\n", k, v)
-	}
+  reader := io.to_reader(os.stream_from_handle(f))
 
-	destroy_huffman_tree(base)
+  read_bytes, read_err := io.read(reader, buf)
+  if read_err != nil {
+    fmt.eprintln("read error")
+    return
+  }
+  table := build_table(buf)
+  defer delete(table)
 
-	// for pq.len(queue) > 0 {
-	//   tmp := pq.pop(&queue)
-	//   fmt.println(tmp)
-	// }
+  for k, v in table {
+    tmp := new(Node)
+    tmp.weight = u64(v)
+    tmp.letter = k
+    tmp.left = nil
+    tmp.right = nil
+    tmp.is_leaf = true
+    pq.push(&queue, tmp)
+  }
+
+  // if ODIN_DEBUG {
+  //   for pq.len(queue) != 0 {
+  //     t := pq.pop(&queue)
+  //     defer free(t)
+  //     fmt.println(t)
+  //   }
+  // }
+
+  header := build_header(&queue)
+  defer delete(header)
+  fmt.println(transmute(string)header)
+
+
+  base := build_huffman_tree(&queue)
+  if ODIN_DEBUG {
+    wolk_huffman_tree(base, 0)
+    destroy_huffman_tree(base)
+    return
+  }
+
+  lookup := build_lookup_table(base)
+  defer destroy_lookup_table(&lookup)
+
+  encrypt_buf := encrypt_huffman_tree(base, buf, lookup)
+  defer delete(encrypt_buf)
+
+  write_encrypt_file(header, encrypt_buf, os.args[1])
+
+  for k, v in lookup {
+    fmt.printf("Char: %c, path: %v\n", k, v)
+  }
+
+  destroy_huffman_tree(base)
+
+  // for pq.len(queue) > 0 {
+  //   tmp := pq.pop(&queue)
+  //   fmt.println(tmp)
+  // }
 
 
 }
