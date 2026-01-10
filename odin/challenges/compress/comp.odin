@@ -260,7 +260,6 @@ decrypt :: proc(base: ^Node, text: []u8) -> []u8 {
 		}
 	}
 
-
 	return slice.clone(res[0:len(res)])
 }
 
@@ -406,10 +405,9 @@ main :: proc() {
 
 	write_encrypt_file(header, encrypt_buf, os.args[1])
 
-	// for k, v in lookup {
-	//   fmt.printf("Char: %c, path: %v\n", k, v)
-	//   delete(v)
-	// }
+	for k, v in lookup {
+	  fmt.printf("Char: %c, path: %v\n", k, v)
+	}
 
 	destroy_huffman_tree(base)
 
