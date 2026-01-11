@@ -34,7 +34,7 @@ fn less(context: void, a: *Node, b: *Node) std.math.Order {
 }
 
 
-fn build_priority_queue(allocator: std.mem.Allocator, m: std.AutoHashMap(u8, u32)) !std.PriorityQueue(*Node, void, less) {
+fn build_priority_queue(allocator: std.mem.Allocator, m: *std.AutoHashMap(u8, u32)) !std.PriorityQueue(*Node, void, less) {
     var pq = std.PriorityQueue(*Node, void, less).init(allocator, {});
 
     var it = m.iterator();
@@ -141,6 +141,7 @@ fn build_header(allocator: std.mem.Allocator, freq: std.AutoHashMap(u8, u32)) ![
         try header.appendSlice(allocator, num);
         try header.append(allocator, ',');
     }
+    try header.append(allocator, 254);
 
     return try header.toOwnedSlice(allocator);
 }
@@ -188,18 +189,113 @@ fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: *std.AutoHashMap(u8
 
     return buf.toOwnedSlice(allocator);
 }
+fn read_header(allocator: std.mem.Allocator, text: []u8, offset: *usize) !std.AutoHashMap(u8, u32) {
+    var res = std.AutoHashMap(u8, u32).init(allocator);
+    errdefer res.deinit();
+    var i: usize = 0;
+    var letter: u8 = 0;
+    var number: u32 = 0;
+    var num_buf: [64]u8 = undefined;
+    var num_i: usize = 0;
+    while(text[i] != 254) {
+        letter = text[i];
+        i += 1;
+        if (text[i] != ',') {
+            return error.IncorrectHeader;
+        }
+        i += 1;
+        while(text[i] != ',') {
+            num_buf[num_i] = text[i];
+            i += 1;
+            num_i += 1;
+        }
+        number = try std.fmt.parseInt(u32, num_buf[0..num_i], 10);
+        try res.put(letter, number);
+    }
+    i += 1;
+    offset.* = i;
+    return res;
+}
+
+fn decrypt(allocator: std.mem.Allocator, base: *Node, text: []u8) ![]u8 {
+    var node = base;
+    var res = try std.ArrayList(u8).initCapacity(allocator, text.len * 2);
+    defer res.deinit();
+
+    for(text) |byte| {
+        var offset: usize = 7;
+        while(true) {
+            if (node.is_liaf) {
+                try res.append(allocator, node.letter);
+                node = base;
+                break;
+            } else {
+                if (((byte >> offset) & 0x1) == 1) {
+                    node = node.right.?;
+                    if (offset == 0) {
+                        break;
+                    }
+                    offset -= 1;
+                } else {
+                    node = node.left.?;
+                }
+                if (offset == 0) {
+                    break;
+                }
+                offset -= 1;
+            }
+        }
+    }
+    return res.toOwnedSlice(allocator);
+}
+
+fn write_get_new_file_name(allocator: std.mem.Allocator, old_name: []u8) ![]u8 {
+    const dot_index = std.mem.indexOfScalar(u8, old_name, '.').?;
+    const new_name = try std.fmt.allocPrint(allocator, "{s}_result.txt", .{old_name[0..dot_index]});
+    return new_name;
+}
+
+fn write_decrypt_text(allocator: std.mem.Allocator, text: []u8, old_name: []u8) !void {
+    const new_name = try write_get_new_file_name(allocator, old_name);
+    defer allocator.free(new_name);
+    const file = try std.fs.cwd().createFile(new_name, .{.truncate = true});
+    _ = try file.write(text);
+}
+
+fn process_decrypt(allocator: std.mem.Allocator, file_name: []u8) !void {
+    const file = try std.fs.cwd().openFile(file_name, .{.mode = .read_only});
+    defer file.close();
+    const stat = try file.stat();
+    const buf = try allocator.alloc(u8, stat.size);
+    _ = try file.read(buf);
+    var file_offset: usize = 0;
+    var freq = try read_header(allocator, buf, &file_offset);
+    defer freq.deinit();
+    var pq = try build_priority_queue(allocator, &freq);
+    defer pq.deinit();
+    const base = try build_huffman_tree(allocator, &pq);
+    defer destroy_huffman_tree(allocator, base);
+    const text = try decrypt(allocator, base, buf[file_offset..]);
+    defer allocator.free(text);
+    try write_decrypt_text(allocator, text, file_name);
+}
+
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
     if (args.len < 2) {
-        std.debug.print("Usage: compress [file_name]\n", .{});
+        std.debug.print("usage: compress [file_name]\n", .{});
         return;
     }
     if (args.len == 3) {
         if (std.mem.eql(u8, args[1], "-e")) {
-
+            try process_decrypt(allocator, args[2]);
+            return;
+        } else {
+            std.debug.print("usage: compress -e [file_name]\n", .{});
+            return;
         }
     }
 
