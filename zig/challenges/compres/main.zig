@@ -24,7 +24,7 @@ const Node = struct {
     right: ?*Node = null,
 };
 
-fn less(context: void, a: Node, b: Node) std.math.Order {
+fn less(context: void, a: *Node, b: *Node) std.math.Order {
     _ = context;
     if (a.freq == b.freq) {
         return std.math.order(a.letter, b.letter);
@@ -33,8 +33,8 @@ fn less(context: void, a: Node, b: Node) std.math.Order {
 }
 
 
-fn build_priority_queue(allocator: std.mem.Allocator, m: std.AutoHashMap(u8, u32)) !std.PriorityQueue(*Node) {
-    var pq = std.PriorityQueue(*Node, void, less).init(allocator);
+fn build_priority_queue(allocator: std.mem.Allocator, m: std.AutoHashMap(u8, u32)) !std.PriorityQueue(*Node, void, less) {
+    var pq = std.PriorityQueue(*Node, void, less).init(allocator, {});
 
     var it = m.iterator();
     while(it.next()) |entry| {
@@ -42,13 +42,15 @@ fn build_priority_queue(allocator: std.mem.Allocator, m: std.AutoHashMap(u8, u32
         n.letter = entry.key_ptr.*;
         n.freq = entry.value_ptr.*;
         n.is_liaf = true;
+        n.left = null;
+        n.right = null;
         try pq.add(n);
     }
 
     return pq;
 }
 
-fn build_huffman_tree(allocator: std.mem.Allocator, pq: *std.PriorityQueue(*Node)) !*Node {
+fn build_huffman_tree(allocator: std.mem.Allocator, pq: *std.PriorityQueue(*Node, void, less)) !*Node {
     while(pq.count() > 1) {
         const l = pq.remove();
         const r = pq.remove();
@@ -59,6 +61,34 @@ fn build_huffman_tree(allocator: std.mem.Allocator, pq: *std.PriorityQueue(*Node
         new_node.right = r;
         try pq.add(new_node);
     }
+    return pq.remove();
+}
+
+fn wolk_huffman_tree(base: *Node, level: u32) void {
+    if (base.is_liaf) {
+        std.debug.print("Char: {c}, frequensy: {d}, LEVEL: {d}\n", .{base.letter, base.freq, level});
+    } else {
+        if (base.left) |left| {
+            std.debug.print("Cur WEIGHT: {d}, LEVEL {d}, going to the LEFT\n", .{base.freq, level});
+            wolk_huffman_tree(left, level + 1);
+        } else {
+            return;
+        }
+        if (base.right) |right| {
+            std.debug.print("Cur WEIGHT: {d}, LEVEL {d}, going to the RIGHT\n", .{base.freq, level});
+            wolk_huffman_tree(right, level + 1);
+        }
+    }
+}
+
+fn destroy_huffman_tree(allocator: std.mem.Allocator, base: *Node) void {
+    if (base.left) |left| {
+        destroy_huffman_tree(allocator, left);
+    }
+    if (base.right) |right| {
+        destroy_huffman_tree(allocator, right);
+    }
+    allocator.destroy(base);
 }
 
 pub fn main() !void {
@@ -80,5 +110,9 @@ pub fn main() !void {
     defer m.deinit();
 
     var pq = try build_priority_queue(allocator, m);
+
+    const base = try build_huffman_tree(allocator, &pq);
+    defer destroy_huffman_tree(allocator, base);
+    wolk_huffman_tree(base, 0);
 
 }

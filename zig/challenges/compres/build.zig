@@ -3,16 +3,16 @@ const std = @import("std");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
-    const optimize = b.standardOptimizeOption(.{.preferred_optimize_mode = .ReleaseFast});
+    const optimize = b.standardOptimizeOption(.{.preferred_optimize_mode = .Debug});
 
     const exe = b.addExecutable(.{
         .name = "main",
+        .use_llvm = true,
         .root_module = b.addModule("Exe", .{
             .root_source_file = b.path("main.zig"),
             .target = target,
             .optimize = optimize,
         }),
-        .use_llvm = true,
     });
 
 
