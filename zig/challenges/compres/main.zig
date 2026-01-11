@@ -155,15 +155,39 @@ fn create_encrypt_file(old_name: []u8) !std.fs.File {
     return new_file;
 }
 
-fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: std.AUtoHashMap(u8, []u8)) ![]u8 {
-    
+fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: *std.AutoHashMap(u8, []u8)) ![]u8 {
+    var buf = try std.ArrayList(u8).initCapacity(allocator, text.len);    
+    defer buf.deinit(allocator);
+
+    var b: u8 = 0;
+    var offset: u32 = 0;
 
     for(text) |c| {
-
+        const path = lookup.get(c).?;
+        for (path) |bit| {
+            if (bit == 1) {
+                b |= 1;
+            } else {
+                b |= 0;
+            }
+            if (offset == 7) {
+                try buf.append(allocator, b);
+                b = 0;
+                offset = 0;
+            } else {
+                b <<= 1;
+                offset += 1;
+            }
+        }
     }
+    while(offset < 8) {
+        b <<= 1;
+        offset += 1;
+    }
+    try buf.append(allocator, b);
 
+    return buf.toOwnedSlice(allocator);
 }
-
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -172,6 +196,11 @@ pub fn main() !void {
     if (args.len < 2) {
         std.debug.print("Usage: compress [file_name]\n", .{});
         return;
+    }
+    if (args.len == 3) {
+        if (std.mem.eql(u8, args[1], "-e")) {
+
+        }
     }
 
     const file = try std.fs.cwd().openFile(args[1], .{.mode = .read_only});
@@ -199,7 +228,7 @@ pub fn main() !void {
     const new_file = try create_encrypt_file(args[1]);
     defer new_file.close();
     var write_bytes = try new_file.write(header);
-    const encrypted_text = try encrypt(allocator, buf, lookup);
+    const encrypted_text = try encrypt(allocator, buf, &lookup);
     defer allocator.free(encrypted_text);
 
     write_bytes = try new_file.write(encrypted_text);
