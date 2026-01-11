@@ -1,0 +1,5 @@
+package lsp
+
+main :: proc() {
+
+}
