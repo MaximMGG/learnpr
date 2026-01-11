@@ -126,6 +126,45 @@ fn destroy_lookup_table(allocator: std.mem.Allocator, lookup: *std.AutoHashMap(u
     lookup.deinit();
 }
 
+
+fn build_header(allocator: std.mem.Allocator, freq: std.AutoHashMap(u8, u32)) ![]u8 {
+    var num_buf: [64]u8 = undefined;
+    var header = try std.ArrayList(u8).initCapacity(allocator, 1024);
+    defer header.deinit(allocator);
+
+    var it = freq.iterator();
+
+    while(it.next()) |entry| {
+        try header.append(allocator, entry.key_ptr.*);
+        try header.append(allocator, ',');
+        const num = try std.fmt.bufPrint(&num_buf, "{d}", .{entry.value_ptr.*});
+        try header.appendSlice(allocator, num);
+        try header.append(allocator, ',');
+    }
+
+    return try header.toOwnedSlice(allocator);
+}
+
+fn create_encrypt_file(old_name: []u8) !std.fs.File {
+    const dot_position = std.mem.indexOfScalar(u8, old_name, '.').?;
+    var new_name: [128]u8 = undefined;
+    @memcpy(new_name[0..dot_position + 1], old_name[0..dot_position + 1]);
+    @memcpy(new_name[dot_position + 1..dot_position+3], "hf");
+
+    const new_file = try std.fs.cwd().createFile(new_name[0..dot_position + 3], .{.truncate = true, .mode = 0o666});
+    return new_file;
+}
+
+fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: std.AUtoHashMap(u8, []u8)) ![]u8 {
+    
+
+    for(text) |c| {
+
+    }
+
+}
+
+
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const args = try std.process.argsAlloc(allocator);
@@ -153,6 +192,17 @@ pub fn main() !void {
 
     var lookup = try build_lookup_table(allocator, base);
     defer destroy_lookup_table(allocator, &lookup);
+
+    const header = try build_header(allocator, m);
+    defer allocator.free(header);
+
+    const new_file = try create_encrypt_file(args[1]);
+    defer new_file.close();
+    var write_bytes = try new_file.write(header);
+    const encrypted_text = try encrypt(allocator, buf, lookup);
+    defer allocator.free(encrypted_text);
+
+    write_bytes = try new_file.write(encrypted_text);
 }
 
 
