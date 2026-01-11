@@ -19,11 +19,14 @@ test_encode :: proc(t: ^testing.T) {
 @(test)
 test_decode :: proc(t: ^testing.T) {
   incomming_message := "Content-Length: 15\r\n\r\n{\"method\":\"hi\"}"
-  method, content_length, err := rpc.decodeMessage(transmute([]u8)incomming_message)
-  defer delete(method)
+  method, content, err := rpc.decodeMessage(transmute([]u8)incomming_message)
+  defer {
+    delete(method)
+    delete(content)
+  }
   if err != nil {
     testing.fail_now(t, "Error")
   }
-  testing.expectf(t, content_length == 15, "Expected length: %d, Actual length: %d", 15, content_length)
+  testing.expectf(t, len(content) == 15, "Expected length: %d, Actual length: %d", 15, len(content))
 
 }
