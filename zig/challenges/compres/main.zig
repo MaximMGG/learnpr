@@ -1,4 +1,5 @@
 const std = @import("std");
+const testing = std.testing;
 
 
 fn build_frequensy(allocator: std.mem.Allocator, file: []u8) !std.AutoHashMap(u8, u32) {
@@ -91,9 +92,44 @@ fn destroy_huffman_tree(allocator: std.mem.Allocator, base: *Node) void {
     allocator.destroy(base);
 }
 
+fn build_lookup_table_helper(allocator: std.mem.Allocator, base: *Node, path: []u8, path_len: usize, lookup: *std.AutoHashMap(u8, []u8)) !void {
+    if (base.is_liaf) {
+        const end_path = try allocator.dupe(u8, path[0..path_len]);
+        try lookup.put(base.letter, end_path);
+    } else {
+        if (base.left) |left| {
+            path[path_len] = 0;
+            try build_lookup_table_helper(allocator, left, path, path_len + 1, lookup);
+        } else {
+            return;
+        }
+        if (base.right) |right| {
+            path[path_len] = 1;
+            try build_lookup_table_helper(allocator, right, path, path_len + 1, lookup);
+        }
+    }
+}
+
+fn build_lookup_table(allocator: std.mem.Allocator, base: *Node) !std.AutoHashMap(u8, []u8) {
+    var res = std.AutoHashMap(u8, []u8).init(allocator);
+    var path: [128]u8 = .{0} ** 128;
+    try build_lookup_table_helper(allocator, base, &path, 0, &res);
+    return res;
+}
+fn destroy_lookup_table(allocator: std.mem.Allocator, lookup: *std.AutoHashMap(u8, []u8)) void {
+    var it = lookup.iterator();
+
+    while(it.next()) |entry| {
+        allocator.free(entry.value_ptr.*);
+    }
+
+    lookup.deinit();
+}
+
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
     const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
     if (args.len < 2) {
         std.debug.print("Usage: compress [file_name]\n", .{});
         return;
@@ -110,9 +146,36 @@ pub fn main() !void {
     defer m.deinit();
 
     var pq = try build_priority_queue(allocator, m);
+    defer pq.deinit();
 
     const base = try build_huffman_tree(allocator, &pq);
     defer destroy_huffman_tree(allocator, base);
-    wolk_huffman_tree(base, 0);
+
+    var lookup = try build_lookup_table(allocator, base);
+    defer destroy_lookup_table(allocator, &lookup);
+}
+
+
+
+test "encrypt test" {
+    std.debug.print("Run test\n", .{});
+    const file_name = "test.txt";
+    const allocator = testing.allocator;
+
+    const file = try std.fs.cwd().openFile(file_name, .{.mode = .read_only});
+    defer file.close();
+    const stat = try file.stat();
+    const buf = try allocator.alloc(u8, stat.size);
+    defer allocator.free(buf);
+    _ = try file.read(buf);
+
+    var m = try build_frequensy(allocator, buf);
+    defer m.deinit();
+
+    var pq = try build_priority_queue(allocator, m);
+    defer pq.deinit();
+
+    const base = try build_huffman_tree(allocator, &pq);
+    defer destroy_huffman_tree(allocator, base);
 
 }
