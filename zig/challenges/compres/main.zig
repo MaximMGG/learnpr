@@ -160,16 +160,24 @@ fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: *std.AutoHashMap(u8
     var buf = try std.ArrayList(u8).initCapacity(allocator, text.len);    
     defer buf.deinit(allocator);
 
+    //For debug
+    var debug_buf = try std.ArrayList(u8).initCapacity(allocator, 1024);
+    defer debug_buf.deinit(allocator);
+    //For debug end
+
     var b: u8 = 0;
     var offset: u32 = 0;
 
     for(text) |c| {
         const path = lookup.get(c).?;
+        std.debug.print("Encrypt letter {c}:{d} path-> {any}\n", .{c, c, path});
         for (path) |bit| {
             if (bit == 1) {
                 b |= 1;
+                try debug_buf.append(allocator, '1');
             } else {
                 b |= 0;
+                try debug_buf.append(allocator, '0');
             }
             if (offset == 7) {
                 try buf.append(allocator, b);
@@ -187,6 +195,7 @@ fn encrypt(allocator: std.mem.Allocator, text: []u8, lookup: *std.AutoHashMap(u8
     }
     try buf.append(allocator, b);
 
+    std.debug.print("Total path: {s}\n", .{debug_buf.items});
     return buf.toOwnedSlice(allocator);
 }
 fn read_header(allocator: std.mem.Allocator, text: []u8, offset: *usize) !std.AutoHashMap(u8, u32) {
@@ -211,6 +220,9 @@ fn read_header(allocator: std.mem.Allocator, text: []u8, offset: *usize) !std.Au
         }
         number = try std.fmt.parseInt(u32, num_buf[0..num_i], 10);
         try res.put(letter, number);
+        i += 1;
+        num_i = 0;
+        @memset(&num_buf, 0);
     }
     i += 1;
     offset.* = i;
@@ -220,7 +232,12 @@ fn read_header(allocator: std.mem.Allocator, text: []u8, offset: *usize) !std.Au
 fn decrypt(allocator: std.mem.Allocator, base: *Node, text: []u8) ![]u8 {
     var node = base;
     var res = try std.ArrayList(u8).initCapacity(allocator, text.len * 2);
-    defer res.deinit();
+    defer res.deinit(allocator);
+
+    for(text) |byte| {
+        std.debug.print("{b}", .{byte});
+    }
+    std.debug.print("\n", .{});
 
     for(text) |byte| {
         var offset: usize = 7;
@@ -228,22 +245,17 @@ fn decrypt(allocator: std.mem.Allocator, base: *Node, text: []u8) ![]u8 {
             if (node.is_liaf) {
                 try res.append(allocator, node.letter);
                 node = base;
-                break;
             } else {
-                if (((byte >> offset) & 0x1) == 1) {
+                if (((byte >> @as(u3, @intCast(offset))) & 0x1) == 1) {
                     node = node.right.?;
-                    if (offset == 0) {
-                        break;
-                    }
-                    offset -= 1;
                 } else {
                     node = node.left.?;
                 }
-                if (offset == 0) {
-                    break;
-                }
-                offset -= 1;
             }
+            if (offset == 0) {
+                break;
+            }
+            offset -= 1;
         }
     }
     return res.toOwnedSlice(allocator);
@@ -259,6 +271,7 @@ fn write_decrypt_text(allocator: std.mem.Allocator, text: []u8, old_name: []u8) 
     const new_name = try write_get_new_file_name(allocator, old_name);
     defer allocator.free(new_name);
     const file = try std.fs.cwd().createFile(new_name, .{.truncate = true});
+    defer file.close();
     _ = try file.write(text);
 }
 
@@ -274,6 +287,9 @@ fn process_decrypt(allocator: std.mem.Allocator, file_name: []u8) !void {
     var pq = try build_priority_queue(allocator, &freq);
     defer pq.deinit();
     const base = try build_huffman_tree(allocator, &pq);
+    //Test case
+    // wolk_huffman_tree(base, 0);
+    //Test case end
     defer destroy_huffman_tree(allocator, base);
     const text = try decrypt(allocator, base, buf[file_offset..]);
     defer allocator.free(text);
@@ -309,10 +325,13 @@ pub fn main() !void {
     var m = try build_frequensy(allocator, buf);
     defer m.deinit();
 
-    var pq = try build_priority_queue(allocator, m);
+    var pq = try build_priority_queue(allocator, &m);
     defer pq.deinit();
 
     const base = try build_huffman_tree(allocator, &pq);
+    //Test case
+    // wolk_huffman_tree(base, 0);
+    //Test case end
     defer destroy_huffman_tree(allocator, base);
 
     var lookup = try build_lookup_table(allocator, base);
