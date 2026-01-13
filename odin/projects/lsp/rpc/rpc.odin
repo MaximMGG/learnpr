@@ -5,6 +5,7 @@ import "core:fmt"
 import "core:strings"
 import "core:strconv"
 import "core:bufio"
+import "core:log"
 
 rpc_error :: enum {
   Did_not_find_separator,
@@ -78,8 +79,11 @@ split :: proc(data: []u8, _: bool) -> (advance: int, token: []u8, err: bufio.Sca
     return 0, nil, nil, false
 
   }
+  log.info("data len:", len(data))
+  log.info("header len:", len(header))
+  log.info("content_length:", content_length)
 
   total_length := len(header) + 4 + content_length
 
-  return total_length, content[0:total_length], nil, false
+  return total_length, data[:total_length], nil, false
 }
