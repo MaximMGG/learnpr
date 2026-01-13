@@ -24,13 +24,17 @@ main :: proc() {
 
   for bufio.scanner_scan(scanner) {
     msg := scanner.token
-    handle_message(transmute(string)msg)
+    method, contents, err := rpc.decodeMessage(msg)
+    if err != nil {
+      log.error("Got error", err)
+    }
+    handle_message(method, contents)
   }
 }
 
 
-handle_message :: proc(msg: any) {
-  log.info(msg)
+handle_message :: proc(method: string, contents: []u8) {
+  log.info("Received msg with method:", method)
 }
 
 

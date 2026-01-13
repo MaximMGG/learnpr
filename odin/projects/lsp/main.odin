@@ -1,4 +1,4 @@
-package lsp
+package educationalsp
 
 main :: proc() {
 

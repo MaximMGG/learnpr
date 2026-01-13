@@ -79,9 +79,6 @@ split :: proc(data: []u8, _: bool) -> (advance: int, token: []u8, err: bufio.Sca
     return 0, nil, nil, false
 
   }
-  log.info("data len:", len(data))
-  log.info("header len:", len(header))
-  log.info("content_length:", content_length)
 
   total_length := len(header) + 4 + content_length
 

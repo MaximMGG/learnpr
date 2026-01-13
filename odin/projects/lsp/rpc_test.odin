@@ -1,4 +1,4 @@
-package lsp
+package educationalsp
 
 import "rpc"
 import "core:testing"
