@@ -1,222 +1,147 @@
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/stat.h>
+#include <cstdext/core.h>
+#include <cstdext/io/reader.h>
 #include <cstdext/io/logger.h>
-#include <cstdext/container/list.h>
+#include <cstdext/container/map.h>
+#include <cstdext/container/priority_queue.h>
 
-typedef struct Node {
-    i8 val;
-    u32 weight;
-    bool leaf;
-    struct Node *left;
-    struct Node *right;
+typedef struct {
+  i8 letter;
+  u32 freq;
+  bool is_leaf;
+  struct Node *left;
+  struct Node *right;
 } Node;
 
 
-Node *buildHaffmanTree(list *chars, list *weights) {
-    Node *cur_node = make(Node);
-    Node *left = make(Node);
-    left->val = *(i8 *)list_get(chars, 0);
-    left->weight = *(u32 *)list_get(weights, 0);
-    left->leaf = true;
-    left->left = null;
-    left->right = null;
-    Node *right = make(Node);
-    right->val = *(i8 *)list_get(chars, 1);
-    right->weight = *(u32 *)list_get(weights, 1);
-    right->leaf = true;
-    right->left = null;
-    right->right = null;
-    cur_node->leaf = false;
-    cur_node->weight = right->weight + left->weight;
-    cur_node->left = left;
-    cur_node->right = right;
+bool less(ptr _l, ptr _r) {
+  Node *l = (Node *)_l;
+  Node *r = (Node *)_r;
 
-    u32 index = 2;
-    while(index < chars->len) {
-        u32 tmp_weight = *(u32 *)list_get(weights, index);
-        if (cur_node->weight < tmp_weight) {
-            left = cur_node;
-            right = make(Node);
-            right->weight = tmp_weight;
-            right->val = *(i8 *)list_get(chars, index);
-            right->leaf = true;
-        } else {
-            right = cur_node;
-            left = make(Node);
-            left->weight = tmp_weight;
-            left->val = *(i8 *)list_get(chars, index);
-            left->leaf = true;
-        }
-        cur_node = make(Node);
-        cur_node->weight = left->weight + right->weight;
-        cur_node->leaf = false;
-        cur_node->left = left;
-        cur_node->right = right;
-        index++;
+  if (l->freq < r->freq) {
+    return true;
+  } else if (l->freq > r->freq) {
+    return false;
+  }
+  if (l->freq == r->freq) {
+    if (l->letter < r->letter) {
+      return true;
+    } else {
+      return false;
     }
-
-    return cur_node;
+  }
+  return false;
 }
 
 
 
-void sort_lists(list *chars, list *weights) {
+i8 *read_file(str file_name) {
+  reader *r = reader_create_from_file(file_name);
+  i8 *buf = (i8 *)str_copy(r->buf);
+  reader_destroy(r);
 
-    u32 start = 0;
-    u32 *data = (u32 *) weights->data;
-    i8 *c_data = (i8 *) chars->data;
-
-
-    while(start < weights->len) {
-        u32 min_weights = UINT32_MAX;
-        u32 index = 0;
-        for(i32 i = start; i < weights->len; i++) {
-            if (data[i] < min_weights) {
-                min_weights = data[i];
-                index = i;
-            }
-        }
-
-        i8 tmp_char = c_data[start];
-        u32 tmp_weight = data[start];
-        c_data[start] = c_data[index];
-        data[start] = data[index];
-        c_data[index] = tmp_char;
-        data[index] = tmp_weight;
-        start += 1;
-    }
+  return buf;
 }
 
 
-i32 list_contain_index(list *chars, i8 c) {
-    i8 *tmp = chars->data;
-    for(i32 i = 0; i < chars->len; i++) {
-        if (tmp[i] == c) {
-            return i;
-        }
+map *build_frequanse(i8 *text) {
+  map *m = map_create(U8, U32, null, null);
+  u32 text_len = strlen(text);
+  for(i32 i = 0; i < text_len; i++) {
+    if (map_contain(m, &text[i])) {
+      KV kv = map_get(m, &text[i]);
+      (*(u32 *)kv.val)++;
+    } else {
+      u32 tmp_num = 1;
+      map_put(m, &text[i], &tmp_num);
     }
-    return -1;
+  }
+
+  return m;
 }
 
-void print_tree(Node *head) {
-    Node *leaf;
-    while(head->left != null || head->right != null) {
-        printf("Step weight: %d\n", head->weight);
-        if (!head->leaf) {
-            if (head->left->leaf) {
-                leaf = head->left;
-                head = head->right;
-            } else if (head->right->leaf) {
-                leaf = head->right;
-                head = head->left;
-            } else {
-                return;
-            }
-        }
-        printf("Leaf: %c - %d\n", leaf->val, leaf->weight);
-    }
+Node *build_huffman_tree(priority_queue *pq) {
+
+  while(pq->len > 1) {
+    Node *l = priority_queue_pop(pq);
+    Node *r = priority_queue_pop(pq);
+    Node *new = make(Node);
+    new->is_leaf = false;
+    new->left = (struct Node *)l;
+    new->right = (struct Node *)r;
+    new->letter = 0;
+    new->freq = l->freq + r->freq;
+    priority_queue_push(pq, new);
+  }
+
+  return priority_queue_pop(pq);
 }
 
-
-char *encode(Node *head, str text, u32 text_len, u32 *encode_len) {
-    u8 *encode_buf = alloc(text_len);
-    u32 index = 0;
-    u8 bit = 0;
-    u8 bit_count = 0;
-
-    for(i32 i = 0; i < text_len; i++) {
-        Node *tmp = head;
-        bool find = false;
-        while(!find) {
-            if (tmp->left != null && tmp->left->leaf) {
-                if (tmp->left->val == text[i]) {
-                    bit <<= 1;
-                    bit_count++;
-                    find = true;
-                } else {
-                    bit += 1;
-                    bit <<= 1;
-                    bit_count++;
-                    tmp = tmp->right;
-                }
-            }
-            if (tmp->right != null && tmp->right->leaf){
-                if (tmp->right->val == text[i]) {
-                    bit += 1;
-                    bit <<= 1;
-                    bit_count++;
-                    find = true;
-                } else {
-                    bit <<= 1;
-                    bit_count++;
-                    tmp = tmp->left;
-                }
-            }
-
-            if (bit_count == 9) {
-                encode_buf[index] = bit;
-                bit ^= bit;
-                bit_count = 0;
-                index++;
-            }
-        }
+void wolk_huffman_tree(Node *base, u32 level) {
+  if (base->is_leaf) {
+    printf("Char: %c, freq: %u, LAYER: %d\n", base->letter, base->freq, level);
+  } else {
+    if (base->left != null) {
+      printf("LAYER: %d, going left, ferq: %u", level, base->freq);
+      wolk_huffman_tree((Node *)base->left, level + 1);
     }
-    if (bit_count > 0) {
-        encode_buf[index] = bit;
+    if (base->right != null) {
+      printf("LAYER: %d, going right, ferq: %u", level, base->freq);
+      wolk_huffman_tree((Node *)base->right, level + 1);
     }
-
-    *encode_len = index;
-    dealloc(encode_buf);
-    return alloc_copy(encode_buf, index);
+  }
 }
 
+void destroy_huffman_tree(Node *base) {
+  if (base->left != null) {
+    destroy_huffman_tree((Node *)base->left);
+  }
+  if (base->right != null) {
+    destroy_huffman_tree((Node *)base->right);
+  }
+  dealloc(base);
+}
 
-int main() {
-    i32 fd = open("./test/test2.txt", O_RDONLY);
-    if (fd < 0) {
-        log(ERROR, "Cant read file");
-        return 1;
+void process_decrypting(str file_name) {
+  (void)file_name;
+}
+
+void process_encrypting(str file_name) {
+  i8 *text = read_file(file_name);
+  map *freq = build_frequanse(text);
+  priority_queue *pq = priority_queue_create(STRUCT, less);
+
+  iterator *it = map_iterator(freq);
+
+  while(map_it_next(it)) {
+    Node *new = make(Node);
+    new->letter = *(i8 *)it->key;
+    new->freq = *(u32 *)it->val;
+    new->is_leaf = true;
+    new->left = null;
+    new->right = null;
+    priority_queue_push(pq, new);
+  }
+  Node *base = build_huffman_tree(pq);
+
+  wolk_huffman_tree(base, 0);
+
+  destroy_huffman_tree(base);
+  priority_queue_destroy(pq);
+  map_destroy(freq);
+  dealloc(text);
+}
+
+int main(i32 argc, str *argv) {
+  if (argc == 2) {
+    process_encrypting(argv[1]);
+  } else if (argc == 3) {
+    if (streql(argv[1], "-e")) {
+      process_decrypting(argv[2]);
+    } else {
+      fprintf(stderr, "Usage: compress -e [file_name]");
     }
+  }
 
-    struct stat st;
-    fstat(fd, &st);
-
-    i8 *buf = alloc(st.st_size + 1);
-    i32 read_bytes = read(fd, buf, st.st_size);
-    if (read_bytes != st.st_size) {
-        log(ERROR, "Read bytes not equalse st.st_size %d - %d", read_bytes, st.st_size);
-        close(fd);
-        return 1;
-    }
-
-    list *chars = list_create(I8);
-    list *weights = list_create(U32);
-
-    for(i32 i = 0; i < read_bytes; i++) {
-        i32 index = list_contain_index(chars, buf[i]);
-        if (index == -1) {
-            list_append(chars, &buf[i]);
-            u32 tmp = 1;
-            list_append(weights, &tmp);
-        } else {
-            u32 *tmp = list_get(weights, index);
-            *tmp += 1;
-        }
-    }
-
-    sort_lists(chars, weights);
-    Node *head = buildHaffmanTree(chars, weights);
-    print_tree(head);
-
-    u32 encode_len = 0;
-    i8 *encode_buf = encode(head, buf, read_bytes, &encode_len);
-    printf("Len - %d, Enode: %s\n", encode_len, encode_buf);
-    dealloc(encode_buf);
-
-    return 0;
+  return 0;
 }
