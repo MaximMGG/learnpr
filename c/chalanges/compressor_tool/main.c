@@ -34,12 +34,11 @@ bool less(ptr _l, ptr _r) {
 }
 
 
-
 i8 *read_file(str file_name) {
   reader *r = reader_create_from_file(file_name);
   i8 *buf = (i8 *)str_copy(r->buf);
-  reader_destroy(r);
 
+  reader_destroy(r);
   return buf;
 }
 
@@ -82,11 +81,11 @@ void wolk_huffman_tree(Node *base, u32 level) {
     printf("Char: %c, freq: %u, LAYER: %d\n", base->letter, base->freq, level);
   } else {
     if (base->left != null) {
-      printf("LAYER: %d, going left, ferq: %u", level, base->freq);
+      printf("LAYER: %d, going left, ferq: %u\n", level, base->freq);
       wolk_huffman_tree((Node *)base->left, level + 1);
     }
     if (base->right != null) {
-      printf("LAYER: %d, going right, ferq: %u", level, base->freq);
+      printf("LAYER: %d, going right, ferq: %u\n", level, base->freq);
       wolk_huffman_tree((Node *)base->right, level + 1);
     }
   }
@@ -100,6 +99,40 @@ void destroy_huffman_tree(Node *base) {
     destroy_huffman_tree((Node *)base->right);
   }
   dealloc(base);
+}
+
+void build_lookup_table_help(Node *base, u32 *path, u32 path_len, map *lookup) {
+  if (base->is_leaf) {
+    u32 *tmp = da_create_from_arr(path, path_len);
+    map_put(lookup, &base->letter, tmp);
+  } else {
+    if (base->left != null) {
+      path[path_len] = 0;
+      build_lookup_table_help((Node *)base->left, path, path_len + 1, lookup);
+    }
+    if (base->right != null) {
+      path[path_len] = 1;
+      build_lookup_table_help((Node *)base->right, path, path_len + 1, lookup);
+    }
+  }
+}
+
+map *build_lookup_table(Node *base) {
+  map *lookup = map_create(U8, PTR, null, null);
+  u32 *path = make_many(u32, 1024);
+  build_lookup_table_help(base, path, 0, lookup);
+  dealloc(path);
+  return lookup;
+}
+
+void destroy_lookup_table(map *lookup) {
+  iterator *it = map_iterator(lookup);
+
+  while(map_it_next(it)) {
+    da_destroy(it->val);
+  }
+  map_it_destroy(it);
+  map_destroy(lookup);
 }
 
 void process_decrypting(str file_name) {
@@ -122,15 +155,30 @@ void process_encrypting(str file_name) {
     new->right = null;
     priority_queue_push(pq, new);
   }
+  map_it_destroy(it);
+
   Node *base = build_huffman_tree(pq);
 
-  wolk_huffman_tree(base, 0);
+  map *lookup = build_lookup_table(base);
+  it = map_iterator(lookup);
+  while(map_it_next(it)) {
+    u32 *tmp = it->val;
+    printf("Char: %c [", *(i8 *)it->key);
+    for(i32 i = 0; i < DA_LEN(tmp); i++) {
+      printf("%d ", tmp[i]);
+    }
+    printf("]\n");
+  }
+  map_it_destroy(it);
 
   destroy_huffman_tree(base);
   priority_queue_destroy(pq);
   map_destroy(freq);
+  destroy_lookup_table(lookup);
   dealloc(text);
 }
+
+
 
 int main(i32 argc, str *argv) {
   if (argc == 2) {
