@@ -135,6 +135,47 @@ void destroy_lookup_table(map *lookup) {
   map_destroy(lookup);
 }
 
+str encrypt(str text, map *lookup) {
+  u32 text_len = strlen(text);
+  strbuf *sb = strbuf_create();
+  i8 b = 0;
+  u32 offset = 0;
+
+  for(i32 i = 0; i < text_len; i++) {
+    KV kv = map_get(lookup, &text[i]);
+
+    if (kv.key == null) {
+      fprintf(stderr, "Lookup table broken!!!\n");
+      exit(1);
+    }
+
+    u32 *path = kv.val;
+    for(i32 j = 0; j < DA_LEN(path); j++) {
+      if (path[j] == 0) {
+        b |= 0;
+      } else {
+        b |= 1;
+      }
+      if (offset == 7) {
+        strbuf_append_byte(sb, b);
+        offset = 0;
+        b = 0;
+      } else {
+        b <<= 1;
+        offset++;
+      }
+    }
+  }
+
+  str res = alloc(sb->len + 1);
+  memset(res, 0, sb->len + 1);
+  strncpy(res, sb->data, sb->len);
+  strbuf_destroy(sb);
+
+  return res;
+}
+
+
 void process_decrypting(str file_name) {
   (void)file_name;
 }
@@ -171,11 +212,16 @@ void process_encrypting(str file_name) {
   }
   map_it_destroy(it);
 
+  str encrypt_text = encrypt(text, lookup);
+
+  printf("%s\n", encrypt_text);
+
   destroy_huffman_tree(base);
   priority_queue_destroy(pq);
   map_destroy(freq);
   destroy_lookup_table(lookup);
   dealloc(text);
+  dealloc(encrypt_text);
 }
 
 
