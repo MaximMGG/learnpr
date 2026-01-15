@@ -136,7 +136,7 @@ void destroy_lookup_table(map *lookup) {
   map_destroy(lookup);
 }
 
-str encrypt(str text, map *lookup) {
+str encrypt(str text, map *lookup, u32 *encrypt_len) {
   u32 text_len = strlen(text);
   strbuf *sb = strbuf_create();
   i8 b = 0;
@@ -169,6 +169,7 @@ str encrypt(str text, map *lookup) {
   }
 
   str res = alloc(sb->len + 1);
+  *encrypt_len = sb->len;
   memset(res, 0, sb->len + 1);
   strncpy(res, sb->data, sb->len);
   strbuf_destroy(sb);
@@ -207,7 +208,7 @@ str create_encrypt_file(str file_name) {
   return new_file_name;
 }
 
-void write_to_encrypt_file(str file_name, str header, str text) {
+void write_to_encrypt_file(str file_name, str header, str text, u32 encrypt_len) {
   i32 fd = open(file_name, O_CREAT | O_TRUNC | O_RDWR, 0o666);
   if (fd <= 0) {
     fprintf(stderr, "Can't create file: %s\n", file_name);
@@ -219,9 +220,9 @@ void write_to_encrypt_file(str file_name, str header, str text) {
     fprintf(stderr, "Write bytes: %d != header len: %lu\n", write_bytes, strlen(header));
     exit(1);
   }
-  write_bytes = write(fd, text, strlen(text));
-  if (write_bytes != strlen(text)) {
-    fprintf(stderr, "Write bytes: %d != text len: %lu\n", write_bytes, strlen(text));
+  write_bytes = write(fd, text, encrypt_len);
+  if (write_bytes != encrypt_len) {
+    fprintf(stderr, "Write bytes: %d != text len: %u\n", write_bytes, encrypt_len);
     exit(1);
   }
   close(fd);
@@ -255,18 +256,21 @@ void process_encrypting(str file_name) {
   map *lookup = build_lookup_table(base);
   it = map_iterator(lookup);
   while(map_it_next(it)) {
-    u32 *tmp = it->val;
-    printf("Char: %c [", *(i8 *)it->key);
-    for(i32 i = 0; i < DA_LEN(tmp); i++) {
-      printf("%d ", tmp[i]);
+    u32 *path = it->val;
+    printf("Char: %c -> [", *(i8 *)it->key);
+    for(i32 i = 0; i < DA_LEN(path); i++) {
+      printf("%d ", path[i]);
     }
     printf("]\n");
   }
   map_it_destroy(it);
 
-  str encrypt_text = encrypt(text, lookup);
+  u32 encrypt_len = 0;
+  str encrypt_text = encrypt(text, lookup, &encrypt_len);
+  str header = build_header(freq);
+  str new_file_name = create_encrypt_file(file_name);
+  write_to_encrypt_file(new_file_name, header, encrypt_text, encrypt_len);
 
-  printf("%s\n", encrypt_text);
 
   destroy_huffman_tree(base);
   priority_queue_destroy(pq);
@@ -274,9 +278,9 @@ void process_encrypting(str file_name) {
   destroy_lookup_table(lookup);
   dealloc(text);
   dealloc(encrypt_text);
+  dealloc(new_file_name);
+  dealloc(header);
 }
-
-
 
 int main(i32 argc, str *argv) {
   if (argc == 2) {
