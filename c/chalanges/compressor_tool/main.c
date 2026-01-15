@@ -242,13 +242,13 @@ map *read_header(str text, u32 *header_len) {
       fprintf(stderr, "Broken header\n");
       exit(1);
     }
+    i++;
     while(text[i] != ',') {
       num_buf[num_i] = text[i];
       num_i++;
       i++;
     }
     u32 num = atol(num_buf);
-    i++;
   }
   *header_len = i + 1;
   return freq;
