@@ -228,9 +228,107 @@ void write_to_encrypt_file(str file_name, str header, str text, u32 encrypt_len)
   close(fd);
 }
 
+map *read_header(str text, u32 *header_len) {
+  map *freq = map_create(I8, U32, null, null);
+
+  i8 letter = 0;
+  i8 num_buf[64] = {0};
+  u32 num_i = 0;
+  i32 i = 0;
+  for( ; text[i] != (i8)254; i++) {
+    letter = text[i];
+    i++;
+    if (text[i] != ',') {
+      fprintf(stderr, "Broken header\n");
+      exit(1);
+    }
+    while(text[i] != ',') {
+      num_buf[num_i] = text[i];
+      num_i++;
+      i++;
+    }
+    u32 num = atol(num_buf);
+    i++;
+  }
+  *header_len = i + 1;
+  return freq;
+}
+str decrypt(Node *base, str text, u32 text_len) {
+  u32 offset = 7;
+  strbuf *sb = strbuf_create();
+  Node *tmp = base;
+  for(i32 i = 0; i < text_len; i++) {
+    while(true) {
+      if (tmp->is_leaf) {
+        strbuf_append_byte(sb, tmp->letter);
+        tmp = base;
+      }
+      if (((text[i] >> offset) & 0x1) == 1) {
+        tmp = (Node *)tmp->right;
+      } else {
+        tmp = (Node *)tmp->left;
+      }
+      if (offset == 0) {
+        offset = 7;
+        break;
+      } else {
+        offset--;
+      }
+    }
+  }
+
+  str res = alloc(sb->len + 1);
+  memset(res, 0, sb->len + 1);
+  strncpy(res, sb->data, sb->len);
+  strbuf_destroy(sb);
+  return res;
+}
+
+str create_decrypt_file(str file_name) {
+  i32 index = str_find(file_name, ".");
+  i8 buf[128] = {0};
+  strncpy(buf, file_name, index);
+  str new_file = str_create_fmt("%s_res.txt", buf);
+  return new_file;
+}
+
+void write_decrypt(str file_name, str text) {
+  i32 fd = open(file_name, O_CREAT | O_TRUNC | O_RDWR, 0o666);
+  u32 text_len = strlen(text);
+  u32 write_bytes = write(fd, text, text_len);
+  if (write_bytes != text_len) {
+    fprintf(stderr, "Write bytes: %d != text_len: %d\n", write_bytes, text_len);
+    exit(1);
+  }
+  close(fd);
+}
 
 void process_decrypting(str file_name) {
-  (void)file_name;
+  reader *r = reader_create_from_file(file_name);
+  u32 header_len = 0;
+  map *freq = read_header(r->buf, &header_len);
+  priority_queue *pq = priority_queue_create(PTR, less);
+
+  iterator *it = map_iterator(freq);
+  while(map_it_next(it)) {
+    Node *new = make(Node);
+    new->letter = *(i8 *)it->key;
+    new->freq = *(u32 *)it->val;
+    new->is_leaf = true;
+    new->left = null;
+    new->right = null;
+    priority_queue_push(pq, new);
+  }
+  Node *base = build_huffman_tree(pq);
+  str decrypt_text = decrypt(base, r->buf + header_len, r->bytes_availeble - header_len);
+  str new_file = create_decrypt_file(file_name);
+  write_decrypt(new_file, decrypt_text);
+
+  reader_destroy(r);
+  priority_queue_destroy(pq);
+  map_destroy(freq);
+  dealloc(new_file);
+  dealloc(decrypt_text);
 }
 
 void process_encrypting(str file_name) {
