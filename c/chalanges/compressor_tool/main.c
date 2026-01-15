@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <fcntl.h>
 #include <cstdext/core.h>
 #include <cstdext/io/reader.h>
 #include <cstdext/io/logger.h>
@@ -173,6 +174,57 @@ str encrypt(str text, map *lookup) {
   strbuf_destroy(sb);
 
   return res;
+}
+
+str build_header(map *freq) {
+  strbuf *sb = strbuf_create();
+  iterator *it = map_iterator(freq);
+  while(map_it_next(it)) {
+    strbuf_append_byte(sb, *(i8 *)it->key);
+    strbuf_append_byte(sb, ',');
+    strbuf_append_format(sb, "%u", *(u32 *)it->val);
+    strbuf_append_byte(sb, ',');
+  }
+  strbuf_append_byte(sb, (i8)254);
+
+  map_it_destroy(it);
+  str header = str_copy(sb->data);
+  strbuf_destroy(sb);
+  return header;
+}
+
+str create_encrypt_file(str file_name) {
+  i32 index = str_find(file_name, ".");
+  if (index == -1) {
+    fprintf(stderr, "Cant find '.' in file name\n");
+    exit(1);
+  }
+
+  i8 buf[128] = {0};
+  strncpy(buf, file_name, index);
+
+  str new_file_name = str_create_fmt("%s.hf", buf);
+  return new_file_name;
+}
+
+void write_to_encrypt_file(str file_name, str header, str text) {
+  i32 fd = open(file_name, O_CREAT | O_TRUNC | O_RDWR, 0o666);
+  if (fd <= 0) {
+    fprintf(stderr, "Can't create file: %s\n", file_name);
+    exit(1);
+  }
+
+  i32 write_bytes = write(fd, header, strlen(header));
+  if (write_bytes != strlen(header)) {
+    fprintf(stderr, "Write bytes: %d != header len: %lu\n", write_bytes, strlen(header));
+    exit(1);
+  }
+  write_bytes = write(fd, text, strlen(text));
+  if (write_bytes != strlen(text)) {
+    fprintf(stderr, "Write bytes: %d != text len: %lu\n", write_bytes, strlen(text));
+    exit(1);
+  }
+  close(fd);
 }
 
 
