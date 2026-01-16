@@ -94,7 +94,7 @@ wolk_huffman_tree :: proc(base: ^Node, layer: int) {
   }
 }
 
-build_lookup_helper :: proc(base: ^Node, path: []u8, path_len: u32, lookup: ^map[byte][]u8) {
+build_lookup_helper :: proc(base: ^Node, path: ^[]u8, path_len: u32, lookup: ^map[byte][]u8) {
   if base.is_leaf {
     lookup[base.letter] = slice.clone(path[:path_len])
   } else {
@@ -111,8 +111,9 @@ build_lookup_helper :: proc(base: ^Node, path: []u8, path_len: u32, lookup: ^map
 
 build_lookup :: proc(base: ^Node) -> map[byte][]u8 {
   lookup: map[byte][]u8
-  path: [128]u8
-  build_lookup_helper(base, path[:], 0, &lookup)
+  path := make([]u8, 128)
+  defer delete(path)
+  build_lookup_helper(base, &path, 0, &lookup)
   return lookup
 }
 destroy_huffman_tree :: proc(base: ^Node) {
@@ -184,7 +185,8 @@ process_decrypt :: proc(file: string) {
 
 main :: proc() {
   args := os.args
-  if len(args) == 2{
+  fmt.println(len(args))
+  if len(args) == 2 {
     process_encrypt(args[1])
   } else if len(args) == 3 {
     if args[1] == "-e" {
@@ -202,5 +204,50 @@ main :: proc() {
 
 @(test)
 build_freq_test :: proc(t: ^testing.T) {
+  file := "test_ref.txt"
+  f, f_ok := os.open(file, os.O_RDONLY)
+  if f_ok != nil {
+    fmt.eprintln("Can't open file:", file)
+    return
+  }
+  defer os.close(f)
+  stat, stat_ok := os.fstat(f)
+  if stat_ok != nil {
+    fmt.eprintln("File stat error:", stat_ok)
+    return
+  }
+  buf := make([]byte, stat.size)
+  defer delete(buf)
+  read_bytes, read_err := os.read(f, buf)
+  if read_err != nil {
+    fmt.eprintln("os.read err:", read_err)
+    delete(buf)
+  }
 
+  freq := build_freq(buf)
+  defer delete(freq)
+
+  if ODIN_DEBUG {
+    for k, v in freq {
+      fmt.printf("Char: %c, freq: %d\n", k, v)
+    }
+  }
+
+  q: pq.Priority_Queue(^Node)
+  pq.init(&q, less, swap)
+  defer pq.destroy(&q)
+  build_queue(&freq, &q)
+  base := build_huffman_tree(&q)
+  defer destroy_huffman_tree(base)
+  destroy_huffman_tree(base)
+  if ODIN_DEBUG {
+    wolk_huffman_tree(base, 0)
+  }
+  lookup := build_lookup(base)
+  defer destroy_lookup(lookup)
+  if ODIN_DEBUG {
+    for k, v in lookup {
+      fmt.printfln("Char: %c, path %v", k, v)
+    }
+  }
 }

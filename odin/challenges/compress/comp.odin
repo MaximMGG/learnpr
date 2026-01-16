@@ -37,10 +37,13 @@ build_header :: proc(queue: ^pq.Priority_Queue(^Node)) -> []u8 {
 }
 
 build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
+  index: u32 = 0
 	for pq.len(queue^) > 1 {
     a := pq.pop(queue)
     b := pq.pop(queue)
     new_node := new(Node)
+    new_node.letter = u8(index)
+    index += 1
     new_node.is_leaf = false
     new_node.left = a;
     new_node.right = b;
