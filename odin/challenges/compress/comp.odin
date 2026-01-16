@@ -19,6 +19,8 @@ Node :: struct {
 
 
 build_header :: proc(queue: ^pq.Priority_Queue(^Node)) -> []u8 {
+    // new_node.left = a.weight > b.weight ? b : a
+    // new_node.right = a.weight > b.weight ? a : b
 	sb: strings.Builder
 	sb = strings.builder_init(&sb)^
 	defer strings.builder_destroy(&sb)
@@ -36,24 +38,17 @@ build_header :: proc(queue: ^pq.Priority_Queue(^Node)) -> []u8 {
 
 build_huffman_tree :: proc(queue: ^pq.Priority_Queue(^Node)) -> ^Node {
 	for pq.len(queue^) > 1 {
-		a := pq.pop(queue)
-		b := pq.pop(queue)
-		new_node := new(Node)
-		new_node.is_leaf = false
-    if a.weight > b.weight {
-      new_node.left = a;
-      new_node.right = b;
-    } else {
-      new_node.left = b;
-      new_node.right = a;
-    }
-		// new_node.left = a.weight > b.weight ? b : a
-		// new_node.right = a.weight > b.weight ? a : b
-		new_node.weight = a.weight + b.weight
+    a := pq.pop(queue)
+    b := pq.pop(queue)
+    new_node := new(Node)
+    new_node.is_leaf = false
+    new_node.left = a;
+    new_node.right = b;
+    new_node.weight = a.weight + b.weight
     if ODIN_DEBUG {
       fmt.println("Build node: weight ->", new_node.weight)
     }
-		pq.push(queue, new_node)
+    pq.push(queue, new_node)
 	}
 	return pq.pop(queue)
 }
@@ -325,6 +320,7 @@ main :: proc() {
 
     decrypt_pq: pq.Priority_Queue(^Node)
     pq.init(&decrypt_pq, less, swap)
+    // pq.init(&decrypt_pq, less, slice.swap)
     defer pq.destroy(&decrypt_pq)
 
     for k, v in header_map {
@@ -336,7 +332,6 @@ main :: proc() {
       tmp.is_leaf = true
       pq.push(&decrypt_pq, tmp)
     }
-
 
     if ODIN_DEBUG {
       for pq.len(decrypt_pq) != 0 {
@@ -370,6 +365,7 @@ main :: proc() {
   queue: pq.Priority_Queue(^Node)
 
   pq.init(&queue, less, swap)
+  // pq.init(&queue, less, slice.swap)
   defer pq.destroy(&queue)
 
 
