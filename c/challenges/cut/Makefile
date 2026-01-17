@@ -8,7 +8,7 @@ LIBS = -lcext
 .PHONY: default build run clear
 
 
-default: build run
+default: clear build
 
 
 build: $(OBJ)
