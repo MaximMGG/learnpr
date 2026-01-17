@@ -1,8 +1,8 @@
 #include <cstdext/core.h>
 #include <cstdext/io/reader.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <string.h>
-#include <ctype.h>
 
 
 byte delimeter = '\t';
@@ -86,7 +86,17 @@ int main(i32 argc, str *argv) {
     }
   }
 
-  reader *r = reader_create_from_file(argv[argc - 1]);
+  reader *r;
+
+  if (strlen(argv[argc - 1]) == 1) {
+    if (argv[argc - 1][0] == '-') {
+      r = reader_create_from_fd(STDIN_FILENO);
+
+    }
+  }
+
+
+  r = reader_create_from_file(argv[argc - 1]);
   if (fields_count == 0) {
     printf("%s\n", r->buf);
   }
