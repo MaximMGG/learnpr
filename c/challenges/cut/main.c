@@ -91,12 +91,14 @@ int main(i32 argc, str *argv) {
   if (strlen(argv[argc - 1]) == 1) {
     if (argv[argc - 1][0] == '-') {
       r = reader_create_from_fd(STDIN_FILENO);
-
     }
+  } else {
+    r = reader_create_from_file(argv[argc - 1]);
   }
+#ifdef DEBUG
+    printf("%s\n", r->buf);
+#endif
 
-
-  r = reader_create_from_file(argv[argc - 1]);
   if (fields_count == 0) {
     printf("%s\n", r->buf);
   }
