@@ -42,7 +42,7 @@ void print_level(i32 level) {
   }
 }
 
-void check_dir(str dir_name, i32 level) {
+void check_dir(Allocator *allocator, str dir_name, i32 level) {
   DIR *dir = opendir(dir_name);
   if (dir == null) {
     log(FATAL, "Cant open dir %s", dir_name);
@@ -57,12 +57,12 @@ void check_dir(str dir_name, i32 level) {
   while((d = readdir(dir)) != null) {
     if (d->d_type == DT_DIR) {
       if (d->d_name[0] == '.') continue;
-      str new_name = str_create_fmt("%s/%s", dir_name, d->d_name);
-      check_dir(new_name, level + 1);
-      dealloc(new_name);
+      str new_name = str_create_fmt(allocator, "%s/%s", dir_name, d->d_name);
+      check_dir(allocator, new_name, level + 1);
+      DEALLOC(allocator, new_name);
       continue;
     } else if (d->d_type == DT_REG) {
-      str file_name = str_create_fmt("%s/%s", dir_name, d->d_name);
+      str file_name = str_create_fmt(allocator, "%s/%s", dir_name, d->d_name);
       stat(file_name, &st);
       if ((st.st_mode & S_IXUSR) > 0) {
 	if (check_exception(d->d_name)) {
@@ -72,7 +72,7 @@ void check_dir(str dir_name, i32 level) {
 	  remove(file_name);
 	}
       }
-      dealloc(file_name);
+      DEALLOC(allocator, file_name);
     }
   }
   closedir(dir);
@@ -80,9 +80,10 @@ void check_dir(str dir_name, i32 level) {
 
 
 int main() {
+  Allocator *allocator = heap_allocator;
   //byte buf[4096] = {0};
   wr = writer_create(STDOUT_FILENO, null, 4096);
-  check_dir(".", 0);
+  check_dir(allocator, ".", 0);
   writer_flush(wr);
   writer_destroy(wr);
   return 0;

@@ -4,6 +4,8 @@ package remexe2
 import "core:fmt"
 import "core:os"
 import "core:c"
+import "core:io"
+import "core:bufio"
 
 foreign import libc {
     "system:c",
@@ -51,5 +53,10 @@ rem_exe :: proc(dir_name: string, level: int) {
 }
 
 main :: proc() {
-    
+  stdout_stream := os.stream_from_handle(os.stdout)
+  stdout_writer := io.to_writer(stdout_stream)
+  writer: bufio.Writer
+  bufio.writer_init(&writer, stdout_writer)
+  defer bufio.writer_destroy(&writer)
+  rem_exe(writer, ".", 0)
 }
