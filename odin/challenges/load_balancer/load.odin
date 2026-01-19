@@ -27,7 +27,6 @@ redirect_worker :: proc(data: rawptr) {
 
   write_bytes := posix.write(cast(posix.FD)backend_sock, raw_data(buf[:read_bytes]), cast(c.size_t)read_bytes)
   read_bytes = posix.read(cast(posix.FD)backend_sock, raw_data(buf[:]), len(buf))
-  fmt.println("Received from backend server\n", transmute(string)buf[:read_bytes])
   write_bytes = posix.write(sock, raw_data(buf[:read_bytes]), cast(c.size_t)read_bytes)
   if write_bytes != read_bytes {
     fmt.eprintln("read bytes:", read_bytes, "not equalse write bytes:", write_bytes)
