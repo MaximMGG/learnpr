@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:net"
 import "core:os"
 import "core:log"
+import "core:sys/posix"
 import "core:thread"
 
 
@@ -25,11 +26,13 @@ main :: proc() {
     }
     fmt.println("Received request from ", client_endpoint.address)
     buf: [1024]byte
-    received_bytes, received_err := net.recv_tcp(client_socket, buf[:])
-    if received_err != nil {
-      fmt.eprintln("recv err:", received_err)
-      os.exit(1)
-    }
+    // received_bytes, received_err := net.recv_tcp(client_socket, buf[:])
+    // if received_err != nil {
+    //   fmt.eprintln("recv err:", received_err)
+    //   os.exit(1)
+    // }
+    read_bytes := posix.read(cast(posix.FD)client_socket, raw_data(buf[:]), 1024)
+    fmt.println(transmute(string)buf[:read_bytes])
   }
 
   log.info("Shutdown load balancer server")
