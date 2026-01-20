@@ -6,17 +6,36 @@ import "core:os"
 import "core:log"
 import "core:sys/posix"
 import "core:thread"
+import "core:sync"
 import "core:c"
 
 
+backend_mutex: sync.Mutex
+endpoints := []net.Endpoint{
+  net.Endpoint{address = net.IP4_Address{127, 0, 0, 1}, port = 4444},
+  net.Endpoint{address = net.IP4_Address{127, 0, 0, 1}, port = 4445},
+  net.Endpoint{address = net.IP4_Address{127, 0, 0, 1}, port = 4446}
+}
+endpoint_queue: int = 0
+
 redirect_worker :: proc(data: rawptr) {
+  sync.mutex_lock(&backend_mutex)
+  defer sync.mutex_unlock(&backend_mutex)
   sock_p: ^i32 = cast(^i32)data
   sock: posix.FD = cast(posix.FD)sock_p^
   buf: [1024]byte
   read_bytes := posix.read(sock, raw_data(buf[:]), len(buf[:]))
+  if read_bytes <= 0 {
+    return
+  }
   fmt.println(transmute(string)buf[:read_bytes])
 
-  back_endpoint := net.Endpoint{address = net.IP4_Address{127, 0, 0, 1}, port = 4444}
+  back_endpoint := endpoints[endpoint_queue]
+  if endpoint_queue == 2 {
+    endpoint_queue = 0
+  } else {
+    endpoint_queue += 1
+  }
 
   backend_sock, backend_err := net.dial_tcp_from_endpoint(back_endpoint)
   defer net.close(backend_sock)
@@ -27,6 +46,9 @@ redirect_worker :: proc(data: rawptr) {
 
   write_bytes := posix.write(cast(posix.FD)backend_sock, raw_data(buf[:read_bytes]), cast(c.size_t)read_bytes)
   read_bytes = posix.read(cast(posix.FD)backend_sock, raw_data(buf[:]), len(buf))
+  if read_bytes <= 0 {
+    return
+  }
   fmt.println("Received from backend server\n", transmute(string)buf[:read_bytes])
   write_bytes = posix.write(sock, raw_data(buf[:read_bytes]), cast(c.size_t)read_bytes)
   if write_bytes != read_bytes {
