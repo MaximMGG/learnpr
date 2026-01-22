@@ -9,7 +9,6 @@ import "core:io"
 import "core:bufio"
 import pq "core:container/priority_queue"
 
-
 less :: proc(a, b: string) -> bool {
   res := strings.compare(a, b)
   if res < 0 {
@@ -22,6 +21,13 @@ swap :: proc(arr: []string, a, b: int) {
   slice.swap(arr, a, b)
 }
 
+unique_result :: proc(queue: ^pq.Priority_Queue(string)) -> map[string]int {
+  res: map[string]int
+  for pq.len(queue^) != 0 {
+    res[pq.pop(queue)] = 1
+  }
+  return res
+}
 
 put_in_queue :: proc(queue: ^pq.Priority_Queue(string), reader: ^bufio.Reader) {
   for {
@@ -40,9 +46,9 @@ main :: proc() {
     return
   }
 
-  file, file_err := os.open(args[1])
+  file, file_err := os.open(args[len(args) - 1])
   if file_err != nil {
-    fmt.eprintf("open file %s err: %v\n", args[1], file_err)
+    fmt.eprintf("open file %s err: %v\n", args[len(args) - 1], file_err)
     return
   }
   defer os.close(file)
@@ -54,12 +60,27 @@ main :: proc() {
   queue: pq.Priority_Queue(string)
   pq.init(&queue, less, swap)
   defer pq.destroy(&queue)
-
   put_in_queue(&queue, &reader)
 
-  for pq.len(queue) > 0 {
-    s := pq.pop(&queue)
-    defer delete(s)
-    fmt.print(s)
+  if len(args) == 2 {
+    for pq.len(queue) > 0 {
+      s := pq.pop(&queue)
+      defer delete(s)
+      fmt.print(s)
+    }
+  } else if len(args) == 3 {
+    switch(args[1]) {
+    case "-u":
+      unique_res := unique_result(&queue)
+      unique_queue: pq.Priority_Queue(string)
+      pq.init(&unique_queue, less, swap)
+      for k, _ in unique_res {
+        pq.push(&unique_queue, k)
+      }
+
+      for pq.len(unique_queue) > 0 {
+        fmt.print(pq.pop(&unique_queue))
+      }
+    }
   }
 }
