@@ -14,8 +14,8 @@ ShaderError :: enum {
 }
 
 Shader :: struct {
-  id: int,
-  location: map[string]int
+  id: u32,
+  location: ^map[string]int
 }
 
 ShaderType :: enum {
@@ -126,5 +126,30 @@ compileShader :: proc(vs: cstring, fs: cstring) -> Shader {
   gl.DeleteShader(vertex_shader)
   gl.DeleteShader(fragment_shader)
 
-  return Shader{id = 1}
+  return Shader{id = program, location = new(map[string]int)}
 }
+
+setInt :: proc(shader: Shader, name: cstring, value: i32) {
+  if string(name) in shader.location {
+    gl.Uniform1i(i32(shader.location[string(name)]), value)
+  } else {
+    loc := gl.GetUniformLocation(shader.id, name)
+    if loc != -1 {
+      gl.Uniform1i(loc, value)
+      shader.location[string(name)] = int(loc)
+    }
+  }
+}
+
+setMat4 :: proc(shader: Shader, name: cstring, value: ^m.Matrix4x4f32) {
+  if string(name) in shader.location {
+    gl.UniformMatrix4fv(i32(shader.location[string(name)]), 1, gl.FALSE, raw_data(value))
+  } else {
+      loc := gl.GetUniformLocation(shader.id, name)
+      if loc != -1 {
+      gl.UniformMatrix4fv(loc, 1, gl.FALSE, raw_data(value))
+      shader.location[string(name)] = int(loc)
+    }
+  }
+}
+
