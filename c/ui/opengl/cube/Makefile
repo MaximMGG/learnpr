@@ -6,7 +6,7 @@ LIBS = -lGL -lGLEW -lglfw -lcext -lm ../lib/libutil.a
 
 .PHONY: default build run clear
 
-default: build run
+default: build
 
 build: $(OBJ)
 	gcc -o $(APP) $^ $(LIBS)
