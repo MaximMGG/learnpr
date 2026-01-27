@@ -47,6 +47,7 @@ ptr redirect_worker(ptr p) {
 
 
   dealloc(l);
+  return null;
 }
 
 int main() {
