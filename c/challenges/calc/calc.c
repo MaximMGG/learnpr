@@ -35,16 +35,15 @@ bool calcCheckPriority(List *l, u32 start, u32 end) {
       Token *a = listGet(l, i - 1);
       Token *b = listGet(l, i + 1);
       if (t->type == MUL) {
-	t->val = a->val * b->val;
-	t->type = NUM;
+	a->val *= b->val;
       } else {
-	t->val = a->val / b->val;
-	t->type = NUM;
+	a->val /= b->val;
       }
-      DEALLOC(l->allocator, a);
-      DEALLOC(l->allocator, b);
-      listRemove(l, i - 1);
       listRemove(l, i + 1);
+      listRemove(l, i);
+
+      DEALLOC(l->allocator, t);
+      DEALLOC(l->allocator, b);
       i--;
     }
   }
@@ -70,17 +69,16 @@ void calcExpression(List *l, u32 start, u32 end) {
       Token *a = listGet(l, i - 1);
       Token *b = listGet(l, i + 1);
       if (t->type == ADD) {
-	t->val = a->val + b->val;
-	t->type = NUM;
+	a->val += b->val;
       } else {
-	t->val = a->val - b->val;
-	t->type = NUM;
+	a->val -= b->val;
       }
-      DEALLOC(l->allocator, a);
-      DEALLOC(l->allocator, b);
-      listRemove(l, i - 1);
       listRemove(l, i + 1);
-      i--;
+      listRemove(l, i);
+
+      DEALLOC(l->allocator, t);
+      DEALLOC(l->allocator, b);
+      continue;
     } else {
       i++;
     }
@@ -152,6 +150,7 @@ void tokenezeInput(List *l, str input) {
       memset(buf, 0, 64);
       buf_i = 0;
       listAppend(l, t);
+      continue;
     }
     if (input[i] == '+') {
       Token *t = MAKE(l->allocator, Token);
