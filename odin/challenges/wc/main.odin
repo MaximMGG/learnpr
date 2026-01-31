@@ -9,7 +9,6 @@ import "core:strings"
 import "core:unicode"
 import "core:c/libc"
 
-
 word_check :: proc(s: string) -> bool {
   buf: []u8 = transmute([]u8)s
   has_alpha: bool = false

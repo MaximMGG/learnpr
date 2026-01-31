@@ -12,10 +12,10 @@ typedef struct {
   TokenType type;
   f64 val;
 } Token;
+
 void calcExpression(List *l, u32 start, u32 end);
 bool calcCheckBracket(List *l, u32 start, u32 end);
 bool calcCheckPriority(List *l, u32 start, u32 end);
-
 
 bool calcCheckPriority(List *l, u32 start, u32 end) {
   u32 find_priority = 0;
@@ -44,6 +44,7 @@ bool calcCheckPriority(List *l, u32 start, u32 end) {
 
       DEALLOC(l->allocator, t);
       DEALLOC(l->allocator, b);
+      end -= 2;
       i--;
     }
   }
@@ -78,6 +79,7 @@ void calcExpression(List *l, u32 start, u32 end) {
 
       DEALLOC(l->allocator, t);
       DEALLOC(l->allocator, b);
+      end -= 2;
       continue;
     } else {
       i++;

@@ -10,6 +10,7 @@ import pq "core:container/priority_queue"
 
 less :: proc(a, b: string) -> bool {
     res := strings.compare(a, b)
+    strings.
   if res < 0 {
     return true
   }
