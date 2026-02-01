@@ -93,40 +93,55 @@ u32 calcExpression(List *l, u32 start, u32 end) {
   }
   return token_remove;
 }
-
+//  "(3 + 2) * 2"
 u32 calcCheckBracket(List *l, u32 start, u32 end) {
   Token *t;
   u32 bracket_find_open = 0;
   u32 bracket_find_close = 0;
   u32 bracket_count = 0;
   u32 token_remove = 0;
-  for(u32 i = start; i < end; i++) {
+
+  u32 i = start;
+  while (i != end) {
     t = listGet(l, i);
     if (t->type == BRACKET_OPEN) {
       bracket_find_open = i;
       bracket_count = 1;
       i++;
-      while(true) {
-	t = listGet(l, i);
+      break;
+    }
+    i++;
+  }
+  if (bracket_count == 0) {
+    return 0;
+  }
+  while (true) {
+    if (i > l->len) {
+      fprintf(stderr, "Broken expression\n");
+      exit(1);        
+    }
+    t = listGet(l, i);
+    if (t->type == BRACKET_OPEN) {
+      bracket_count++;
+      i++;
+      continue;
+    }
+    if (t->type != BRACKET_CLOSE) {
+      i++;
+      continue;
+    } else {
+      if (bracket_count != 1) {
+	bracket_count--;
 	i++;
-	if (i == l->len) {
-	  fprintf(stderr, "Brocken expression\n");
-	  exit(1);
-	}
-	if (t->type == BRACKET_OPEN) {
-	  bracket_count++;
-	}
-	if (t->type == BRACKET_CLOSE) {
-	  if (bracket_count == 1) {
-	    bracket_find_close = i;
-	    break;
-	  } else {
-	    bracket_count--;
-	  }
-	}
+	continue;
+      } else {
+	bracket_find_close = i;
+	goto FOUND_CLOSE_BRACKET;
       }
     }
   }
+  
+FOUND_CLOSE_BRACKET:  
   if (bracket_count == 0) {
     return false;
   } else {
@@ -146,10 +161,16 @@ void tokenezeInput(List *l, str input) {
   u32 input_len = strlen(input);
   byte buf[64] = {0};
   u32 buf_i = 0;
-  for(u32 i = 0; i < input_len; i++) {
-    if (input[i] == ' ') continue;
+  for(u32 i = 0; i < input_len; ) {
+    if (input[i] == ' ') {
+      i++;
+      continue; 
+    }
     while(input[i] >= '0' && input[i] <= '9') {
       buf[buf_i++] = input[i++];
+      if (i == input_len) {
+	break;
+      }
     }
     if (buf_i != 0) {
       Token *t = MAKE(l->allocator, Token);
@@ -164,32 +185,30 @@ void tokenezeInput(List *l, str input) {
       Token *t = MAKE(l->allocator, Token);
       t->type = ADD;
       listAppend(l, t);
-    }
-    if (input[i] == '-') {
+    } else if (input[i] == '-') {
       Token *t = MAKE(l->allocator, Token);
       t->type = SUB;
       listAppend(l, t);
-    }
-    if (input[i] == '*') {
+    } else if (input[i] == '*') {
       Token *t = MAKE(l->allocator, Token);
       t->type = MUL;
       listAppend(l, t);
-    }
-    if (input[i] == '/') {
+    } else if (input[i] == '/') {
       Token *t = MAKE(l->allocator, Token);
       t->type = DIV;
       listAppend(l, t);
-    }
-    if (input[i] == '(') {
+    } else if (input[i] == '(') {
       Token *t = MAKE(l->allocator, Token);
       t->type = BRACKET_OPEN;
       listAppend(l, t);
-    }
-    if (input[i] == ')') {
+    } else if (input[i] == ')') {
       Token *t = MAKE(l->allocator, Token);
       t->type = BRACKET_CLOSE;
       listAppend(l, t);
+    } else {
+      fprintf(stderr, "Broken expression");
     }
+    i++;
   }
 }
 
@@ -199,19 +218,35 @@ void tokenDestroy(List *l) {
   }
 }
 
+#define CASE_COUNT 7
+
+str test_case[] = {
+  "2 + 3",
+  "2 - 3",
+  "2 * 3",
+  "2 / 3",
+  "2 * 3 + 1",
+  "3 / 2 - 1",
+  "(3 + 2) * 2",
+  "3 + 2 * 2",
+  "2 * (3 + 3 * (1 + 7)) - 6"};
+
 
 int main(i32 argc, str *argv) {
-  if (argc > 2) {
-    fprintf(stderr, "Usage calc [expression]\n");
-    return 1;
-  }
-  List *l = listCreate(heap_allocator, PTR);
-  
-  tokenezeInput(l, argv[1]);
-  calcExpression(l, 0, l->len);
+  /* if (argc > 2) { */
+  /*   fprintf(stderr, "Usage calc [expression]\n"); */
+  /*   return 1; */
+  /* } */
 
-  Token *res = listGet(l, 0);
-  printf("Result of expression %s -> %lf\n", argv[1], res->val);
-  listDestroy(l);
+  for (i32 i = 0; i < CASE_COUNT; i++) {
+    List *l = listCreate(heap_allocator, PTR);
+  
+    tokenezeInput(l, test_case[i]);
+    calcExpression(l, 0, l->len);
+
+    Token *res = listGet(l, 0);
+    printf("Result of expression %s -> %lf\n", test_case[i], res->val);
+    listDestroy(l);
+  }
   return 0;
 }
