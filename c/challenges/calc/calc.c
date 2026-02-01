@@ -3,7 +3,6 @@
 #include <cstdext/container/list.h>
 #include <string.h>
 
-
 typedef enum {
   NUM, MUL, SUB, DIV, ADD, BRACKET_OPEN, BRACKET_CLOSE
 } TokenType;
@@ -13,11 +12,12 @@ typedef struct {
   f64 val;
 } Token;
 
-void calcExpression(List *l, u32 start, u32 end);
-bool calcCheckBracket(List *l, u32 start, u32 end);
-bool calcCheckPriority(List *l, u32 start, u32 end);
+u32 calcExpression(List *l, u32 start, u32 end);
+u32 calcCheckBracket(List *l, u32 start, u32 end);
+u32 calcCheckPriority(List *l, u32 start, u32 end);
 
-bool calcCheckPriority(List *l, u32 start, u32 end) {
+u32 calcCheckPriority(List *l, u32 start, u32 end) {
+  u32 tokens_remove = 0;
   u32 find_priority = 0;
   Token *t;
   for(u32 i = start; i < end; i++) {
@@ -41,6 +41,7 @@ bool calcCheckPriority(List *l, u32 start, u32 end) {
       }
       listRemove(l, i + 1);
       listRemove(l, i);
+      tokens_remove += 2;
 
       DEALLOC(l->allocator, t);
       DEALLOC(l->allocator, b);
@@ -48,12 +49,13 @@ bool calcCheckPriority(List *l, u32 start, u32 end) {
       i--;
     }
   }
-  return false;
+  return tokens_remove;
 }
 
-void calcExpression(List *l, u32 start, u32 end) {
-  calcCheckBracket(l, start, end);
-  calcCheckPriority(l, start, end);
+u32 calcExpression(List *l, u32 start, u32 end) {
+  end -= calcCheckBracket(l, start, end);
+  end -= calcCheckPriority(l, start, end);
+  u32 token_remove = 0;
   Token *t;
   u32 i = start;
   while(l->len != 1) {
@@ -76,6 +78,7 @@ void calcExpression(List *l, u32 start, u32 end) {
       }
       listRemove(l, i + 1);
       listRemove(l, i);
+      token_remove -= 2;
 
       DEALLOC(l->allocator, t);
       DEALLOC(l->allocator, b);
@@ -88,13 +91,15 @@ void calcExpression(List *l, u32 start, u32 end) {
       break;
     }
   }
+  return token_remove;
 }
 
-bool calcCheckBracket(List *l, u32 start, u32 end) {
+u32 calcCheckBracket(List *l, u32 start, u32 end) {
   Token *t;
   u32 bracket_find_open = 0;
   u32 bracket_find_close = 0;
   u32 bracket_count = 0;
+  u32 token_remove = 0;
   for(u32 i = start; i < end; i++) {
     t = listGet(l, i);
     if (t->type == BRACKET_OPEN) {
@@ -131,9 +136,10 @@ bool calcCheckBracket(List *l, u32 start, u32 end) {
     DEALLOC(l->allocator, t);
     listRemove(l, bracket_find_open);
     listRemove(l, bracket_find_close);
-    calcExpression(l, bracket_find_open, bracket_find_close - 2);
+    token_remove -= 2;
+    end -= calcExpression(l, bracket_find_open, bracket_find_close - 2);
   }
-  return true;
+  return token_remove;
 }
 
 void tokenezeInput(List *l, str input) {
