@@ -1,14 +1,12 @@
 package calc
 
-
 import "core:fmt"
 import "core:os"
 import "core:slice"
 import "core:strconv"
 
-
 Token_Type :: enum {
-  NUM, ADD, SUB, MUL, DIV, BRACKET_OPEN, BRACKET_CLOSE
+  NUM, ADD, SUB, MUL, DIV, BRACKET_OPEN, BRACKET_CLOSE, BLANK,
 }
 
 Token :: struct {
@@ -16,9 +14,32 @@ Token :: struct {
   val: f64
 }
 
+getNextToken :: proc(input: ^[dynamic]Token, i: int) -> (Token, bool) {
+  i := i
+  i += 1
+  for input[i].type == .BLANK {
+    i += 1
+    if i == len(input) {
+      return Token{}, false
+    }
+  }
 
-calcPriority :: proc(input: ^[dynamic]Token, start: int, end: int) -> int {
-  remove_token: int
+  return input[i], true
+}
+
+getPrevToken :: proc(input: ^[dynamic]Token, i: int) -> (Token, bool) {
+  i := i
+  i -= i
+  for input[i].type == .BLANK {
+    i -= 1
+    if i <= 0 {
+      return Token{}, false
+    }
+  }
+  return input[i], true
+}
+
+calcPriority :: proc(input: ^[dynamic]Token, start: int, end: int) {
   start := start
   end := end
   for i := start; i < end; i += 1  {
@@ -33,43 +54,43 @@ calcPriority :: proc(input: ^[dynamic]Token, start: int, end: int) -> int {
       ordered_remove(input, i + 1)
       ordered_remove(input, i)
       end -= 2
-      remove_token += 2
     }
   }
-  return remove_token
 }
 
-calcBrackets :: proc(input: ^[dynamic]Token, start: int, end: int) -> int {
-  remove_token: int
-  bracket_find_open: int
-  bracket_count: int
 
-  for i in 0..<len(input) {
+//2*3+1-1-8
+//0 2   6 8 10
+
+//3+1-1
+
+calcBrackets :: proc(input: ^[dynamic]Token, start: int, end: int) {
+  start := start
+  end := end
+  find_bracket: int
+  bracket_count: int
+  for i := start; i < end; i += 1 {
     if input[i].type == .BRACKET_OPEN {
-      if bracket_count == 0 {
-        bracket_find_open = i
-      } else {
+      if find_bracket != 0 {
         bracket_count += 1
+      } else {
+        find_bracket = i
+        bracket_count = 1
       }
       continue
     }
     if input[i].type == .BRACKET_CLOSE {
-      if bracket_count > 1 {
+      if bracket_count != 1 {
         bracket_count -= 1
         continue
       } else {
-        ordered_remove(input, i)
-        ordered_remove(input, bracket_find_open)
-        //TODO (Maxim) this is wrong
-        calcExpression(input[bracket_find_open:i - 1])
-        remove_token += 2
+
       }
     }
   }
-  return remove_token
 }
 
-calcExpression :: proc(input: []Token) -> f64 {
+calcExpression :: proc(input: []Token, start: int, end: int) -> f64 {
 
   return 0
 }
@@ -121,6 +142,7 @@ main :: proc() {
   }
   input := parseInput(transmute([]u8)args[1])
   defer delete(input)
-  calcExpression(input[:])
-
+  res := calcExpression(input[:], 0, len(input))
+  fmt.printf("Result os expressin %v : %d\n", args[1], res)
 }
+
