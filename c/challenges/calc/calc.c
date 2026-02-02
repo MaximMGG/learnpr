@@ -16,6 +16,55 @@ u32 calcExpression(List *l, u32 start, u32 end);
 u32 calcCheckBracket(List *l, u32 start, u32 end);
 u32 calcCheckPriority(List *l, u32 start, u32 end);
 
+u32 calcCheckPriority(List *l, u32 start, u32 end) {
+  u32 token_remove  = 0;
+  Token *t = null;
+  u32 i = start;
+  
+  while(i < end) {
+	t = listGet(l, i);
+	switch(t->type) {
+	  MUL: {
+		if (i == 0 || i >= end - 1) {
+		  fprintf(stderr, "Broken expression MUL cant be first or last\n");
+		  exit(1);
+		}
+
+		Token *a = listGet(l, i - 1);
+		Token *b = listGet(l, i + 1);
+		a->val *= b->val;
+		listRemove(l, i + 1);
+		listRemove(l, i);
+		DEALLOC(l->allocator, b);
+		DEALLOC(l->allocator, t);
+		token_remove += 2;
+		end -= 2;
+		i -= 2;
+	  } break;
+	  DIV: {
+		if (i == 0 || i >= end - 1) {
+		  fprintf(stderr, "Broken expression DIV cant be first or last\n");
+		  exit(1);
+		}
+
+		Token *a = listGet(l, i - 1);
+		Token *b = listGet(l, i + 1);
+		a->val /= b->val;
+		listRemove(l, i + 1);
+		listRemove(l, i);
+		DEALLOC(l->allocator, b);
+		DEALLOC(l->allocator, t);
+		token_remove += 2;
+		end -= 2;
+		i -= 2;
+	  } break;
+	  default: {}
+	}
+	i++;
+  }
+
+  return token_remove;
+}
 
 u32 calcCheckBracket(List *l, u32 start, u32 end) {
   u32 bracket_find_open = 0;
@@ -23,9 +72,9 @@ u32 calcCheckBracket(List *l, u32 start, u32 end) {
   u32 bracket_count = 0;
   u32 token_remove = 0;
   Token *t = null;
-  u32 i = 0;
+  u32 i = start;
 
-  while(i < l->len) {
+  while(i < end) {
 	t = listGet(l, i);
 	if (t->type == BRACKET_OPEN) {
 	  bracket_find_open = i;
@@ -38,7 +87,7 @@ u32 calcCheckBracket(List *l, u32 start, u32 end) {
   if (bracket_count == 0) {
 	return 0;
   }
-  while(i < l->len) {
+  while(i < end) {
 	t = listGet(l, i);
 	if (t->type == BRACKET_OPEN) {
 	  bracket_count++;
@@ -174,7 +223,8 @@ int main(i32 argc, str *argv) {
   str test = test_case[8];
   tokenezeInput(l, test);
   //delete_token_test(l);
-  calcCheckBracket(l, 0, l->len);
+  u32 a = calcCheckBracket(l, 0, l->len);
+  calcCheckPriority(l, 0, l->len);
   tokenDestroy(l);
 
   listDestroy(l);
