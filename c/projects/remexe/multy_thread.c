@@ -8,9 +8,11 @@ _Atomic u64 total_sum = 0;
 
 
 void *sum(void *p) {
-  for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
+  u32 local_sum = 0;
+  for (i32 i = 0; i < COUNT; i++) {
+    local_sum++;
   }
+  total_sum += local_sum;  
   return null;
 }
 

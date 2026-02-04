@@ -86,6 +86,8 @@ void threadPoolDestroy(TPool *p) {
     pthread_mutex_destroy(&p->m_arr[i]);
   }  
   DEALLOC(heap_allocator, p->p_arr);
+  DEALLOC(heap_allocator, p->m_arr);
+  DEALLOC(heap_allocator, p->was_init);
   DEALLOC(heap_allocator, p);
   pthread_mutex_destroy(&init_mutex);
 }
@@ -106,56 +108,68 @@ void thread_pool_do_job(TPool *t, void *(*some_job)(void *), void *arg) {
 #define COUNT 50000000
 
 void *test_1(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
+    local_sum++;
     //    printf("Test_1 %d\n", i);
   }
+  total_sum += local_sum;
   return null;
 }
 
 void *test_2(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
-    //printf("Test_2 %d\n", i);
+    local_sum++;
+    //    printf("Test_1 %d\n", i);
   }
+  total_sum += local_sum;
   return null;
 }
 
 void *test_3(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
-    //printf("Test_3 %d\n", i);
+    local_sum++;
+    //    printf("Test_1 %d\n", i);
   }
+  total_sum += local_sum;
   return null;
 }
 
 void *test_4(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
-    //printf("Test_4 %d\n", i);
+    local_sum++;
+    //    printf("Test_1 %d\n", i);
   }
+  total_sum += local_sum;
   return null;
 }
 
 void *test_5(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
-    //printf("Test_5 %d\n", i);
+    local_sum++;
+    //    printf("Test_1 %d\n", i);
   }
+  total_sum += local_sum;
   return null;
 }
 
 void *test_6(void *a) {
+  u64 local_sum = 0;
   for(i32 i = 0; i < COUNT; i++) {
-    total_sum++;
-    //printf("Test_6 %d\n", i);
+    local_sum++;
+    //    printf("Test_1 %d\n", i);
   }
-  return null;  
+  total_sum += local_sum;
+  return null;
 }
 
 int main() {
   setbuf(stdout, null);  
-  TPool *p = threadPoolInit(4);
+  TPool *p = threadPoolInit(6);
   thread_pool_do_job(p, test_1, null);
   thread_pool_do_job(p, test_2, null);
   thread_pool_do_job(p, test_3, null);
