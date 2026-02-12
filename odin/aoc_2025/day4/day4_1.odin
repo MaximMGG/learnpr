@@ -13,8 +13,8 @@ check :: proc(greed: []string, i,j: int, count: ^int) {
 
 
 main :: proc() {
-  input, input_ok := os.read_entire_file("./test_input.txt")
-  // input, input_ok := os.read_entire_file("./input.txt")
+  // input, input_ok := os.read_entire_file("./test_input.txt")
+  input, input_ok := os.read_entire_file("./input.txt")
   if !input_ok {
     fmt.eprintln("Can't open fil")
     return
@@ -44,7 +44,7 @@ main :: proc() {
           check(greed, i, j, &paper_count)
           if paper_count > 0 {
             count += u64(1)
-            fmt.printf("@")
+            fmt.printf("x")
           } else {
             fmt.printf(".")
           }
@@ -53,7 +53,7 @@ main :: proc() {
           check(greed, i, j, &paper_count)
           if paper_count > 0 {
             count += u64(1)
-            fmt.printf("@")
+            fmt.printf("x")
           } else {
             fmt.printf(".")
           }
@@ -68,18 +68,18 @@ main :: proc() {
       } else if i == raw_len - 1 {
         if j == 0 {
           check(greed, i, j, &paper_count)
-          if paper_count > 1 {
+          if paper_count > 0 {
             count += u64(1)
-            fmt.printf("@")
+            fmt.printf("x")
           } else {
             fmt.printf(".")
           }
           continue
         } else if j == cal_len - 1 {
           check(greed, i, j, &paper_count)
-          if paper_count > 1 {
+          if paper_count > 0 {
             count += u64(1)
-            fmt.printf("@")
+            fmt.printf("x")
           } else {
             fmt.printf(".")
           }
