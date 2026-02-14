@@ -12,8 +12,12 @@ TB_WIDTH :: 28
 draw_tittle_box :: proc() {
   height, width: c.int
   curses.getmaxyx(y = &height, x = &width)
-  tw := curses.newwin(TB_HEIGHT, TB_WIDTH, 5, 5)
+  tw := curses.newwin(TB_HEIGHT, TB_WIDTH, (height - TB_HEIGHT)/ 2, 
+                                          (width - TB_WIDTH)/ 2)
   curses.box(tw, 0, 0)
+
+  curses.mvwaddstr(tw, 1, 1, "Hello")
+
   curses.wrefresh(tw)
   curses.delwin(tw)
 }
