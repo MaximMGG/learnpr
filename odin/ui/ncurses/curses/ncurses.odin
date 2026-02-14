@@ -32,9 +32,6 @@ foreign ncurses {
   border          :: proc(ls, rc, ts, bs, tl, tr, bl, br: c.char) -> c.int ---
   wborder         :: proc(win: ^WINDOW, ls, rc, ts, bs, tl, tr, bl, br: c.char) -> c.int ---
   wmove           :: proc(win: ^WINDOW, y, x: c.int) -> c.int ---
-  addch           :: proc(ch: c.char) -> c.int ---
-  waddch          :: proc(win: ^WINDOW, ch: c.char) -> c.int ---
-  mvwaddch        :: proc(win: ^WINDOW, y, x: c.int, ch: c.char) -> c.int ---
   newwin          :: proc(nlines, ncols, begin_y, begin_x: c.int) -> ^WINDOW ---
   delwin          :: proc(win: ^WINDOW) -> c.int ---
   endwin          :: proc() -> c.int ---
@@ -57,7 +54,6 @@ foreign ncurses {
   addchnstr       :: proc(chstr: ^c.uint, n: c.int) -> c.int ---
   waddchstr       :: proc(win: ^WINDOW, chstr: ^c.uint) -> c.int ---
   waddchnstr      :: proc(win: ^WINDOW, chstr: ^c.uint, n: c.int) -> c.int ---
-  mvaddch         :: proc(y, x: c.int, ch: c.uint) -> c.int ---
   mvaddchnstr     :: proc(y,x: c.int, chstr: ^c.uint) -> c.int ---
   mvaddchstr      :: proc(y, x: c.int, chstr: ^c.uint) -> c.int ---
   mvwaddchstr     :: proc(win: ^WINDOW, y, x: c.int, chstr: ^c.uint) -> c.int ---
@@ -72,6 +68,10 @@ foreign ncurses {
   waddnstr        :: proc(win: ^WINDOW, str: cstring, n: c.int) -> c.int ---
   mvaddnstr       :: proc(y, x: c.int, str: cstring, n: c.int) -> c.int ---
   mvwaddnstr      :: proc(win: ^WINDOW, y, x: c.int, str: cstring, n: c.int) -> c.int ---
+  addch           :: proc(ch: c.uint) -> c.uint ---
+  waddch          :: proc(win: ^WINDOW, ch: c.uint) -> c.int ---
+  mvaddch         :: proc(y, x: c.int, ch: c.uint) -> c.int ---
+  mvwaddch        :: proc(win: ^WINDOW, y, x: c.int, ch: c.uint) -> c.int ---
 }
 
 clear :: #force_inline proc() -> c.int {

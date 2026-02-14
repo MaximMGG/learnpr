@@ -1,13 +1,37 @@
 package cur_test
 
-
 import "curses"
 import "core:c"
-//import "core:fmt"
 
 TB_HEIGHT :: 14
 TB_WIDTH :: 28
 
+DEF_WIDTH :: 10
+
+print_err_msg :: proc(msg: string) {
+  y := len(msg) / DEF_WIDTH
+  if len(msg) % DEF_WIDTH > 0 {
+    y += 1
+  }
+  err_win := curses.newwin(c.int(y + 2), DEF_WIDTH + 2, 5, 5)
+  curses.box(err_win, 0, 0)
+  corret_y: c.int = 1
+  corret_x: c.int = 1
+  for i in 0..<len(msg) {
+    curses.mvwaddch(err_win, corret_y, corret_x, c.uint(msg[i]))
+    corret_x += 1
+    if corret_x > DEF_WIDTH {
+      corret_x = 1
+      corret_y += 1
+    }
+  }
+  curses.wrefresh(err_win)
+  curses.wgetch(err_win)
+  curses.wborder(err_win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ')
+  curses.wclear(err_win)
+  curses.wrefresh(err_win)
+  curses.delwin(err_win)
+}
 
 draw_tittle_box :: proc() {
   height, width: c.int
@@ -37,6 +61,7 @@ main :: proc() {
   curses.refresh()
 
   draw_tittle_box()
+  print_err_msg("This is test err message width qute long string!")
 
   ch := curses.getch()
 
