@@ -5,7 +5,6 @@ import "core:fmt"
 import math "core:math/linalg"
 import gl "vendor:OpenGL"
 
-
 Shader :: struct {
   id: u32,
 }
@@ -94,5 +93,29 @@ setVec2 :: proc(shader: Shader, name: string, val: math.Vector2f32) {
   gl.Uniform2fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, ([^]f32)(&v[0]))
 }
 
+setVec3 :: proc(shader: Shader, name: string, val: math.Vector3f32) {
+  v := val
+  gl.Uniform3fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, ([^]f32)(&v[0]))
+}
+
+setVec4 :: proc(shader: Shader, name: string, val: math.Vector4f32) {
+  v := val
+  gl.Uniform4fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, ([^]f32)(&v[0]))
+}
+
+setMat2 :: proc(shader: Shader, name: string, val: math.Matrix2f32) {
+  v := val
+  gl.UniformMatrix2fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, gl.FALSE, ([^]f32)(&v[0]))
+}
+
+setMat3 :: proc(shader: Shader, name: string, val: math.Matrix3f32) {
+  v := val
+  gl.UniformMatrix3fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, gl.FALSE, ([^]f32)(&v[0]))
+}
+
+setMat4 :: proc(shader: Shader, name: string, val: math.Matrix4f32) {
+  v := val
+  gl.UniformMatrix4fv(gl.GetUniformLocation(shader.id, cstring(raw_data(name))), 1, gl.FALSE, ([^]f32)(&v[0]))
+}
 
 
