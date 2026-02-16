@@ -1,6 +1,5 @@
 package coordinate_system
 
-
 import "core:fmt"
 import "core:os"
 import math "core:math/linalg"
@@ -101,7 +100,7 @@ main :: proc() {
   gl.BindVertexArray(VAO)
 
   gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-  gl.BufferData(gl.ARRAY_BUFFER, len(vertices), &vertices[0], gl.STATIC_DRAW);
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW);
 
   gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 5 * size_of(f32), uintptr(0))
   gl.EnableVertexAttribArray(0)
@@ -120,7 +119,7 @@ main :: proc() {
   }
 
   shader.use(program)
-  shader.setInt(program, "texture", 0)
+  shader.setInt(program, "texture1", 0)
 
 
   for bool(!glfw.WindowShouldClose(window)) {
@@ -136,10 +135,30 @@ main :: proc() {
 
     view := math.MATRIX4F32_IDENTITY
     projection := math.MATRIX4F32_IDENTITY
+    projection *= math.matrix4_perspective(f32(math.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
+    view = math.matrix4_translate(math.Vector3f32{0.0, 0.0, -3.0})
 
+    shader.setMat4(program, "projection", projection)
+    shader.setMat4(program, "view", view)
 
+    gl.BindVertexArray(VAO)
+
+    for i in 0..<10 {
+      model := math.MATRIX4F32_IDENTITY
+      model *= math.matrix4_translate(cubePositions[i])
+      angle: f32 = 20.0 * f32(i)
+      model *= math.matrix4_rotate_f32(math.to_radians(angle), math.Vector3f32{1.0, 0.3, 0.5})
+      shader.setMat4(program, "model", model)
+
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
+    }
+
+    glfw.SwapBuffers(window)
+    glfw.PollEvents()
   }
 
+  gl.DeleteVertexArrays(1, &VAO)
+  gl.DeleteBuffers(1, &VBO)
   gl.DeleteProgram(program.id)
   gl.DeleteTextures(1, &tex1)
   glfw.DestroyWindow(window)
