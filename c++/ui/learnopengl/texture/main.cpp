@@ -28,7 +28,9 @@ int main() {
 
     glfwMakeContextCurrent(window);
 
-    if (glewInit() != 0) {
+
+    GLenum res = glewInit();
+    if (res != 0 && res != 4) {
         std::cout << "glewInit failed\n";
         return 1;
     }
