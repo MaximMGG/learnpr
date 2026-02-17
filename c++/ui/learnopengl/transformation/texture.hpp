@@ -12,7 +12,7 @@ class Texture {
 public:
   unsigned int id;
 
-  Texture(std::string &path) {
+  Texture(const char *path) {
     glCreateTextures(GL_TEXTURE_2D, 1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
 
@@ -25,7 +25,7 @@ public:
 
     stbi_set_flip_vertically_on_load(1);
     int width, height, nrChannels;
-    unsigned char *buf = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char *buf = stbi_load(path, &width, &height, &nrChannels, 0);
     if (buf) {
       int format = nrChannels == 4 ? GL_RGBA : GL_RGB;
       glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buf);

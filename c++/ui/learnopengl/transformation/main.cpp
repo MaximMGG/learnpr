@@ -6,9 +6,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "shader.hpp"
+#include "vertexArray.hpp"
+#include "vertexAttrib.hpp"
+#include "vertexBuffer.hpp"
+#include "vertexElement.hpp"
+#include "texture.hpp"
+
 #define WIDTH 720
 #define HEIGHT 480
-
 
 int main() {
   std::cout << "Init glfw\n";
@@ -29,7 +35,36 @@ int main() {
     return 1;
   }
 
+  Shader program("./vertex.glsl", "./fragment.glsl");
 
+  float vertices[] = {
+    // positions          // texture coords
+    0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+    0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+    -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
+  };
+  unsigned int indices[] = {
+    0, 1, 3, // first triangle
+    1, 2, 3  // second triangle
+  };
+
+  VertexAttrib VAO;
+  VertexBuffer VBO(vertices, sizeof(vertices));
+  VertexElement EBO(indices, sizeof(indices));
+
+  VAO.addf32(3);
+  VAO.addf32(2);
+  VAO.process();
+
+  Texture tex("./crate.png");
+
+  program.use();
+  program.setInt("texture1", 0);
+
+  while(!glfwWindowShouldClose(window)) {
+
+  }
 
   return 0;
 }
