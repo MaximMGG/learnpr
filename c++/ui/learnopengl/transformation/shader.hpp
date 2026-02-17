@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include <string.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class Shader {
 public:
@@ -42,6 +44,19 @@ public:
 
   ~Shader() {
     glDeleteProgram(this->id);
+  }
+
+  void use() {
+    glUseProgram(this->id);
+  }
+
+  void setInt(std::string &name, int val) {
+    int location = getLocation(name);
+    glUniform1i(location, val);
+  }
+  void setMat4(std::string &name, glm::mat4 &val) {
+    int location = getLocation(name);
+    glUniformMatrix4fv(location, 1, GL_FALSE, &val[0][0]);
   }
 
 private:
@@ -117,6 +132,16 @@ private:
     }
 
     return true;
+  }
+
+  int getLocation(std::string &name) {
+    if (this->location.find(name) == this->location.end()) {
+      int location = glGetUniformLocation(this->id, name.c_str());
+      this->location[name] = location;
+      return location;
+    } else {
+      return this->location[name];
+    }
   }
 };
 
