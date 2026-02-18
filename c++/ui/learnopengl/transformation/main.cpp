@@ -8,13 +8,18 @@
 
 #include "shader.hpp"
 #include "vertexArray.hpp"
-#include "vertexAttrib.hpp"
 #include "vertexBuffer.hpp"
 #include "vertexElement.hpp"
 #include "texture.hpp"
 
 #define WIDTH 720
 #define HEIGHT 480
+
+void processInput(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
+  }
+}
 
 int main() {
   std::cout << "Init glfw\n";
@@ -29,13 +34,18 @@ int main() {
 
   glfwMakeContextCurrent(window);
   int glew_init = glewInit();
-  if (glew_init != 1 && glew_init != 4) {
+  if (glew_init != 0 && glew_init != 4) {
     std::cerr << "glewInit error\n";
     glfwTerminate();
     return 1;
   }
 
   Shader program("./vertex.glsl", "./fragment.glsl");
+  if (program.id == 0) {
+    std::cerr << "Compile Shader error. EXIT\n";
+    glfwTerminate();
+    return 1;
+  }
 
   float vertices[] = {
     // positions          // texture coords
@@ -49,7 +59,7 @@ int main() {
     1, 2, 3  // second triangle
   };
 
-  VertexAttrib VAO;
+  VertexArray VAO;
   VertexBuffer VBO(vertices, sizeof(vertices));
   VertexElement EBO(indices, sizeof(indices));
 
@@ -63,8 +73,32 @@ int main() {
   program.setInt("texture1", 0);
 
   while(!glfwWindowShouldClose(window)) {
+    processInput(window);
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glActiveTexture(GL_TEXTURE0);
+    tex.bind();
+
+    glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+    transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    program.use();
+
+    program.setMat4("transform", transform);
+
+    VAO.bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 
   }
+
+  glfwDestroyWindow(window);
+  glfwTerminate();
 
   return 0;
 }

@@ -68,7 +68,8 @@ private:
       f.seekg(0, std::ios_base::beg);
       char *buf = new char[file_size + 1];
       memset(buf, 0, file_size + 1);
-      f >> buf;
+      f.read(buf, file_size);
+      // f >> buf;
 
       unsigned int shader = glCreateShader(type);
       glShaderSource(shader, 1, &buf, NULL);
@@ -77,6 +78,8 @@ private:
       if (!checkStatus(shader, type)) {
         return 0;
       }
+
+      return shader;
     } else {
       std::cerr << "fstream error\n";
       return 0;
