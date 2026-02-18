@@ -74,7 +74,6 @@ compileShader :: proc(path: string, type: u32) -> u32 {
   return shader
 }
 
-
 createShader :: proc(vertexPath: string, fragmentPath: string) -> (Shader, ShaderError) {
   vertexShader := compileShader(vertexPath, gl.VERTEX_SHADER)
   if vertexShader == 0 {

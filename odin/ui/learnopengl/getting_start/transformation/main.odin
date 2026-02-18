@@ -59,7 +59,7 @@ main :: proc() {
   gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW)
 
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(vertices), &indices[0], gl.STATIC_DRAW)
+  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices[0], gl.STATIC_DRAW)
 
   gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 5 * size_of(f32), uintptr(0))
   gl.EnableVertexAttribArray(0)
@@ -72,7 +72,7 @@ main :: proc() {
   gl.BindTexture(gl.TEXTURE_2D, texture)
 
   gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-  gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_R, gl.REPEAT)
+  gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
 
   gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
   gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
@@ -82,7 +82,8 @@ main :: proc() {
   data := stb.load("./crate.png", &width, &height, &nrChannels, 0)
   defer stb.image_free(data)
   if data != nil {
-    gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_BYTE, data)
+    format: i32 = nrChannels == 4 ? gl.RGBA : gl.RGB
+    gl.TexImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, u32(format), gl.UNSIGNED_BYTE, data)
     gl.GenerateMipmap(gl.TEXTURE_2D)
   }
 
@@ -110,7 +111,7 @@ main :: proc() {
       glfw.Terminate()
       return
     }
-    gl.UniformMatrix4fv(transformLoc, 1, gl.FALSE, ([^]f32)(&transform[0]))
+    gl.UniformMatrix4fv(transformLoc, 1, gl.FALSE, ([^]f32)(&transform[0][0]))
 
     gl.BindVertexArray(VAO)
     gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
