@@ -11,8 +11,8 @@ import stb "vendor:stb/image"
 
 import "shader"
 
-WIDTH :: 600
-HEIGHT :: 400
+WIDTH :: 720
+HEIGHT :: 480
 
 main :: proc() {
   fmt.println("Init glfw")
@@ -102,7 +102,8 @@ main :: proc() {
     transform := math.MATRIX4F32_IDENTITY
 
     transform *= math.matrix4_translate(math.Vector3f32{0.5, -0.5, 0.0})
-    transform *= math.matrix4_rotate(math.to_radians(f32(glfw.GetTime())), math.Vector3f32{0.0, 0.0, 1.0})
+    //transform *= math.matrix4_rotate(math.to_radians(f32(glfw.GetTime())), math.Vector3f32{0.0, 0.0, 1.0})
+    transform *= math.matrix4_rotate(f32(glfw.GetTime()), math.Vector3f32{0.0, 0.0, 1.0})
 
     shader.use(program)
     transformLoc := gl.GetUniformLocation(program, "transform")
