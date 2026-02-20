@@ -84,6 +84,7 @@ shaderCreate :: proc(vertexPath: string, fragmentPath: string) -> Shader {
   s.id = gl.CreateProgram()
   gl.AttachShader(s.id, vs)
   gl.AttachShader(s.id, fs)
+  gl.LinkProgram(s.id)
   gl.DeleteShader(vs)
   gl.DeleteShader(fs)
   if !checkHelth(s.id, gl.PROGRAM) {

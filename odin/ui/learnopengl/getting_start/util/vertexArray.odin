@@ -20,6 +20,10 @@ vertexArrayCreate :: proc() -> VertexArray{
   return VAO
 }
 
+vertexArrayBind :: proc(vao: VertexArray) {
+  gl.BindVertexArray(vao.id)
+}
+
 vertexArrayDestroy :: proc(va: ^VertexArray) {
   gl.DeleteVertexArrays(1, &va.id)
 }
