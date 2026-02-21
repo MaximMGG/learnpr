@@ -9,7 +9,8 @@ Texture :: u32
 
 textureCreate :: proc(path: string) -> Texture {
   texture: Texture
-  gl.CreateTextures(gl.TEXTURE_2D, 1, &texture)
+  //gl.CreateTextures(gl.TEXTURE_2D, 1, &texture)
+  gl.GenTextures(1, &texture)
   gl.BindTexture(gl.TEXTURE_2D, texture)
 
   gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)

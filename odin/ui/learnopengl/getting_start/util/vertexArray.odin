@@ -14,8 +14,8 @@ Element :: struct {
 }
 
 vertexArrayCreate :: proc() -> VertexArray{
-  VAO: VertexArray
-  gl.CreateVertexArrays(1, &VAO.id)
+  VAO: VertexArray = {}
+  gl.GenVertexArrays(1, &VAO.id)
   gl.BindVertexArray(VAO.id)
   return VAO
 }

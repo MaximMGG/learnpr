@@ -11,7 +11,8 @@ windowCreate :: proc(width, height: i32, name: string) -> glfw.WindowHandle {
   gl.load_up_to(3, 3, proc(p: rawptr, name: cstring) {
     (^rawptr)(p)^ = glfw.GetProcAddress(name)
   })
-  gl.Enable(gl.DEPTH)
+
+  gl.Enable(gl.DEPTH_TEST)
 
   return window
 }
