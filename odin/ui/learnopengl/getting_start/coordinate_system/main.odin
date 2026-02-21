@@ -43,9 +43,11 @@ main :: proc() {
   util.shaderUse(&program)
   util.setInt(&program, "texture1", 0)
 
-  for bool(glfw.WindowShouldClose(window)) {
+  for bool(!glfw.WindowShouldClose(window)) {
+    processInput(window)
+
     gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-    gl.Clear(gl.COLOR_BUFFER_BIT)
+    gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     gl.ActiveTexture(gl.TEXTURE0)
     util.textureBind(texture)
@@ -55,12 +57,14 @@ main :: proc() {
     model := math.MATRIX4F32_IDENTITY
     view := math.MATRIX4F32_IDENTITY
     projection := math.MATRIX4F32_IDENTITY
-    model *= math.matrix4_rotate(f32(-55), math.Vector3f32{1.0, 0.0, 0.0})
+    // model *= math.matrix4_rotate(math.to_radians(f32(-55)), math.Vector3f32{1.0, 0.0, 0.0})
+    model *= math.matrix4_rotate(f32(glfw.GetTime()) * math.to_radians(f32(55)), math.Vector3f32{1.0, 0.5, 0.0})
     view *= math.matrix4_translate(math.Vector3f32{0.0, 0.0, -3.0})
-    projection *= math.matrix4_perspective(f32(45.0), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
+    projection *= math.matrix4_perspective(math.to_radians(f32(45.0)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
 
     util.setMat4(&program, "model", model)
-    util.setMat4(&program, "model", view)
+    util.setMat4(&program, "view", view)
+    util.setMat4(&program, "projection", projection)
 
     util.vertexArrayBind(VAO)
     gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
