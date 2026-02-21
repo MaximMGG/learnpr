@@ -5,11 +5,7 @@ OBJ = $(SRC:%.cpp=%.o)
 
 .PHONY: default build run clear
 
-
-
 default: build run
-
-
 
 build: $(OBJ)
 	g++ -o $(APP) $^ -lGL -lGLEW -lglfw
