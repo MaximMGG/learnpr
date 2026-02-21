@@ -64,7 +64,7 @@ main :: proc() {
   }
 
   cubePositions := [?]math.Vector3f32{
-    math.Vector3f32{ 0.0,  0.0,  -3.0},
+    math.Vector3f32{ 0.0,  0.0,  0.0},
     math.Vector3f32{ 2.0,  5.0, -15.0},
     math.Vector3f32{-1.5, -2.2, -2.5},
     math.Vector3f32{-3.8, -2.0, -12.3},
@@ -109,9 +109,9 @@ main :: proc() {
 
 
   projection := math.MATRIX4F32_IDENTITY * math.matrix4_perspective(math.to_radians(f32(45.0)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100))
-  view := math.MATRIX4F32_IDENTITY * math.matrix4_translate(math.Vector3f32{0.0, 0.0, -3.0})
+  //view := math.MATRIX4F32_IDENTITY * math.matrix4_translate(math.Vector3f32{0.0, 0.0, -3.0})
   util.setMat4(&program, "projection", projection)
-  util.setMat4(&program, "view", view)
+  // util.setMat4(&program, "view", view)
 
 
   for bool(!glfw.WindowShouldClose(window)) {
@@ -124,6 +124,16 @@ main :: proc() {
     util.textureBind(texture)
 
     util.shaderUse(&program)
+
+    //camera rotate experiment
+    radius: f32 = 10.0
+    camX: f32 = f32(math.sin(glfw.GetTime())) * radius
+    camZ: f32 = f32(math.cos(glfw.GetTime())) * radius
+    view := math.matrix4_look_at(math.Vector3f32{camX, 0.0, camZ},
+      math.Vector3f32{0.0, 0.0, 0.0}, math.Vector3f32{0.0, 1.0, 0.0})
+
+    util.setMat4(&program, "view", view)
+
     util.vertexArrayBind(VAO)
     for i in 0..<len(cubePositions) {
       // angle: f32 = 20.0 * f32(i)
