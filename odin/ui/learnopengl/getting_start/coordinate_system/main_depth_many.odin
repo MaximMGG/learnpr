@@ -7,8 +7,8 @@ import "../util"
 import math "core:math/linalg"
 
 
-WIDTH :: 720
-HEIGHT :: 480
+WIDTH :: 1920
+HEIGHT :: 1024
 
 speedIncreaseStep: f32  = 0.005
 speedIncrease: f32 = 0.2
@@ -102,7 +102,7 @@ main :: proc() {
   util.vertexArrayAddf32(&VAO, 2)
   util.vertexArrayProcess(&VAO)
 
-  texture := util.textureCreate("./crate.png")
+  texture := util.textureCreate("./cat_plust_wife.png")
 
   util.shaderUse(&program)
   util.setInt(&program, "texture1", 0)
