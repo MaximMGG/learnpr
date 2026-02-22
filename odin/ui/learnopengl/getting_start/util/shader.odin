@@ -96,6 +96,11 @@ shaderCreate :: proc(vertexPath: string, fragmentPath: string) -> Shader {
   return s
 }
 
+shaderDestroy :: proc(s: ^Shader) {
+  gl.DeleteProgram(s.id)
+  delete(s.locations)
+}
+
 shaderUse :: proc(s: ^Shader) {
   gl.UseProgram(s.id)
 }
