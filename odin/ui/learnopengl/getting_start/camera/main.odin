@@ -106,7 +106,7 @@ main :: proc() {
   projection := math.matrix4_perspective(f32(math.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
   util.setMat4(&program, "projection", projection)
 
-  for bool(!glfw.WindowShouldClose(window)) {
+  for !bool(glfw.WindowShouldClose(window)) {
     currentFrame := f32(glfw.GetTime())
     deltaTime = currentFrame - lastFrame
     lastFrame = currentFrame
@@ -129,15 +129,16 @@ main :: proc() {
     for i in 0..<len(cubePositions) {
       model := math.MATRIX4F32_IDENTITY * math.matrix4_translate(cubePositions[i])
       angle: f32 = 20.0 * f32(i)
-      model *= math.matrix4_rotate(f32(glfw.GetTime()) * angle, math.Vector3f32{1.0, 0.3, 0.5})
+      model *= math.matrix4_rotate(f32(glfw.GetTime()) * angle * 0.1, math.Vector3f32{1.0, 0.3, 0.5})
       util.setMat4(&program, "model", model)
 
       gl.DrawArrays(gl.TRIANGLES, 0, 36)
     }
+
+    glfw.SwapBuffers(window)
+    glfw.PollEvents()
   }
 
-  glfw.SwapBuffers(window)
-  glfw.PollEvents()
 
 }
 
