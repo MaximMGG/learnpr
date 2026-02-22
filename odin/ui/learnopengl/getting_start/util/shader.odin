@@ -142,4 +142,24 @@ setMat4 :: proc(s: ^Shader, name: string, val: math.Matrix4f32) {
   }
 }
 
+setVec3 :: proc {
+  setVec3Vec,
+  setVec3Val
+}
+
+setVec3Vec :: proc(s: ^Shader, name: string, val: math.Vector3f32) {
+  loc := getLocation(s, name)
+  if loc != -1 {
+    v := val
+    gl.Uniform3fv(loc, 1, ([^]f32)(&v[0]))
+  }
+}
+
+setVec3Val :: proc(s: ^Shader, name: string, v0, v1, v2: f32) {
+  loc := getLocation(s, name)
+  if loc != -1 {
+    gl.Uniform3f(loc, v0, v1, v2)
+  }
+}
+
 
