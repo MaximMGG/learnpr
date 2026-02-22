@@ -115,8 +115,6 @@ main :: proc() {
   util.shaderUse(&program)
   util.setInt(&program, "texture1", 0)
 
-  projection := math.matrix4_perspective(f32(math.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
-  util.setMat4(&program, "projection", projection)
 
   for !bool(glfw.WindowShouldClose(window)) {
     currentFrame := f32(glfw.GetTime())
@@ -132,6 +130,8 @@ main :: proc() {
     util.textureBind(texture)
 
     util.shaderUse(&program)
+    projection := math.matrix4_perspective(f32(math.to_radians(fov)), f32(WIDTH) / f32(HEIGHT), f32(0.1), f32(100.0))
+    util.setMat4(&program, "projection", projection)
 
     view := math.matrix4_look_at(cameraPos, cameraPos + cameraFront, cameraUp)
     //view *= math.matrix4_rotate(f32(glfw.GetTime()) * 0.2, math.Vector3f32{0.0, 0.0, 1.0})
