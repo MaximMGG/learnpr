@@ -125,6 +125,7 @@ main :: proc() {
 
     util.shaderUse(&lightingShader)
     util.setVec3(&lightingShader, "objectColor", 1.0, 0.5, 0.31)
+    // util.setVec3(&lightingShader, "objectColor", 1.0, 1.0, 1.0)
     util.setVec3(&lightingShader, "lightColor", 1.0, 1.0, 1.0)
 
     projection := math.MATRIX4F32_IDENTITY * math.matrix4_perspective(math.to_radians(camera.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
@@ -132,7 +133,7 @@ main :: proc() {
     util.setMat4(&lightingShader, "projection", projection)
     util.setMat4(&lightingShader, "view", view)
 
-    model := math.MATRIX4F32_IDENTITY * math.matrix4_translate(cubePos)
+    model := math.MATRIX4F32_IDENTITY// * math.matrix4_translate(cubePos)
     util.setMat4(&lightingShader, "model", model)
     
     //render Cube
@@ -147,9 +148,11 @@ main :: proc() {
     model *= math.matrix4_translate(lightPos)
     model *= math.matrix4_scale(math.Vector3f32{0.2, 0.2, 0.2})
     util.setMat4(&lightCubeShader, "model", model)
+    util.glCheckErr()
 
     util.vertexArrayBind(lightCubeVAO)
     gl.DrawArrays(gl.TRIANGLES, 0, 36)
+    util.glCheckErr()
 
 
     glfw.SwapBuffers(window)
