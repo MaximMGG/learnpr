@@ -16,6 +16,13 @@ cameraPos := math.Vector3f32{0.0, 0.0, 3.0}
 cameraFront := math.Vector3f32{0.0, 0.0, -1.0}
 cameraUp := math.Vector3f32{0.0, 1.0, 0.0}
 
+firstMouse: bool = true
+yaw: f32 = -90.0
+pitch: f32 = 0.0
+lastX: f32 = f32(WIDTH) / 2.0
+lastY: f32 = f32(HEIGHT) / 2.0
+fov: f32 = 45.0
+
 deltaTime: f32 = 0.0
 lastFrame: f32 = 0.0
 
@@ -24,6 +31,11 @@ main :: proc() {
   log.info("init glfw")
   window := util.windowCreate(WIDTH, HEIGHT, "Camera")
   defer util.windowDestroy(window)
+
+  glfw.SetCursorPosCallback(window, mouse_callback)
+  glfw.SetScrollCallback(window, scroll_callback)
+
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
   program := util.shaderCreate("./vertex.glsl", "./fragment.glsl")
   if program.id == 0 {
@@ -122,6 +134,7 @@ main :: proc() {
     util.shaderUse(&program)
 
     view := math.matrix4_look_at(cameraPos, cameraPos + cameraFront, cameraUp)
+    //view *= math.matrix4_rotate(f32(glfw.GetTime()) * 0.2, math.Vector3f32{0.0, 0.0, 1.0})
     util.setMat4(&program, "view", view)
 
     util.vertexArrayBind(VAO)
@@ -161,7 +174,51 @@ processInput :: proc(window: glfw.WindowHandle) {
   if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
     cameraPos += math.normalize(math.cross(cameraFront, cameraUp)) * cameraSpeed
   }
+}
 
+mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+  xpos := f32(xpos)
+  ypos := f32(ypos)
 
+  if firstMouse {
+    lastX = xpos
+    lastY = ypos
+    firstMouse = false
+  }
 
+  xoffset: f32 = xpos - lastX
+  yoffset: f32 = lastY - ypos
+  lastX = xpos
+  lastY = ypos
+
+  sensitivity := f32(0.1)
+  xoffset *= sensitivity
+  yoffset *= sensitivity
+
+  yaw += xoffset
+  pitch += yoffset
+
+  if pitch > 89.0 {
+    pitch = 89.0
+  }
+  if pitch < -89.0 {
+    pitch = -89.0
+  }
+
+  front: math.Vector3f32
+  front.x = math.cos(math.to_radians(yaw)) * math.cos(math.to_radians(pitch))
+  front.y = math.sin(math.to_radians(pitch))
+  front.z = math.sin(math.to_radians(yaw)) * math.cos(math.to_radians(pitch))
+  cameraFront = math.normalize(front)
+}
+
+scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64)
+{
+  fov -= f32(yoffset)
+  if fov < 1.0 {
+    fov = 1.0
+  }
+  if fov > 45.0 {
+    fov = 45.0
+  }
 }
