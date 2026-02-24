@@ -115,7 +115,9 @@ main :: proc() {
   // util.vertexArrayProcess(&lightCubeVAO)
 
   log.info("mAin loop start")
+  lightPosTmp := lightPos
   for !bool(glfw.WindowShouldClose(window)) {
+
 
     currentFrame := f32(glfw.GetTime())
     deltaTime = currentFrame - lastFrame
@@ -130,6 +132,7 @@ main :: proc() {
     util.setVec3(&lightingShader, "objectColor", 1.0, 0.5, 0.31)
     util.setVec3(&lightingShader, "lightColor", 1.0, 1.0, 1.0)
     util.setVec3(&lightingShader, "lightPos", lightPos);
+    util.setVec3(&lightingShader, "viewPos", camera.position)
 
     projection := math.MATRIX4F32_IDENTITY * math.matrix4_perspective(math.to_radians(camera.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     view := util.cameraGetViewMatrix(&camera)
