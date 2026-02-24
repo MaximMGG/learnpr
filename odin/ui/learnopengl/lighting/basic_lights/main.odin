@@ -102,14 +102,17 @@ main :: proc() {
   VBO := util.vertexBufferCreate(&vertices[0], size_of(vertices))
   defer util.vertexBufferDestroy(&VBO)
   util.vertexArrayAddf32(&cubeVAO, 3)
+  util.vertexArrayAddf32(&cubeVAO, 3)
   util.vertexArrayProcess(&cubeVAO)
 
   lightCubeVAO := util.vertexArrayCreate()
   defer util.vertexArrayDestroy(&lightCubeVAO)
   util.vertexBufferBind(VBO)
 
-  util.vertexArrayAddf32(&lightCubeVAO, 3)
-  util.vertexArrayProcess(&lightCubeVAO)
+  gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 6 * (size_of(f32)), uintptr(0))
+  gl.EnableVertexAttribArray(0)
+  // util.vertexArrayAddf32(&lightCubeVAO, 3)
+  // util.vertexArrayProcess(&lightCubeVAO)
 
   log.info("mAin loop start")
   for !bool(glfw.WindowShouldClose(window)) {
@@ -125,8 +128,8 @@ main :: proc() {
 
     util.shaderUse(&lightingShader)
     util.setVec3(&lightingShader, "objectColor", 1.0, 0.5, 0.31)
-    // util.setVec3(&lightingShader, "objectColor", 1.0, 1.0, 1.0)
     util.setVec3(&lightingShader, "lightColor", 1.0, 1.0, 1.0)
+    util.setVec3(&lightingShader, "lightPos", lightPos);
 
     projection := math.MATRIX4F32_IDENTITY * math.matrix4_perspective(math.to_radians(camera.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     view := util.cameraGetViewMatrix(&camera)
