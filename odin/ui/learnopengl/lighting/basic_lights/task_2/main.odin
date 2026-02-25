@@ -6,7 +6,7 @@ import math "core:math/linalg"
 import "vendor:glfw"
 import "core:fmt"
 import "core:log"
-import "../../getting_start/util"
+import "../../../getting_start/util"
 
 WIDTH :: 1920
 HEIGHT :: 1024
@@ -22,7 +22,7 @@ deltaTime: f32 = 0.0
 lastFrame: f32 = 0.0
 
 lightPos := math.Vector3f32{1.2, 1.0, 2.0}
-cubePos := math.Vector3f32{0.5, 0.5, 0.5}
+cubePos := math.Vector3f32{0.2, 1.0, 2.0}
 
 main :: proc() {
 
@@ -31,7 +31,7 @@ main :: proc() {
   window := util.windowCreate(WIDTH, HEIGHT, "Colors")
   defer util.windowDestroy(window)
 
-  camera = util.cameraCreate(math.Vector3f32{0.0, 0.0, 3.0})
+  camera = util.cameraCreate(math.Vector3f32{cubePos.x + 2, cubePos.y, cubePos.z})
 
   glfw.SetCursorPosCallback(window, mouse_callback)
   glfw.SetScrollCallback(window, scroll_callback)
@@ -126,8 +126,14 @@ main :: proc() {
     processInput(window)
 
 
-    lightPos.x = 1.0 + math.sin(f32(glfw.GetTime())) * 2.0
-    lightPos.y = math.sin(f32(glfw.GetTime())) * 2.0
+    // lightPos.x = 1.0 + math.sin(f32(glfw.GetTime())) * 2.0
+    //lightPos.y = math.sin(f32(glfw.GetTime())) * 2.0
+    
+    time := f32(glfw.GetTime())
+    lightPos.x = cubePos.x + math.sin(time) * 2.0
+    lightPos.z = cubePos.z + math.cos(time) * 2.0
+    lightPos.y = cubePos.y
+
 
     gl.ClearColor(0.1, 0.1, 0.1, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -144,6 +150,7 @@ main :: proc() {
     util.setMat4(&lightingShader, "view", view)
 
     model := math.MATRIX4F32_IDENTITY// * math.matrix4_translate(cubePos)
+    model *= math.matrix4_translate(cubePos)
     util.setMat4(&lightingShader, "model", model)
     
     //render Cube
