@@ -1,5 +1,6 @@
 package materials
 
+import "base:runtime"
 import "core:log"
 import "vendor:glfw"
 import gl "vendor:OpenGL"
@@ -173,15 +174,48 @@ main :: proc() {
 
 
 mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+  context = runtime.default_context()
+  xpos := f32(xpos)
+  ypos := f32(ypos)
 
+  if firstMouse {
+    lastX = xpos
+    lastY = ypos
+    firstMouse = false
+  }
+
+  xoffset := xpos - lastX
+  yoffset := lastY - ypos
+
+  lastX = xpos
+  lastY = ypos
+
+  util.cameraProcessMouseMovement(&camera, xoffset, yoffset)
 }
 
 scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
-
+  context = runtime.default_context()
+  util.cameraProcessMouseScroll(&camera, f32(yoffset))
 }
+
 
 processInput :: proc(window: glfw.WindowHandle) {
 
+  if glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS {
+    glfw.SetWindowShouldClose(window, b32(1))
+  }
+  if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS {
+    util.cameraProcessKeyboard(&camera, .FORWARD, deltaTime)
+  }
+  if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS {
+    util.cameraProcessKeyboard(&camera, .BACKWARD, deltaTime)
+  }
+  if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
+    util.cameraProcessKeyboard(&camera, .RIGHT, deltaTime)
+  }
+  if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
+    util.cameraProcessKeyboard(&camera, .LEFT, deltaTime)
+  }
 }
 
 
