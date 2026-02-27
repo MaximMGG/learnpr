@@ -126,7 +126,7 @@ main :: proc() {
     lightColor.x = f32(math.sin(time * 2.0))
     lightColor.y = f32(math.sin(time * 0.7))
     lightColor.z = f32(math.sin(time * 1.3))
-    diffuseColor := lightColor * math.Vector3f32(0.5)
+    diffuseColor := lightColor * math.Vector3f32(0.8)
     ambientColor := diffuseColor * math.Vector3f32(0.2)
     util.setVec3(&cubeShader, "light.ambient", ambientColor)
     util.setVec3(&cubeShader, "light.diffuse", diffuseColor)
@@ -135,7 +135,7 @@ main :: proc() {
     //material properties
     util.setVec3(&cubeShader, "material.ambient", 1.0, 0.5, 0.31)
     util.setVec3(&cubeShader, "material.diffuse", 1.0, 0.5, 0.31)
-    util.setVec3(&cubeShader, "material.specular", 0.5, 0.5, 0.5)
+    util.setVec3(&cubeShader, "material.specular", 0.9, 0.9, 0.9)
     util.setFloat(&cubeShader, "material.shininess", 32.0)
 
     //view/projection transformation
@@ -161,7 +161,7 @@ main :: proc() {
     util.setMat4(&lightShader, "view", view)
     model = math.MATRIX4F32_IDENTITY
     model *= math.matrix4_translate(lightPos)
-    moel *= math.matrix4_scale(math.Vector3f32(0.2))
+    model *= math.matrix4_scale(math.Vector3f32(0.2))
     util.setMat4(&lightShader, "model", model)
 
     util.vertexArrayBind(lightCubeVAO)
