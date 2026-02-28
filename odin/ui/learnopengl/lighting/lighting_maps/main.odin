@@ -1,6 +1,7 @@
 package lighting_maps
 
 
+import "core:c"
 import "base:runtime"
 import "core:log"
 import gl "vendor:OpenGL"
@@ -22,6 +23,8 @@ deltaTime: f32
 lastFrame: f32
 
 lightPos: math.Vector3f32 = {1.2, 1.0, 2.0}
+cubePos := math.Vector3f32(0)
+rotationSpeed: f32 = 1.0
 
 main :: proc() {
   context.logger = log.create_console_logger()
@@ -29,6 +32,11 @@ main :: proc() {
   defer util.windowDestroy(window)
   camera = util.cameraCreate(position = {0.0, 0.0, 3.0})
 
+
+  glfw.SetCursorPosCallback(window, mouse_callback)
+  glfw.SetScrollCallback(window, scroll_callback)
+  //glfw.SetKeyCallback(window, key_callback)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
   mapShader := util.shaderCreate("./lightMapVertex.glsl", "./lightMapFragment.glsl")
   if mapShader.id == 0 {
@@ -107,16 +115,24 @@ main :: proc() {
 
   diffuseMap := loadTexture("container2.png")
   defer gl.DeleteTextures(1, &diffuseMap)
+  specularMap := loadTexture("container2_specular.png")
+  defer gl.DeleteTextures(1, &specularMap)
 
   util.shaderUse(&mapShader)
   util.setInt(&mapShader, "material.diffuse", 0)
+  util.setInt(&mapShader, "material.specular", 1)
 
   for !bool(glfw.WindowShouldClose(window)) {
     currentFrame := f32(glfw.GetTime())
     deltaTime = currentFrame - lastFrame
     lastFrame = currentFrame
 
+    time := f32(glfw.GetTime())
     processInput(window)
+
+    lightPos.x = cubePos.x + math.sin(time * rotationSpeed) * 2.0
+    lightPos.z = cubePos.z + math.cos(time * rotationSpeed) * 2.0
+    lightPos.y = cubePos.y
 
     gl.ClearColor(0.1, 0.1, 0.1, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -129,7 +145,6 @@ main :: proc() {
     util.setVec3(&mapShader, "light.diffuse", 0.5, 0.5, 0.5)
     util.setVec3(&mapShader, "light.specular", 1.0, 1.0, 1.0)
 
-    util.setVec3(&mapShader, "material.specular", 0.5, 0.5, 0.5)
     util.setFloat(&mapShader, "material.shininess", 64.0)
 
     projection := math.MATRIX4F32_IDENTITY * math.matrix4_perspective(camera.zoom, f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
@@ -138,10 +153,14 @@ main :: proc() {
     util.setMat4(&mapShader, "view", view)
 
     model := math.MATRIX4F32_IDENTITY
+    model *= math.matrix4_translate(cubePos)
     util.setMat4(&mapShader, "model", model)
 
     gl.ActiveTexture(gl.TEXTURE0)
     gl.BindTexture(gl.TEXTURE_2D, diffuseMap)
+
+    gl.ActiveTexture(gl.TEXTURE1)
+    gl.BindTexture(gl.TEXTURE_2D, specularMap)
 
     util.vertexArrayBind(cubeVAO)
     gl.DrawArrays(gl.TRIANGLES, 0, 36)
@@ -175,8 +194,8 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
     firstMouse = false
   }
 
-  xoffset := lastX - xpos
-  yoffset := ypos - lastY
+  xoffset := xpos - lastX
+  yoffset := lastY - ypos
 
   lastX = xpos
   lastY = ypos
@@ -203,6 +222,12 @@ processInput :: proc(window: glfw.WindowHandle) {
   }
   if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
     util.cameraProcessKeyboard(&camera, .LEFT, deltaTime)
+  }
+  if glfw.GetKey(window, glfw.KEY_UP) == glfw.PRESS {
+    rotationSpeed += 0.2
+  }
+  if glfw.GetKey(window, glfw.KEY_DOWN) == glfw.PRESS {
+    rotationSpeed -= 0.2
   }
 }
 
@@ -239,4 +264,21 @@ loadTexture :: proc(path: string) -> u32 {
   }
 
   return textureID
+}
+
+key_callback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
+  context = runtime.default_context()
+  if key == glfw.KEY_ESCAPE && action == glfw.PRESS {
+    glfw.SetWindowShouldClose(window, b32(1))
+  }
+  switch key {
+  case glfw.KEY_W:
+    util.cameraProcessKeyboard(&camera, .FORWARD, deltaTime)
+  case glfw.KEY_S:
+    util.cameraProcessKeyboard(&camera, .BACKWARD, deltaTime)
+  case glfw.KEY_D:
+    util.cameraProcessKeyboard(&camera, .RIGHT, deltaTime)
+  case glfw.KEY_A:
+    util.cameraProcessKeyboard(&camera, .LEFT, deltaTime)
+  }
 }
