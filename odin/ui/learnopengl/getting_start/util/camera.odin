@@ -24,8 +24,7 @@ cameraCreate :: proc {
   cameraCreateVal,
 }
 
-cameraCreateVec :: proc(position: math.Vector3f32 = math.Vector3f32{0.0, 0.0,
-  0.0}, up: math.Vector3f32 = math.Vector3f32{0.0, 1.0, 0.0}, yaw: f32 = YAW,
+cameraCreateVec :: proc(position: math.Vector3f32 = math.Vector3f32{0.0, 0.0, 0.0}, up: math.Vector3f32 = math.Vector3f32{0.0, 1.0, 0.0}, yaw: f32 = YAW,
   pitch: f32 = PITCH) -> Camera{
   camera: Camera
   camera.front = math.Vector3f32{0.0, 0.0, -1.0}
