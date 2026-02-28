@@ -127,10 +127,11 @@ getLocation :: proc(s: ^Shader, name: string) -> i32 {
   return -1
 }
 
+
 setFloat :: proc(s: ^Shader, name: string, val: f32) {
   loc := getLocation(s, name)
   if loc != -1 {
-    gl.Uniform1f(loc, val)
+    gl.Uniform1f(loc, val);
   }
 }
 
