@@ -1,0 +1,6 @@
+package screen
+
+
+Screen :: struct {
+
+}
