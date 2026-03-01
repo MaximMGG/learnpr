@@ -1,9 +1,11 @@
 #ifndef WINDOW_MANAGER_HPP
 #define WINDOW_MANAGER_HPP
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <unistd.h>
 #include <stdlib.h>
+#include "types.hpp"
 
 class WindowManager {
   public:
@@ -23,6 +25,13 @@ class WindowManager {
 
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       glfwMakeContextCurrent(window);
+
+      i32 res = glewInit();
+      if (res != 0 && res != 4) {
+        std::cerr << "glewInit failed\n";
+        exit(1);
+      }
+
       glEnable(GL_DEPTH_TEST);
 
     }
