@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include "glcall.hpp"
+#include "types.hpp"
 
 class Shader {
 public:
@@ -35,19 +36,20 @@ public:
     void use() {
         GLCall(glUseProgram(id));
     }
+
+    void setFloat(const char *name, f32 value) {
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform1f(loc, value);
+      }
+    }
+
+
     void setInt(const char *name, int value) {
-        auto it = uniforms.find(name);
-        if (it != uniforms.end()) {
-            GLCall(glUniform1i(it->second, value));
-        } else {
-            int loc;
-            GLCall(loc = glGetUniformLocation(id, name));
-            if (loc != -1) {
-                uniforms[name] = loc;
-            } else {
-                std::cerr << "Can't find location " << name << '\n';
-            }
-        }
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform1i(loc, value);
+      }
     }
 
     void setVec3(const char *name, glm::vec3 value) {
@@ -66,22 +68,39 @@ public:
         }
     }
 
+    void setVec3(const char *name, f32 v0, f32 v1, f32 v2) {
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform3f(loc, v0, v1, v2);
+      }
+
+    }
+
     void setMat4(const char *name, glm::mat4 value) {
-        auto it = uniforms.find(name);
-        if (it != uniforms.end()) {
-            GLCall(glUniformMatrix4fv(it->second, 1, GL_FALSE, &value[0][0]));
-        } else {
-            int loc;
-            GLCall(loc = glGetUniformLocation(id, name));
-            if (loc != -1) {
-                uniforms[name] = loc;
-            } else {
-                std::cerr << "Can't find location " << name << '\n';
-            }
-        }
+      i32 loc = getLocation(name);
+      if (loc != -1) {
+        glUniform4fv(loc, 1, &value[0][0]);
+      }
     }
 
 private:
+
+    int getLocation(const char *name) {
+      auto it = uniforms.find(name);
+      if (it == uniforms.end()) {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+          uniforms[name] = loc;
+          return loc;
+        } else {
+          std::cerr << "Can't find uniform location " << name << '\n';
+          return -1;
+        }
+      } 
+      return it->second;
+    }
+
+
     unsigned int compileShader(const char *path, unsigned int type) {
         std::ifstream file(path);
         if (file.is_open()) {
@@ -103,7 +122,6 @@ private:
             std::cerr << "Open file " << path << " error\n";
             return 0;
         }
-
         return 0;
     }
 

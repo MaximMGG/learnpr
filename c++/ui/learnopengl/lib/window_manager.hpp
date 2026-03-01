@@ -21,8 +21,10 @@ class WindowManager {
         exit(1);
       }
 
-      // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       glfwMakeContextCurrent(window);
+      glEnable(GL_DEPTH_TEST);
+
     }
 
     ~WindowManager() {
