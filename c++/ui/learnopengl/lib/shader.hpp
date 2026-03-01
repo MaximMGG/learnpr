@@ -12,12 +12,18 @@
 
 class Shader {
 public:
-    unsigned int id;
+    unsigned int id = 0;
     std::map<std::string, int> uniforms;
 
     Shader(const char *v_path, const char *f_path) {
         unsigned int v_shader = compileShader(v_path, GL_VERTEX_SHADER);
+        if (v_shader == 0) {
+          return;
+        }
         unsigned int f_shader = compileShader(f_path, GL_FRAGMENT_SHADER);
+        if (f_shader == 0) {
+          return;
+        }
         id = glCreateProgram();
         GLCall(glAttachShader(id, v_shader));
         GLCall(glAttachShader(id, f_shader));

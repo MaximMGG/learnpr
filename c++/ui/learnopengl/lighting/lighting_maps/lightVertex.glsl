@@ -1,5 +1,5 @@
 #version 330 core
-layout (locaiton = 0) in vec3 aPos;
+layout (location = 0) in vec3 aPos;
 
 uniform mat4 projection;
 uniform mat4 view;

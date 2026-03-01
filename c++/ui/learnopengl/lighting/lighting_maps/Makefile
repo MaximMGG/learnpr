@@ -12,7 +12,7 @@ default: build run
 
 
 build: $(OBJ)
-	g++ -o $(APP) $^ -lGL -lGLEW -lglfw
+	g++ -o $(APP) $^ -lGL -lGLEW -lglfw -g
 
 run:
 	./$(APP)
@@ -21,4 +21,4 @@ clear:
 	rm $(APP) *.o
 
 %.o: %.cpp
-	g++ -c $< -o $@ -lGL -lGLEW -lglfw
+	g++ -c $< -o $@ -lGL -lGLEW -lglfw -g

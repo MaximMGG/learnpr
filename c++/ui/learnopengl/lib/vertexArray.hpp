@@ -22,6 +22,7 @@ private:
 public:    
     VertexArray(){
         GLCall(glGenVertexArrays(1, &id));
+        GLCall(glBindVertexArray(id));
     }
 
     ~VertexArray() {

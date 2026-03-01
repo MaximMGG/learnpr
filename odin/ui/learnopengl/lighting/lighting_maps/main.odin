@@ -269,7 +269,7 @@ loadTexture :: proc(path: string) -> u32 {
 key_callback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
   context = runtime.default_context()
   if key == glfw.KEY_ESCAPE && action == glfw.PRESS {
-    glfw.SetWindowShouldClose(window, b32(1))
+    glfw.SetWindowShouldClose(window, true)
   }
   switch key {
   case glfw.KEY_W:
