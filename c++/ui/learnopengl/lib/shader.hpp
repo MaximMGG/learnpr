@@ -1,6 +1,7 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 #include <iostream>
+#include <cstring>
 #include <fstream>
 #include <string>
 #include <map>
@@ -113,7 +114,8 @@ private:
             file.seekg(0, std::ios::end);
             long file_size = file.tellg();
             file.seekg(0, std::ios::beg);
-            char *buf = new char[file_size];
+            char *buf = new char[file_size + 1];
+            memset(buf, 0, file_size + 1);
             file.read(buf, file_size);
             unsigned int shader;
             GLCall(shader = glCreateShader(type));
@@ -138,7 +140,8 @@ private:
             if (res == GL_FALSE) {
                 int len;
                 GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len));
-                char *err_msg = new char[len];
+                char *err_msg = new char[len + 1];
+                memset(err_msg, 0, len + 1);
                 GLCall(glGetShaderInfoLog(shader, len, &len, err_msg));
                 std::cerr << "Compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader failed: "
                     << err_msg << '\n';
@@ -151,7 +154,8 @@ private:
             if (res == GL_FALSE) {
                 int len;
                 GLCall(glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &len));
-                char *err_msg = new char[len];
+                char *err_msg = new char[len + 1];
+                memset(err_msg, 0, len + 1);
                 GLCall(glGetProgramInfoLog(shader, len, &len, err_msg));
                 std::cerr << "Link program failed: " << err_msg << '\n';
                 delete [] err_msg;

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstring>
+#include <fstream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -17,6 +19,9 @@
 f32 deltaTime;
 f32 lastFrame;
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool firstMove = true;
+f32 lastX = f32(WIDTH) / 2.0f;
+f32 lastY = f32(HEIGHT) / 2.0f;
 
 
 
@@ -148,8 +153,8 @@ int main() {
   u32 specularTex = load_texture("container2_specular.png");
 
   glUseProgram(cubeVAO);
-  set_int(lightShader, "material.diffuse", 0);
-  set_int(lightShader, "material.specular", 1);
+  set_int(cubeShader, "material.diffuse", 0);
+  set_int(cubeShader, "material.specular", 1);
 
 
   while(!glfwWindowShouldClose(window)) {
@@ -207,6 +212,222 @@ int main() {
   }
 
 
+  glDeleteVertexArrays(1, &cubeVAO);
+  glDeleteVertexArrays(1, &lightVAO);
+  glDeleteBuffers(1, &VBO);
+  glDeleteProgram(cubeShader);
+  glDeleteProgram(lightShader);
+  glDeleteTextures(1, &diffuseTex);
+  glDeleteTextures(1, &specularTex);
+
+  glfwDestroyWindow(window);
+  glfwTerminate();
 
   return 0;
+}
+
+void mouse_callback(GLFWwindow *window, f64 _xpos, f64 _ypos) {
+  f32 xpos = f32(_xpos);
+  f32 ypos = f32(_ypos);
+
+  if (firstMove) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMove = false;
+  }
+
+  f32 xoffset = lastX - xpos;
+  f32 yoffset = ypos - lastY;
+
+  lastX = xpos;
+  lastY = ypos;
+  camera.processMouseMovent(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
+  camera.processMouseScroll(f32(yoffset));
+}
+
+void processInput(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
+  }
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+    camera.processKeyboard(FORWARD, deltaTime);
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) 
+    camera.processKeyboard(BACKWARD, deltaTime);
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) 
+    camera.processKeyboard(RIGHT, deltaTime);
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) 
+    camera.processKeyboard(LEFT, deltaTime);
+}
+
+static bool checkStatus(u32 shader, u32 type) {
+  switch(type) {
+    case GL_VERTEX_SHADER: {
+      i32 res;
+      glGetShaderiv(shader, GL_COMPILE_STATUS, &res);
+      if (res == GL_FALSE) {
+        i32 len;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+        i8 *err_buf = new i8[len + 1];
+        memset(err_buf, 0, len + 1);
+        glGetShaderInfoLog(shader, len, &len, err_buf);
+        std::cerr << "Comile vertex shader error [" << err_buf << "]\n";
+        delete [] err_buf;
+        return false;
+      }
+    } break;
+    case GL_FRAGMENT_SHADER: {
+      i32 res;
+      glGetShaderiv(shader, GL_COMPILE_STATUS, &res);
+      if (res == GL_FALSE) {
+        i32 len;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+        i8 *err_buf = new i8[len + 1];
+        memset(err_buf, 0, len + 1);
+        glGetShaderInfoLog(shader, len, &len, err_buf);
+        std::cerr << "Comile fragment shader error [" << err_buf << "]\n";
+        delete [] err_buf;
+        return false;
+      }
+    } break;
+    case GL_PROGRAM: {
+      i32 res;
+      glGetProgramiv(shader, GL_LINK_STATUS, &res);
+      if (res == GL_FALSE) {
+        i32 len;
+        glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &len);
+        i8 *err_buf = new i8[len + 1];
+        memset(err_buf, 0, len + 1);
+        glGetProgramInfoLog(shader, len, &len, err_buf);
+        std::cerr << "Ling program error [" << err_buf << "]\n";
+        delete [] err_buf;
+        return false;
+      }
+
+    } break;
+  }
+
+  return true;
+}
+
+u32 compile_shader(const char *shader, u32 type) {
+  std::ifstream r(shader);
+  if (r.is_open()) {
+    r.seekg(0, std::ios_base::end);
+    long file_size = r.tellg();
+    r.seekg(0, std::ios_base::beg);
+    i8 *buf = new i8[file_size + 1];
+    memset(buf, 0, file_size + 1);
+    r.read(buf, file_size);
+
+    u32 s = glCreateShader(type);
+    glShaderSource(s, 1, &buf, nullptr);
+    glCompileShader(s);
+    if (!checkStatus(s, type)) {
+      std::cerr << "Compile shader: " << shader << "FAILED\n";
+      return 0;
+    }
+    return s;
+  } else {
+    std::cerr << "Can't open file: " << shader << '\n';
+    return 0;
+  }
+
+  return 0;
+}
+
+
+u32 load_shader(const char *vertex, const char *fragment) {
+  u32 vs = compile_shader(vertex, GL_VERTEX_SHADER);
+  u32 fs = compile_shader(fragment, GL_FRAGMENT_SHADER);
+  if (vs == 0 || fs == 0) {
+    return 0;
+  }
+  u32 prog = glCreateProgram();
+  glAttachShader(prog, vs);
+  glAttachShader(prog, fs);
+  glLinkProgram(prog);
+  if (!checkStatus(prog, GL_PROGRAM)) {
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+    return 0;
+  }
+
+  glDeleteShader(vs);
+  glDeleteShader(fs);
+  glValidateProgram(prog);
+
+  return prog;
+}
+
+i32 getLoc(u32 shader, const char *name) {
+  i32 loc = glGetUniformLocation(shader, name);
+  if (loc == -1) {
+    std::cerr << "Can't find location for uniform: " << name << '\n';
+    return -1;
+  }
+  return loc;
+}
+
+void set_mat4(u32 shader, const char *name, glm::mat4 &val) {
+  i32 loc = getLoc(shader, name);
+  if (loc != -1) {
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &val[0][0]);
+  }
+}
+
+void set_vec3(u32 shader, const char *name, glm::vec3 val) {
+  i32 loc = getLoc(shader, name);
+  if (loc != -1) {
+    glUniform3fv(loc, 1, &val[0]);
+  }
+}
+
+void set_int(u32 shader, const char *name, i32 val) {
+  i32 loc = getLoc(shader, name);
+  if (loc != -1) {
+    glUniform1i(loc, val);
+  }
+
+}
+void set_float(u32 shader, const char *name, f32 val) {
+  i32 loc = getLoc(shader, name);
+  if (loc != -1) {
+    glUniform1f(loc, val);
+  }
+}
+
+
+u32 load_texture(const char *path) {
+  u32 tex;
+  glGenTextures(1, &tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  i32 width, height, nrChannels;
+  u8 *data = stbi_load(path, &width, &height, &nrChannels, 0);
+
+  if (data) {
+    i32 format = GL_RGB;
+    if (nrChannels == 1) format = GL_RED;
+    if (nrChannels == 3) format = GL_RGB;
+    if (nrChannels == 4) format = GL_RGBA;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+  } else {
+    std::cerr << "stbi_load error: " << path << '\n';
+    return 0;
+  }
+
+  return tex;
 }
