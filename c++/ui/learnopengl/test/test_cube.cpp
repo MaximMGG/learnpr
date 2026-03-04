@@ -4,8 +4,6 @@
 #include "../lib/util.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 
 #define WIDTH 1920
 #define HEIGHT 1024
@@ -32,6 +30,7 @@ int main() {
   glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
   glewInit();
 
+  glEnable(GL_DEPTH_TEST);
   Shader shader("./vertex.glsl", "./fragment.glsl");
   if (shader.id == 0) {
     std::cerr << "Compile shader error\n";
@@ -40,28 +39,61 @@ int main() {
   }
 
   float vertices[] = {
-    -0.5, 0.5, 0.0, 0.0, 1.0,
-     0.5, 0.5, 0.0, 1.0, 1.0,
-     0.5, -0.5, 0.0, 1.0, 0.0,
-    -0.5, -0.5, 0.0, 0.0, 0.0
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
   };
 
   unsigned int indecies[] = {
     0, 1, 2, 2, 3, 0
   };
 
-  unsigned int VAO, VBO, EBO;
+  unsigned int VAO, VBO;
 
   GLCall(glGenVertexArrays(1, &VAO));
   GLCall(glBindVertexArray(VAO));
 
   GLCall(glGenBuffers(1, &VBO));
-  GLCall(glGenBuffers(1, &EBO));
   GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
   GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
-
-  GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
-  GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indecies), indecies, GL_STATIC_DRAW));
 
   GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void *)0));
   GLCall(glEnableVertexAttribArray(0));
@@ -77,10 +109,9 @@ int main() {
 
   shader.use();
   shader.setInt("texture1", 0);
-  //GLCall(glBindBuffer(GL_ARRAY_BUFFER, VBO));
 
   while(!glfwWindowShouldClose(window)) {
-    GLCall(glClear(GL_COLOR_BUFFER_BIT));
+    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     processInput(window);
 
     shader.use();
@@ -92,7 +123,7 @@ int main() {
     glm::mat4 model(1.0f);
     projection = glm::perspective(glm::radians(45.0f), f32(WIDTH) / f32(HEIGHT), 0.1f, 100.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, f32(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
 
 
     shader.setMat4("projection", projection);
@@ -100,7 +131,7 @@ int main() {
     shader.setMat4("model", model);
 
     GLCall(glBindVertexArray(VAO));
-    GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0));
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -109,7 +140,7 @@ int main() {
 
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
+  glDeleteTextures(1, &tex);
 
   return 0;
 }
