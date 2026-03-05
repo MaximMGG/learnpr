@@ -83,10 +83,10 @@ public:
 
     }
 
-    void setMat4(const char *name, glm::mat4 value) {
+    void setMat4(const char *name, glm::mat4 &value) {
       i32 loc = getLocation(name);
       if (loc != -1) {
-        glUniform4fv(loc, 1, &value[0][0]);
+        glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]);
       }
     }
 

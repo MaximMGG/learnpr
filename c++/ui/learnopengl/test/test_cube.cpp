@@ -8,10 +8,34 @@
 #define WIDTH 1920
 #define HEIGHT 1024
 
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+f32 lastX = f32(WIDTH) / 2.0f;
+f32 lastY = f32(HEIGHT) / 2.0f;
+bool firstMouse = true;
+
+
+f32 deltaTime = 0.0f;
+f32 lastFrame = 0.0f;
+
 void frameBufferSizeCallback(GLFWwindow *window, int width, int height);
+void mouse_callback(GLFWwindow *window, f64 _xpos, f64 _ypos);
+void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset);
 void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, 1);
+  }
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    camera.processKeyboard(FORWARD, deltaTime);
+  }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    camera.processKeyboard(BACKWARD, deltaTime);
+  }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    camera.processKeyboard(RIGHT, deltaTime);
+  }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    camera.processKeyboard(LEFT, deltaTime);
   }
 }
 
@@ -28,6 +52,10 @@ int main() {
 
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
+  glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetScrollCallback(window, scroll_callback);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
   glewInit();
 
   glEnable(GL_DEPTH_TEST);
@@ -82,9 +110,20 @@ int main() {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
   };
 
-  unsigned int indecies[] = {
-    0, 1, 2, 2, 3, 0
+
+  glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f),
+    glm::vec3( 2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3( 2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3( 1.3f, -2.0f, -2.5f),
+    glm::vec3( 1.5f,  2.0f, -2.5f),
+    glm::vec3( 1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
   };
+
 
   unsigned int VAO, VBO;
 
@@ -111,7 +150,13 @@ int main() {
   shader.setInt("texture1", 0);
 
   while(!glfwWindowShouldClose(window)) {
+
+    f32 currentFrame = f32(glfwGetTime());
+    deltaTime = currentFrame = lastFrame;
+    lastFrame = currentFrame;
+
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
     processInput(window);
 
     shader.use();
@@ -120,22 +165,23 @@ int main() {
 
     glm::mat4 projection(1.0f);
     glm::mat4 view(1.0f);
-    glm::mat4 model(1.0f);
     projection = glm::perspective(glm::radians(45.0f), f32(WIDTH) / f32(HEIGHT), 0.1f, 100.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    model = glm::rotate(model, f32(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
-
-
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
-    shader.setMat4("model", model);
 
     GLCall(glBindVertexArray(VAO));
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    for(i32 i = 0; i < 10; i++) {
+      glm::mat4 model(1.0f);
+      model = glm::translate(model, cubePositions[i]);
+      model = glm::rotate(model, f32(glfwGetTime()), glm::vec3(0.5f, 1.0f, 0.0f));
+
+      shader.setMat4("model", model);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-
   }
 
   glDeleteVertexArrays(1, &VAO);
@@ -173,4 +219,27 @@ u32 load_texture(const char *path) {
   }
 
   return tex;
+}
+
+void mouse_callback(GLFWwindow *window, f64 _xpos, f64 _ypos) {
+  f32 xpos = f32(_xpos);
+  f32 ypos = f32(_ypos);
+
+  if (firstMouse) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+
+  f32 xoffset = xpos - lastX;
+  f32 yoffset = lastY - ypos;
+
+  lastX = xpos;
+  lastY = ypos;
+
+  camera.processMouseMovement(xoffset, yoffset);
+}
+
+void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
+  camera.processMouseScroll(f32(yoffset));
 }

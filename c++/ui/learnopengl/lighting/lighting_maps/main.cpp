@@ -4,10 +4,6 @@
 #include "../../lib/util.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
-
 
 #define WIDTH 1920
 #define HEIGHT 1024
@@ -114,7 +110,7 @@ int main() {
   while(!glfwWindowShouldClose(win.window)) {
     f32 time = f32(glfwGetTime());
     f32 currentFrame = time;
-    deltaTime = lastFrame - currentFrame;
+    deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     processInput(win.window);
@@ -175,8 +171,8 @@ void mouse_callback(GLFWwindow *window, f64 _xpos, f64 _ypos) {
     firstMove = false;
   }
 
-  f32 xoffset = xpos - lastX;
-  f32 yoffset = lastY - ypos;
+  f32 xoffset = lastX - xpos;
+  f32 yoffset = ypos - lastY;
 
   lastX = xpos;
   lastY = ypos;
