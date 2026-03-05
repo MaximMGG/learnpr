@@ -101,6 +101,7 @@ private:
           return loc;
         } else {
           std::cerr << "Can't find uniform location " << name << '\n';
+          std::flush(std::cerr);
           return -1;
         }
       } 
