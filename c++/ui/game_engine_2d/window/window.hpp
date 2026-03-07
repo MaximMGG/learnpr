@@ -25,7 +25,7 @@ namespace E_WINDOW {
         u32 windowFlags = (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MOUSE_CAPTURE));
     ~Window();
 
-    inline void SetGLContext(SDL_GLContext &gl_context) {m_GLContext = gl_context;}
+    inline void SetGLContext(SDL_GLContext gl_context) {m_GLContext = gl_context;}
     inline WindowPtr& GetWindow() {return m_pWindow;}
     inline SDL_GLContext& GetGLContext() {return m_GLContext;}
     inline const std::string& GetWindowName() const {return m_sTitle;}

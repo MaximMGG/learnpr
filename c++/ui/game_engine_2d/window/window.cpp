@@ -1,8 +1,6 @@
 #include "window.hpp"
 #include <iostream>
 
-
-
 namespace E_WINDOW {
   void Window::CreateNewWindow(u32 flags) {
     m_pWindow = WindowPtr(SDL_CreateWindow(
@@ -32,9 +30,9 @@ namespace E_WINDOW {
   Window::~Window() {
 
   }
+
   inline void Window::SetWindowName(std::string &name) {
     m_sTitle = name;
     SDL_SetWindowTitle(m_pWindow.get(), name.c_str());
-
   }
 }
