@@ -31,10 +31,14 @@ foreign DB {
 	PQerrorMessage :: proc(conn: ^PGconn) -> cstring ---
 	PQprepare :: proc(conn: ^PGconn, stmtName: cstring, query: cstring, nParams: c.int, paramTypes: rawptr) -> ^PGresult ---
 	PQexecParams :: proc(conn: ^PGconn, command: cstring, nParams: c.int, paramTypes: rawptr, paramValues: []cstring, paramLength: ^c.int, paramFormats: ^c.int, resultFormat: c.int) -> PGresult ---
+  PQnfields :: proc(res: ^PGresult) -> c.int ---
 }
 
 DatabaseError :: enum {
   CONNECTION_ERROR,
+  INSERT_STRUCT_ERROR,
+  SELECT_STRUCT_ERROR,
+  EXEC_QUARY_WITH_RESULT_ERROR,
 }
 
 Database :: struct {
@@ -43,7 +47,9 @@ Database :: struct {
   db_name: string,
   name: string,
   password: string,
-  prepared_insert_struct: map[string]string
+  prepared_insert_struct: map[string]string,
+  prepared_select_struct: map[string]string,
+
 }
 
 
@@ -64,9 +70,19 @@ connect :: proc(db_name: string, user_name: string, password: string) -> (Databa
 }
 
 disconnect :: proc(database: ^Database) {
+  if database.res != nil {
+    PQclear(database.res)
+  }
   PQfinish(database.conn)
-}
 
+  for _, v in database.prepared_select_struct {
+    delete(v)
+  }
+  for _, v in database.prepared_insert_struct {
+    delete(v)
+  }
+
+}
 
 
 @(private)
@@ -130,18 +146,108 @@ insert_struct_prepare_quary :: proc(t: $T, table: string) -> string {
   return res
 }
 
-insert_struct :: proc(database: ^Database, table: string, t: $T, val: T) -> DatabaseError {
+insert_struct :: proc(database: ^Database, table: string, t: $T) -> DatabaseError {
   quary := database.prepared_insert_struct[table]
   if quary == nil {
     quary = insert_struct_prepare_quary(t)
     database.prepared_insert_struct[table] = quary
   }
+  tio := type_info_of(T).variant.(runtime.Type_Info_Named)
+  ti := tio.base.variant.(runtime.Type_Info_Struct)
+
+  args := make([]any, ti.field_count)
+  defer delete(args)
+  t := t
+  base := uintptr(&t)
+
+  for i in 0..<ti.field_count {
+    switch(ti.types[i].id) {
+    case i8:
+      fallthrough
+    case u8:
+      fallthrough
+    case i16:
+      fallthrough
+    case u16:
+      fallthrough
+    case i32:
+      fallthrough
+    case u32:
+      fallthrough
+    case i64:
+      fallthrough
+    case u64:
+      fallthrough
+    case int:
+      args[i] = ((^int)(base + ti.offsets[i]))^
+    case f32:
+      fallthrough
+    case f64:
+      args[i] = ((^f64)(base + ti.offsets[i]))^
+    case cstring:
+      fallthrough
+    case string:
+      args[i] ((^string)(base + ti.offsets[i]))^
+    }
+  }
+  buf := fmt.aprintf(quary, ..args)
+  defer delete(buf)
+
+  database.res = PQexec(database.conn, cstring(raw_ptr(buf)))
+  if PQresultStatus(database.res) != PGRES_COMMAND_OK {
+    return .INSERT_STRUCT_ERROR
+  }
+  PQclear(database.res)
+  return nil
+}
+
+select_struct_prepare_quary :: proc(table: string, t: $T) -> string {
+  tmp := "SELECT * FROM %s"
 
 }
 
 select_struct :: proc(database: ^Database, table: string, t: $T) -> []T {
+  quary := database.prepared_select_struct[table]
+  if quary == nil {
+    quary = select_struct_prepare_quary(table, t)
+    database.prepared_select_struct[table] = quary
+  }
 
 }
+
+exec_quary_with_result :: proc(database: ^Database, quary: string) -> ([][]string, DatabaseError ){
+
+  database.res = PQexec(database.conn, cstring(raw_data(quary)))
+  if PQresultStatus(database.res) != PGRES_COMMAND_OK {
+    PQclear(database.res)
+    return [][]string{}, .EXEC_QUARY_WITH_RESULT_ERROR
+  }
+
+  raws := PQntuples(database.res)
+  lines := PQnfields(database.res)
+
+  result := make([][]string, raws)
+
+  for i in 0..<raws {
+    for j in 0..<lines {
+      s := PQgetvalue(database.res, i, j)
+      result[i][j] = strings.clone_from_cstring(s)
+    }
+  }
+
+
+  return nil, nil
+}
+
+clear_result :: proc(res: [][]string) {
+  for i in res {
+    for j in i {
+      delete(j)
+    }
+  }
+  delete(res)
+}
+
 
 test_struct :: struct {
   a: int,
@@ -150,10 +256,4 @@ test_struct :: struct {
   c: f64
 }
 
-main :: proc() {
-  t := test_struct{a = 333, name = "Hello", b = 1.1, c = 3.8}
-  res := insert_struct_prepare_quary(t, "_TABLE_")
-  defer delete(res)
-  fmt.eprintln(res)
-}
 
