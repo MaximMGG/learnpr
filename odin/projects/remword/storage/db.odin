@@ -39,6 +39,7 @@ DatabaseError :: enum {
   INSERT_STRUCT_ERROR,
   SELECT_STRUCT_ERROR,
   EXEC_QUARY_WITH_RESULT_ERROR,
+  EXEC_QUARY_WITHOUT_RESULT_ERROR,
 }
 
 Database :: struct {
@@ -202,23 +203,34 @@ insert_struct :: proc(database: ^Database, table: string, t: $T) -> DatabaseErro
 }
 
 select_struct_prepare_quary :: proc(table: string, t: $T) -> string {
-  tmp := "SELECT * FROM %s"
-
+  tmp := "SELECT * FROM %s;"
+  quary := fmt.aprintf(tmp, table)
+  return quary
 }
 
-select_struct :: proc(database: ^Database, table: string, t: $T) -> []T {
+select_struct :: proc(database: ^Database, table: string, t: $T) -> ([]T, DatabaseError) {
   quary := database.prepared_select_struct[table]
   if quary == nil {
     quary = select_struct_prepare_quary(table, t)
     database.prepared_select_struct[table] = quary
   }
+  database.res = PQexec(database.conn, cstring(raw_data(quary)))
+  if PQresultStatus(database.res) != PGRES_TUPLES_OK {
+    PQclear(database.res)
+    return []T{}, .SELECT_STRUCT_ERROR
+  }
+  
+  //TODO(Maxim) write parse result
+
+}
+
+select_struct_quary :: proc(databse: ^Database, quary: string, table: string, t: $T) -> ([]T, DatabaseError) {
 
 }
 
 exec_quary_with_result :: proc(database: ^Database, quary: string) -> ([][]string, DatabaseError ){
-
   database.res = PQexec(database.conn, cstring(raw_data(quary)))
-  if PQresultStatus(database.res) != PGRES_COMMAND_OK {
+  if PQresultStatus(database.res) != PGRES_TUPLES_OK {
     PQclear(database.res)
     return [][]string{}, .EXEC_QUARY_WITH_RESULT_ERROR
   }
@@ -235,8 +247,17 @@ exec_quary_with_result :: proc(database: ^Database, quary: string) -> ([][]strin
     }
   }
 
+  PQclear(database.res)
+  return result, nil
+}
 
-  return nil, nil
+exec_quary_without_result :: proc(database: ^Database, quary: string) -> (DatabaseError) {
+  database.res = PQexec(database.conn, cstring(raw_data(quary)))
+  if PQresultStatus(database.res) != PGRES_TUPLES_OK {
+    return .EXEC_QUARY_WITHOUT_RESULT_ERROR
+  }
+  PQclear(database.res)
+  return nil
 }
 
 clear_result :: proc(res: [][]string) {
