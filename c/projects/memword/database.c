@@ -5,9 +5,11 @@
 
 #define DATABASE_CONNECT_QUARY "dbname=%s user=%s password=%s"
 
-#define DATABASE_CHECK_COLUMS_TYPE_NAME "SELECT column_namb, data_type, character_maximum_length, is_identity, column_default, FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '%s';"
+#define DATABASE_CHECK_COLUMS_TYPE_NAME "SELECT column_name, data_type, character_maximum_length, is_identity, column_default, FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '%s';"
 #define DATABASE_CHECK_TABLE_EXISTS "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = '%s';"
 
+#define DB_POSTGRES_TYPE_LEN 9 
+#define DB_POSTGRES_TYPE_NONE 983472938
 str db_postgres_type[] = {
   "smallint",
   "integer",
@@ -20,11 +22,15 @@ str db_postgres_type[] = {
   "numeric"
 };
 
-str error_str[] = {
+str database_error_str[] = {
   "DATABASE_OK",
   "DATABASE_CONNECT_ERROR",
   "DATABASE_INSERT_ERROR",
   "DATABASE_SELECT_ERROR",
+  "DATABASE_INSERT_STRUCT_ERROR",
+  "DATABASE_SELECT_STRUCT_ERROR",
+  "DATABASE_EXEC_QUARY_WITH_RES_ERROR",
+  "DATABASE_EXEC_QUARY_WITHOUT_RES_ERROR",
 };
 
 Database *databaseConnect(Allocator *allocator, str db_name, str user_name, str password) {
@@ -123,29 +129,90 @@ QuaryRes databaseSelect(Database *db, str quary) {
   return qr;
 }
 
-/*
- * %d %s %lf %f
- *
- *
- *
- *
- */
+static u32 databaseGetDataType(str type) {
+  for(u32 i = 0; i < DB_POSTGRES_TYPE_LEN; i++) {
+    if (strcmp(db_postgres_type[i], type) == 0) {
+      return i;
+    }
+  }
+  return DB_POSTGRES_TYPE_NONE;
+}
 
+static u32 *databaseInsertStructGetTableTypes(Database *db, str table) {
+  byte quary_buf[1024] = {0}; 
+  sprintf(quary_buf, DATABASE_CHECK_COLUMS_TYPE_NAME, table);
+  QuaryRes res = databaseExecQuaryWithRes(db, quary_buf);
+  if (db->quary_result != DATABASE_OK) {
+    db->quary_result = DATABASE_INSERT_STRUCT_ERROR;
+    return null;
+  }
 
+  u32 *types = da_create(u32);
 
-static i32 g_pos = -1;
-static str g_struct_variable = null;
-static u32 g_len = 0;
+  for(i32 i = 0; i < res.rows; i++) {
 
-static CORE_TYPES databaseGetNextVal(str struct_variable) {
+  }
+
+  return null;
+}
+
+void databaseInsertStruct(Database *db, str table, ptr val) {
 
 }
 
-void databaseInsertStruct(Database *db, str table, str struct_variable, ptr val) {
 
+QuaryStructRes databaseSelectStruct(Database *db, str table, str quary) {
+
+  return (QuaryStructRes){};
 }
-QuaryStructRes databaseSelectStruct(Database *db, str talbe, str struct_variable);
-QuaryRes databaseExecQuaryWithRes(Database *db, str quary);
-void databaseExecQuaryWithoutRes(Database *db, str quary);
-str databaseGetError(Database *db);
 
+
+
+QuaryRes databaseExecQuaryWithRes(Database *db, str quary) {
+  db->res = PQexec(db->conn, quary);
+  if (PQresultStatus(db->res) != PGRES_TUPLES_OK) {
+    db->quary_result = DATABASE_EXEC_QUARY_WITH_RES_ERROR;
+    PQclear(db->res);
+    return (QuaryRes){};
+  }
+  db->quary_result = DATABASE_OK;
+
+  QuaryRes res;
+  res.rows = PQntuples(db->res);
+  res.cols = PQnfields(db->res);
+
+  res.tuples = MAKE_MANY(db->allocator, str *, res.rows);
+
+  for(i32 i = 0; i < res.rows; i++) {
+    for(i32 j = 0; j < res.cols; j++) {
+      str val = PQgetvalue(db->res, i, j);
+      res.tuples[i][j] = strCopy(db->allocator, val);
+    }
+  }
+
+  PQclear(db->res);
+  return res;
+}
+
+void databaseExecQuaryWithoutRes(Database *db, str quary) {
+  db->res = PQexec(db->conn, quary);
+  if (PQresultStatus(db->res) != PGRES_COMMAND_OK) {
+    db->quary_result = DATABASE_EXEC_QUARY_WITHOUT_RES_ERROR;
+    PQclear(db->res);
+  }
+  db->quary_result = DATABASE_OK;
+  PQclear(db->res);
+}
+
+  return database_error_str[db->quary_result];
+str databaseGetError(Database *db) {
+}
+
+void databaseClearQuaryRes(Allocator *allocator, QuaryRes *qr) {
+  for(i32 i = 0 ; i < qr->rows; i++) {
+    for(i32 j = 0; j < qr->cols; j++) {
+      DEALLOC(allocator, qr->tuples[i][j]);
+    }
+  }
+  DEALLOC(allocator, qr->tuples);
+}

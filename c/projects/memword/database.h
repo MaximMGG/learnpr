@@ -25,6 +25,7 @@ typedef enum {
   DATABASE_INSERT_STRUCT_ERROR,
   DATABASE_SELECT_STRUCT_ERROR,
   DATABASE_EXEC_QUARY_WITH_RES_ERROR,
+  DATABASE_EXEC_QUARY_WITHOUT_RES_ERROR,
 } DatabaseResult;
 
 typedef struct {
@@ -58,10 +59,11 @@ Database *      databaseConnect(Allocator *allocator, str db_name, str user_name
 void            databaseDisconnect(Database *db);
 void            databaseInsert(Database *db, str quary, ...);
 QuaryRes        databaseSelect(Database *db, str quary);
-void            databaseInsertStruct(Database *db, str table, str struct_variable, ptr val);
-QuaryStructRes  databaseSelectStruct(Database *db, str talbe, str struct_variable);
+void            databaseInsertStruct(Database *db, str table, ptr val);
+QuaryStructRes  databaseSelectStruct(Database *db, str table, str quary);
 QuaryRes        databaseExecQuaryWithRes(Database *db, str quary);
 void            databaseExecQuaryWithoutRes(Database *db, str quary);
 str             databaseGetError(Database *db);
+void            databaseClearQuaryRes(Allocator *allocator, QuaryRes *qr);
 
 #endif// DATABASE_H
