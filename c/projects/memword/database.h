@@ -5,6 +5,18 @@
 #include <cstdext/container/map.h>
 #include <libpq-fe.h>
 
+
+#define DB_POSTGRES_SMALLINT 0 // 2 bytes "smallint"
+#define DB_POSTGRES_INT 1 // 4 bytes "int/integer"
+#define DB_POSTGRES_BIGINT 2 // 8 bytes "bigint"
+#define DB_POSTGRES_REAL 3 // 4 bytes float "real"
+#define DB_POSTGRES_VARCHAR 4 // variable-length string with limin "varchar(n)" "character varying"
+                        
+#define DB_POSTGRES_BOOLEAN 5 // "boolean"
+#define DB_POSTGRES_DECIMAL 6 // numeric with precision/scale "decimal"
+#define DB_POSTGRES_NUMERIC 7 // same as decimal "numeric"
+
+
 typedef enum {
   DATABASE_OK,
   DATABASE_CONNECT_ERROR,
@@ -31,7 +43,7 @@ typedef struct {
 } Database;
 
 typedef struct {
-  str *tuples;
+  str **tuples;
   i32 rows;
   i32 cols;
 } QuaryRes;
@@ -45,7 +57,7 @@ typedef struct {
 Database *      databaseConnect(Allocator *allocator, str db_name, str user_name, str password);
 void            databaseDisconnect(Database *db);
 void            databaseInsert(Database *db, str quary, ...);
-str*            databaseSelect(Database *db, str quary);
+QuaryRes        databaseSelect(Database *db, str quary);
 void            databaseInsertStruct(Database *db, str table, str struct_variable, ptr val);
 QuaryStructRes  databaseSelectStruct(Database *db, str talbe, str struct_variable);
 QuaryRes        databaseExecQuaryWithRes(Database *db, str quary);
