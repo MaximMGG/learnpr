@@ -59,8 +59,8 @@ Database *      databaseConnect(Allocator *allocator, str db_name, str user_name
 void            databaseDisconnect(Database *db);
 void            databaseInsert(Database *db, str quary, ...);
 QuaryRes        databaseSelect(Database *db, str quary);
-void            databaseInsertStruct(Database *db, str table, ptr val);
-QuaryStructRes  databaseSelectStruct(Database *db, str table, str quary);
+void            databaseInsertStruct(Database *db, str table, str struct_variables, ptr val);
+QuaryStructRes  databaseSelectStruct(Database *db, str table, str struct_variables, str quary);
 QuaryRes        databaseExecQuaryWithRes(Database *db, str quary);
 void            databaseExecQuaryWithoutRes(Database *db, str quary);
 str             databaseGetError(Database *db);

@@ -58,7 +58,7 @@ Database *databaseConnect(Allocator *allocator, str db_name, str user_name, str 
   return db;
 }
 
-void      databaseDisconnect(Database *db) {
+void databaseDisconnect(Database *db) {
   DEALLOC(db->allocator, db->db_name);
   DEALLOC(db->allocator, db->user_name);
   DEALLOC(db->allocator, db->password);
@@ -138,30 +138,124 @@ static u32 databaseGetDataType(str type) {
   return DB_POSTGRES_TYPE_NONE;
 }
 
-static u32 *databaseInsertStructGetTableTypes(Database *db, str table) {
-  byte quary_buf[1024] = {0}; 
+
+static str databaseInsertStructPrepareQuary(Database *db, str table) {
+  byte quary_buf[1024] = {0};
   sprintf(quary_buf, DATABASE_CHECK_COLUMS_TYPE_NAME, table);
-  QuaryRes res = databaseExecQuaryWithRes(db, quary_buf);
+  QuaryRes qr = databaseExecQuaryWithRes(db, quary_buf);
   if (db->quary_result != DATABASE_OK) {
     db->quary_result = DATABASE_INSERT_STRUCT_ERROR;
     return null;
   }
 
-  u32 *types = da_create(u32);
+  strbuf *insert_struct_buf = strbufCreate(db->allocator);
+  strbuf *insert_struct_value = strbufCreate(db->allocator);
 
-  for(i32 i = 0; i < res.rows; i++) {
+  strbufAppendFormat(insert_struct_buf, "INSERT INTO %s (", table);
+  strbufAppend(insert_struct_value, "VALUES (");
+//column_name, data_type, character_maximum_length, is_identity, column_default,
+  i8 element = 1;
+  for(i32 i = 0; i < qr.rows; i++) {
+    if (strlen(qr.tuples[i][3]) > 0 || (strlen(qr.tuples[i][4]) > 0)) {
+      continue;
+    } else {
+      if (i == qr.rows - 1) {
+        strbufAppendFormat(insert_struct_buf, "%s) ", qr.tuples[i][0]);
+        strbufAppendByte(insert_struct_value, '$');
+        strbufAppendFormat(insert_struct_value, "%d);", element);
+      } else {
+        strbufAppendFormat(insert_struct_buf, "%s, ", qr.tuples[i][0]);
+        strbufAppendByte(insert_struct_value, '$');
+        strbufAppendFormat(insert_struct_value, "%d, ", element++);
+      }
+      
+    }
+  }
+  str values = strbufToString(insert_struct_value);
+  strbufAppend(insert_struct_buf, values);
+
+  str result = strCopy(db->allocator, strbufToString(insert_struct_buf));
+
+  strbufDestroy(insert_struct_value);
+  strbufDestroy(insert_struct_buf);
+  databaseClearQuaryRes(db->allocator, &qr);
+  return result;
+}
+
+
+static i32 g_pos = -1;
+static str g_struct_var = null;
+static u32 g_len = 0;
+
+static CORE_TYPES databaseInsertStructNextVal(str struct_variables) {
+  if (g_struct_var == null) {
+    g_pos = 0;
+    g_struct_var = struct_variables;
+    g_len = strlen(struct_variables);
+  }
+
+  while(g_struct_var[g_pos] != '%') {
+    if (g_pos == g_len) {
+      g_pos = -1;
+      g_struct_var = null;
+      g_len = 0;
+      return CORE_NULL;
+    }
+  }
+  g_pos++;
+  if (g_struct_var[g_pos] == 'l') {
+    g_pos++;
+    if (g_struct_var[g_pos == 'd']) {
+      g_pos++;
+      return I64;
+    }
+    if (g_struct_var[g_pos] == 'f') {
+      g_pos++;
+      return F64;
+    }
+    if (g_struct_var[g_pos] == 'u') {
+      g_pos++;
+      return U64;
+    }
+    return CORE_NULL;
+  }
+  CORE_TYPES t = CORE_NULL;
+  switch(g_struct_var[g_pos]) {
+    case 'd': {
+      t = I32;
+    } break;
+    case 'f': {
+      t = F32;
+    } break;
+    case 'u': {
+      t = U32;
+    } break;
+    case 's': {
+      t = STR; 
+    } break;
+    case 'c': {
+      t = I8;
+    } break;
+    default: {t = CORE_NULL;}
+  }
+
+  g_pos++;
+  return t;
+}
+
+void databaseInsertStruct(Database *db, str table, str struct_variables, ptr val) {
+  KV res = mapGet(db->prepared_insert, table);
+  if (res.val == null) {
+    str quary = databaseInsertStructPrepareQuary(db, table);
+    mapPut(db->prepared_insert, strCopy(db->allocator, table), quary);
+    
 
   }
 
-  return null;
-}
-
-void databaseInsertStruct(Database *db, str table, ptr val) {
-
 }
 
 
-QuaryStructRes databaseSelectStruct(Database *db, str table, str quary) {
+QuaryStructRes databaseSelectStruct(Database *db, str table, str struct_variables, str quary) {
 
   return (QuaryStructRes){};
 }
