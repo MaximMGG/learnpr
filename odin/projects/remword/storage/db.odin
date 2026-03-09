@@ -3,6 +3,8 @@ package storage
 import "core:c"
 import "core:fmt"
 import "core:strings"
+import "core:strconv"
+import "core:mem"
 import "base:runtime"
 import "core:testing"
 
@@ -14,9 +16,6 @@ PGresult :: struct{}
 CONNECTION_OK: c.int : 0
 PGRES_TUPLES_OK: c.int : 2
 PGRES_COMMAND_OK: c.int : 1
-
-
-
 
 @(default_calling_convention = "c")
 foreign DB {
@@ -131,7 +130,7 @@ insert_struct_prepare_quary :: proc(t: $T, table: string) -> string {
     case cstring:
       fallthrough
     case string:
-      strings.write_string(&values, "%s")
+      strings.write_string(&values, "'%s'")
     }
 
     if i == ti.field_count - 1 {
@@ -214,14 +213,66 @@ select_struct :: proc(database: ^Database, table: string, t: $T) -> ([]T, Databa
     quary = select_struct_prepare_quary(table, t)
     database.prepared_select_struct[table] = quary
   }
+
   database.res = PQexec(database.conn, cstring(raw_data(quary)))
   if PQresultStatus(database.res) != PGRES_TUPLES_OK {
     PQclear(database.res)
     return []T{}, .SELECT_STRUCT_ERROR
   }
   
-  //TODO(Maxim) write parse result
+  tio := type_info_of(T).variant.(runtime.Type_Info_Named)
+  ti := tio.base.variant.(runtime.Type_Info_Struct)
 
+  rows := PQntuples(database.res)
+  lines := PQnfields(database.res)
+
+
+  res := make([]T, rows)
+
+  for i in 0..<rows {
+    tmp := res[i]
+    base = &tmp
+    for j in 0..<lines {
+      switch(ti.types[j]) {
+      case i8, u8:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := u8(strconv.parse_int(str_val, 10))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(u8))
+      case i16, u16:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := u16(strconv.parse_int(str_val, 10))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(i16))
+      case i32, u32:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := u32(strconv.parse_int(str_val, 10))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(i32))
+      case i64, u64:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := u64(strconv.parse_int(str_val, 10))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(i64))
+      case int:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := int(strconv.parse_int(str_val, 10))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(int))
+      case f32:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := f32(strconv.parse_f32(str_val))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(f32))
+      case f64:
+        str_val := strings.clone_from_cstring(PQgetvalue(database.res, i, j))
+        defer delete(str_val)
+        val, _ := f64(strconv.parse_f64(str_val))
+        mem.copy(base + uintptr(ti.offsets[j]), &val, size_of(f64))
+      case cstring:
+      }
+    }
+  }
 }
 
 select_struct_quary :: proc(databse: ^Database, quary: string, table: string, t: $T) -> ([]T, DatabaseError) {
