@@ -245,11 +245,97 @@ static CORE_TYPES databaseInsertStructNextVal(str struct_variables) {
 
 void databaseInsertStruct(Database *db, str table, str struct_variables, ptr val) {
   KV res = mapGet(db->prepared_insert, table);
+  str quary;
   if (res.val == null) {
-    str quary = databaseInsertStructPrepareQuary(db, table);
+    quary = databaseInsertStructPrepareQuary(db, table);
     mapPut(db->prepared_insert, strCopy(db->allocator, table), quary);
-    
+  } else {
+    quary = res.val;
+  }
+  str tmp_quary = strCopy(db->allocator, quary);
+  u32 type;
+  u32 element = 1;
+  str element_fmt = "$%d";
+  byte element_buf[32] = {0};
+  byte *base = val;
+  u32 offset = 0;
+  byte val_buf[128] = {0};
+  while((type = databaseInsertStructNextVal(struct_variables)) != CORE_NULL) {
+    switch(type) {
+      case I32: {
+        i32 tmp_val = *(i32 *)(base + offset);
+        offset += sizeof(i32);
+        sprintf(val_buf, "%d", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case U32: {
+        u32 tmp_val = *(u32 *)(base + offset);
+        offset += sizeof(u32);
+        sprintf(val_buf, "%u", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case I64: {
+        i64 tmp_val = *(i64 *)(base + offset);
+        offset += sizeof(i64);
+        sprintf(val_buf, "%ld", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case U64: {
+        u64 tmp_val = *(u64 *)(base + offset);
+        offset += sizeof(u64);
+        sprintf(val_buf, "%lu", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case F32: {
+        f32 tmp_val = *(f32 *)(base + offset);
+        offset += sizeof(f32);
+        sprintf(val_buf, "%f", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case F64: {
+        f64 tmp_val = *(f64 *)(base + offset);
+        offset += sizeof(f64);
+        sprintf(val_buf, "%lf", tmp_val);
+        sprintf(element_buf, element_fmt, element++);
+        str q = strReplace(db->allocator, tmp_quary, element_buf, val_buf);
+        DEALLOC(db->allocator, tmp_quary);
+        tmp_quary = q;
+        memset(element_buf, 0, 32);
+        memset(val_buf, 0, 128);
+      } break;
+      case STR: {
 
+      } break;
+      case I8: {
+
+      } break;
+      default: {}
+    }
   }
 
 }
