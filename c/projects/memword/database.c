@@ -204,8 +204,8 @@ void databaseExecQuaryWithoutRes(Database *db, str quary) {
   PQclear(db->res);
 }
 
-  return database_error_str[db->quary_result];
 str databaseGetError(Database *db) {
+  return database_error_str[db->quary_result];
 }
 
 void databaseClearQuaryRes(Allocator *allocator, QuaryRes *qr) {
