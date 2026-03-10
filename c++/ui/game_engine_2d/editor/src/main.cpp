@@ -64,10 +64,20 @@ int main() {
 
 
   //Create temp vertex data
+  // f32 vertices[] = {
+  //   0.0f, 0.5f, 0.0f, //One vertex
+  //  -0.5f, -0.5f, 0.0f,
+  //   0.5f, -0.5f, 0.0f
+  // };
   f32 vertices[] = {
-    0.0f, 0.5f, 0.0f, //One vertex
-   -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f
+    -0.5f,  0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+  };
+
+  u32 indices[] = {
+    0, 1, 2, 2, 3, 0
   };
 
 
@@ -149,6 +159,11 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+  u32 EBO;
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32) * 3, (void *)0);
   glEnableVertexAttribArray(0);
 
@@ -183,8 +198,8 @@ int main() {
     glUseProgram(shaderProgram);
 
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
     SDL_GL_SwapWindow(window.GetWindow().get());
 
