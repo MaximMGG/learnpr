@@ -57,11 +57,103 @@ int main() {
 
   // Init glew
   i32 glew_init = glewInit();
-  if (glew_init != 0 || glew_init != 4) {
-    std::cout << "glew Init failed\n";
+  // if (glew_init != 0 || glew_init != 4) {
+  //   std::cout << "glew Init failed\n";
+  //   return 1;
+  // }
+
+
+  //Create temp vertex data
+  f32 vertices[] = {
+    0.0f, 0.5f, 0.0f, //One vertex
+   -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f
+  };
+
+
+  // Create a temp vertex source
+  const char *vertexSource = 
+    "#version 450 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main(){\n"
+    "\tgl_Position = vec4(aPos, 1.0);\n"
+    "}\n";
+
+  //Create shader
+
+  u32 vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  // Add the vertex shader source
+  glShaderSource(vertexShader, 1, &vertexSource, nullptr);
+
+  // Compile the vertex shader
+
+  glCompileShader(vertexShader);
+  i32 status;
+  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+  if (status == GL_FALSE) {
+    char infoLog[512];
+    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    std::cout << "Vertex shader compile error: " << infoLog << '\n';
     return 1;
   }
 
+  //Create fragment shader
+  const char *fragmentSource = 
+    "#version 450 core\n"
+    "out vec4 FragColor;\n"
+    "void main(){\n"
+    "\tFragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
+    "}\n";
+  
+  u32 fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+  glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
+
+  // Compile the vertex shader
+
+  glCompileShader(fragmentShader);
+  status = 0;
+  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+  if (status == GL_FALSE) {
+    char infoLog[512];
+    glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    std::cout << "Frament shader compile error: " << infoLog << '\n';
+    return 1;
+  }
+
+  //Crete shader program
+  u32 shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  status = 0;
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
+
+  if (!status) {
+    char infoLog[512];
+    glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+    std::cout << "Link program error: " << infoLog << '\n';
+    return 1;
+  }
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  u32 VAO;
+  glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
+
+  u32 VBO;
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(f32) * 3, (void *)0);
+  glEnableVertexAttribArray(0);
+
+  // glBindBuffer(GL_ARRAY_BUFFER, 0);
+  // glBindVertexArray(0);
   SDL_Event event{};
 
 
@@ -82,10 +174,17 @@ int main() {
         default: break;
       }
     }
-    glViewport(window.GetXPos(), window.GetYPos(), window.GetWidth(), window.GetHeight());
+    glViewport(0, 0, window.GetWidth(), window.GetHeight());
+
 
     glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT); 
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
     SDL_GL_SwapWindow(window.GetWindow().get());
 

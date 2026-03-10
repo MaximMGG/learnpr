@@ -1,6 +1,6 @@
 APP = engine
-SRC = $(wildcard ./util/*.cpp) $(wildcard ./window/*.cpp) $(wildcard ./editor/src/*.cpp)
-OBG = $(SRC:%.cpp=%.o)
+SRC = $(wildcard ./editor/src/*.cpp) $(wildcard ./util/*.cpp) $(wildcard ./window/*.cpp)
+OBJ = $(SRC:%.cpp=%.o)
 
 .PHONY: default build run clear
 
@@ -19,4 +19,4 @@ run:
 	./$(APP)
 
 %.o: %.cpp
-	g++ -o $@ -c %< -lGL -lGLEW -lSDL2
+	g++ -o $@ -c $< -lGL -lGLEW -lSDL2
