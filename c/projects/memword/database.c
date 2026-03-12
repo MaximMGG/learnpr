@@ -329,6 +329,8 @@ void databaseInsertStruct(Database *db, str table, str struct_variables, ptr val
         memset(val_buf, 0, 128);
       } break;
       case STR: {
+        str tmp_val = (str)base + offset;
+        offset += 
 
       } break;
       case I8: {
