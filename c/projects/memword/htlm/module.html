@@ -19,16 +19,29 @@
 <tr>
 <th>Word</th>
 <th>Translation</th>
+<th>Delete</th>
 </tr>
 
 <tr>
 <td>hello</td>
 <td>привет</td>
+<td>
+<form class="inline-form" action="/delete_word" method="post">
+<input type="hidden" name="word" value="hello">
+<input type="submit" class="delete-btn" value="✖">
+</form>
+</td>
 </tr>
 
 <tr>
 <td>world</td>
 <td>мир</td>
+<td>
+<form class="inline-form" action="/delete_word" method="post">
+<input type="hidden" name="word" value="world">
+<input type="submit" class="delete-btn" value="✖">
+</form>
+</td>
 </tr>
 
 </table>
@@ -40,10 +53,10 @@
 <form action="/add_word" method="post">
 
 <p>Word</p>
-<input type="text" name="word">
+<input type="text" name="word" required>
 
 <p>Translation</p>
-<input type="text" name="translation">
+<input type="text" name="translation" required>
 
 <br><br>
 

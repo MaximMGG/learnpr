@@ -3,6 +3,7 @@ body {
     font-family: Arial, sans-serif;
 
     background-image: url("background.jpg");
+    background: rgba(188, 200, 200, 1.0);
     background-size: cover;
     background-position: center;
 
@@ -14,7 +15,7 @@ body {
 
 /* Main container */
 .container {
-    background: rgba(255,255,255,0.9);
+    background: rgba(188,210,210,0.9);
     padding: 40px;
     border-radius: 12px;
     width: 600px;
@@ -72,4 +73,18 @@ table {
 th, td {
     padding: 8px;
     border-bottom: 1px solid #ccc;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    padding: 4px 10px;
+    font-size: 14px;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+
+.inline-form {
+    display: inline;
 }
