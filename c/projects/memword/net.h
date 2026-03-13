@@ -2,6 +2,7 @@
 #define NET_H
 #include <cstdext/core.h>
 #include <cstdext/container/list.h>
+#include <cstdext/io/logger.h>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -12,9 +13,10 @@ typedef struct {
   i32 socket;
   List *modules;
 
+  Allocator *allocator;
 } Net;
 
-Net *netInit(List *module);
+Net *netInit(Allocator *allocator, List *module);
 void netShutdown(Net *net);
 void netRecvRequest(Net *net);
 void netSendResponse(Net *net);
