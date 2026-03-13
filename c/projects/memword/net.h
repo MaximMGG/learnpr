@@ -8,17 +8,22 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 #include <netinet/ip.h>
+#include <pthread.h>
 
 typedef struct {
   i32 socket;
   List *modules;
+  List *connections;
 
   Allocator *allocator;
+
 } Net;
 
 Net *netInit(Allocator *allocator, List *module);
 void netShutdown(Net *net);
 void netRecvRequest(Net *net);
 void netSendResponse(Net *net);
+void netWaitConnection(Net *net);
+ptr netProcessConnection(ptr net);
 
 #endif
