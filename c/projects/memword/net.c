@@ -1,9 +1,22 @@
 #include "net.h"
+#include <cstdext/container/map.h>
 
 typedef struct {
   Net *net;
   i32 conn;
 } Net_Conn;
+
+
+typedef enum {
+  REQUEST_GET, REQUEST_POST,
+} RequestType;
+
+typedef struct {
+  RequestType type;
+  str path;
+  Map *headers;
+
+} Request;
 
 Net *netInit(Allocator *allocator, List *module) {
   Net *net = MAKE(allocator, Net);
@@ -56,6 +69,8 @@ void netShutdown(Net *net) {
 }
 
 ptr netProcessConnection(ptr net) {
+  Net_Conn *nc = (Net_Conn *) net;
+
 
   return null;
 }
@@ -68,15 +83,27 @@ void netWaitConnection(Net *net) {
     log(ERROR, "accept error");
     return;
   }
+ 
+  byte name[128] = {0};
+  byte port[128] = {0};
+
+  getnameinfo((struct sockaddr *)&conn, conn_size, name, 128, port, 128, NI_NUMERICHOST | NI_NUMERICSERV);
+  
+  log(INFO, "New connection %s - %s", name, port);
+
   Net_Conn *nc = MAKE(net->allocator, Net_Conn);
+  nc->net = net;
+  nc->conn = new_conn;
 
   pthread_t worker;
   pthread_create(&worker, null, netProcessConnection, nc);
-
+  pthread_detach(worker);
 }
 
 void netRecvRequest(Net *net) {
     
 }
 
-void netSendResponse(Net *net);
+void netSendResponse(Net *net) {
+
+}
