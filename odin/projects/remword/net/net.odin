@@ -2,8 +2,11 @@ package net
 
 import "core:net"
 import "core:thread"
+import "core:sync"
 import "core:log"
 import "core:strings"
+import "core:os"
+import _module "../module"
 
 REQUEST_FMT_OK_200 :: "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
 
@@ -22,8 +25,10 @@ NetError :: enum {
 }
 
 Net :: struct {
-  sock: net.TCP_Socket
-
+  sock: net.TCP_Socket,
+  cur_module: ^_module.Module,
+  modules: []string,
+  mutex: sync.Mutex
 }
 
 Request_Type :: enum {
@@ -42,7 +47,10 @@ init :: proc(modules: []string) -> (Net, NetError) {
   if socket_error != nil {
     return Net{}, .NET_INIT_ERROR
   }
-  return Net{}, nil
+
+  n := Net{sock = socket, modules = modules}
+
+  return n, nil
 }
 
 shutdown :: proc(n: ^Net) {
@@ -59,6 +67,7 @@ waitNewConnection :: proc(n: ^Net) -> NetError {
 
   worker := thread.create(processConn)
   worker.user_index = int(new_conn)
+  worker.data = n
   thread.start(worker)
 
   return nil
@@ -66,7 +75,7 @@ waitNewConnection :: proc(n: ^Net) -> NetError {
 
 processConn :: proc(t: ^thread.Thread) {
   sock := net.TCP_Socket(t.user_index)
-  readRequest(sock)
+  readRequest((^Net)(t.data), sock)
 }
 
 // GET /combine-modules.html HTTP/1.1
@@ -115,7 +124,7 @@ freeRequest :: proc(request: ^Request) {
   free(request)
 }
 
-readRequest :: proc(sock: net.TCP_Socket) {
+readRequest :: proc(n: ^Net, sock: net.TCP_Socket) {
   read_bytes: int = 1
   err: net.TCP_Recv_Error
   for read_bytes > 0 {
@@ -131,15 +140,22 @@ readRequest :: proc(sock: net.TCP_Socket) {
     request := parseRequest(buf[0:read_bytes])
     defer freeRequest(request)
 
-    sendResponse(sock, request)
+    sendResponse(n, sock, request)
   }
-
-
 }
 
-sendResponse :: proc(sock: net.TCP_Socket, req: ^Request) {
-  if req.type == .GET {
+getIndexHtml :: proc(n: ^Net) -> string {
 
+  return ""
+}
+
+
+
+sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
+  if req.type == .GET {
+    if len(req.path) == 0 {
+
+    }
   } else if req.type == .POST {
 
   } else {
