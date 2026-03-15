@@ -103,7 +103,7 @@ html_fmt_get_index_html :: proc(modules: []string) -> string {
   return res 
 }
 
-html_fmt_get_module :: proc(module: _module.Module) -> string {
+html_fmt_get_module :: proc(module: ^_module.Module) -> string {
   sb: strings.Builder
   strings.builder_init(&sb)
   defer strings.builder_destroy(&sb)

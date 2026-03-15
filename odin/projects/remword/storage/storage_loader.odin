@@ -22,9 +22,6 @@ DB_INSERT_WORD : string : "INSERT INTO words (module_id, word, translation) VALU
 DB_COMBINE_MODULES : string : "UPDATE words SET module_id=%d WHERE module_id=%d;"
 DB_REMOVE_WORD : string : "REMOVE FROM words WHERE word='%s';"
 
-
-
-
 getModules :: proc(db: ^Database) -> ([]string, DatabaseError) {
   res, res_ok := exec_quary_with_result(db, DB_SELECT_MODULES)
   defer clear_result(res)

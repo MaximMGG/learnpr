@@ -6,6 +6,7 @@ import "core:sync"
 import "core:log"
 import "core:strings"
 import _module "../module"
+import DB "../storage"
 
 REQUEST_FMT_OK_200 :: "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
 
@@ -51,6 +52,7 @@ init :: proc(modules: []string) -> (Net, NetError) {
   }
 
   n := Net{sock = socket, modules = modules}
+  n.cur_module = nil
 
   return n, nil
 }
@@ -186,7 +188,12 @@ sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
       defer delete(index_html)
       net.send_tcp(sock, transmute([]byte)index_html)
     case .MODULE:
-
+      href := getHeader(&req.headers, "href")
+      if n.cur_module.name == href {
+        module_html := html_fmt_get_module(n.cur_module)
+        defer delete(module_html)
+        net.send_tcp(sock, transmute([]byte)module_html)
+      }
     case .CREATE_MODULE:
     case .COMBINE_MODULES:
     case .DELETE_MODULE:
@@ -198,8 +205,7 @@ sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
       net.send_tcp(sock, transmute([]byte)index_html)
     } else if (true) {
       href := getHeader(&req.headers, "href")
-      
-
+      _ = href
     }
   } else if req.type == .POST {
 
