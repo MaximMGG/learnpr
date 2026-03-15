@@ -39,6 +39,7 @@ DatabaseError :: enum {
   SELECT_STRUCT_ERROR,
   EXEC_QUARY_WITH_RESULT_ERROR,
   EXEC_QUARY_WITHOUT_RESULT_ERROR,
+  PARSE_RESULT_ERROR,
 }
 
 Database :: struct {
@@ -318,13 +319,3 @@ clear_result :: proc(res: [][]string) {
   }
   delete(res)
 }
-
-
-test_struct :: struct {
-  a: int,
-  name: string,
-  b: f32,
-  c: f64
-}
-
-
