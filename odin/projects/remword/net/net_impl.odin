@@ -1,4 +1,4 @@
-package net
+package net_impl
 
 import "core:net"
 import "core:thread"

@@ -5,22 +5,73 @@ import "core:fmt"
 import "core:strconv"
 
 
-DB_CHECK_MODULE_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'modules'"
-DB_CHECK_DICTIONARY_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'words'"
+DB_CHECK_MODULE_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'module'"
+DB_CHECK_WORDS_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'words'"
 
-DB_CREATE_MODULE_TABLE : string : "CREATE TABLE module (id SIREAL PRIMARY KEY, module_name VARCHAR(64))"
-DB_CREATE_WORDS_TABLE : string : "CREATE TABLE words (module_id INT FOREIGN KEY, word VARCHAR(128) NOT NULL, translation VARCHAR(128) NOT NULL);"
+DB_CREATE_MODULE_TABLE : string : "CREATE TABLE module (id SEREAL PRIMARY KEY, module_name VARCHAR(64))"
+DB_CREATE_WORDS_TABLE : string : "CREATE TABLE words (module_id integer REFERENCES module(id), word VARCHAR(128) NOT NULL, translation VARCHAR(128) NOT NULL);"
 
 DB_CREATE_MODULE : string : "INSERT INTO module (module_name) VALUES ('%s');"
-DB_CREATE_MODULE_2 : string : "SELECT module_id FROM module WHERE module_name='%s';"
+DB_CREATE_MODULE_2 : string : "SELECT id FROM module WHERE module_name='%s';"
 
 DB_SELECT_MODULES : string : "SELECT module_name FROM module;"
-DB_SELECT_MODULE_ID : string : "SELECT module_id FROM modules WHERE module_name='%s';"
+DB_SELECT_MODULE_ID : string : "SELECT id FROM modules WHERE module_name='%s';"
 DB_SELECT_MODULE_CONTENT : string : "SELECT (word, translation) FROM words WHERE module_id=%d;"
 
 DB_INSERT_WORD : string : "INSERT INTO words (module_id, word, translation) VALUES (%d, '%s', '%s');"
 DB_COMBINE_MODULES : string : "UPDATE words SET module_id=%d WHERE module_id=%d;"
 DB_REMOVE_WORD : string : "REMOVE FROM words WHERE word='%s';"
+
+DB_REMOVE_MODULE : string : "REMOVE FROM module WHERE module_name='%s';"
+
+
+checkTables :: proc(db: ^Database) -> DatabaseError {
+  res, res_ok := exec_quary_with_result(db, DB_CHECK_MODULE_TABLE_EXISTS)
+  if res_ok != nil {
+    return .CHECK_TABLES_ERROR
+  }
+
+  if len(res) == 0 {
+    res_ok = exec_quary_without_result(db, DB_CREATE_MODULE_TABLE)
+    if res_ok != nil {
+      return .CREATE_TABLE_ERROR
+    }
+  } else {
+    clear_result(res)
+  }
+
+  res, res_ok = exec_quary_with_result(db, DB_CHECK_WORDS_TABLE_EXISTS)
+  if res_ok != nil {
+    return .CHECK_TABLES_ERROR
+  }
+
+  if len(res) == 0 {
+    res_ok = exec_quary_without_result(db, DB_CREATE_WORDS_TABLE)
+    if res_ok != nil {
+      return .CREATE_TABLE_ERROR
+    }
+  } else {
+    clear_result(res)
+  }
+
+  return nil
+}
+
+init :: proc(dbname, user, password: string) -> (Database, DatabaseError) {
+  db, db_ok := connect(dbname, user, password)
+  if db_ok != nil {
+    return db, db_ok
+  }
+
+  check_ok := checkTables(&db)
+  if check_ok != nil {
+    disconnect(&db)
+    return Database{}, .INIT_ERROR
+  }
+
+  return db, db_ok
+}
+
 
 getModules :: proc(db: ^Database) -> ([]string, DatabaseError) {
   res, res_ok := exec_quary_with_result(db, DB_SELECT_MODULES)
@@ -113,5 +164,11 @@ createNewModule :: proc(db: ^Database, name: string) -> (id: u32 = 0, err: Datab
   }
   id = u32(tmp_id)
   return
+}
+
+removeModule :: proc(db: ^Database, name: string) -> (DatabaseError) {
+  quary := fmt.aprintf(DB_REMOVE_MODULE, name) 
+  defer delete(quary)
+  return exec_quary_without_result(db, name)
 }
 

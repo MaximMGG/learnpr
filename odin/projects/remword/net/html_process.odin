@@ -1,4 +1,4 @@
-package net
+package net_impl
 
 import _module "../module"
 import "core:os"

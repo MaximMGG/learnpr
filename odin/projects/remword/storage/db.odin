@@ -40,6 +40,9 @@ DatabaseError :: enum {
   EXEC_QUARY_WITH_RESULT_ERROR,
   EXEC_QUARY_WITHOUT_RESULT_ERROR,
   PARSE_RESULT_ERROR,
+  CHECK_TABLES_ERROR,
+  CREATE_TABLE_ERROR,
+  INIT_ERROR,
 }
 
 Database :: struct {
@@ -54,7 +57,8 @@ Database :: struct {
 }
 
 
-DB_CONNECT_FORMAT :: "dbname=%s name=%s password=%s"
+DB_CONNECT_FORMAT :: "dbname=%s user=%s password=%s"
+
 
 connect :: proc(db_name: string, user_name: string, password: string) -> (Database, DatabaseError) {
   db: Database = {db_name = db_name, name = user_name, password = password}
