@@ -7,6 +7,7 @@ import "core:strconv"
 import "core:mem"
 import "base:runtime"
 import "core:testing"
+import "core:slice"
 
 foreign import DB "system:pq"
 
@@ -16,6 +17,8 @@ PGresult :: struct{}
 CONNECTION_OK: c.int : 0
 PGRES_TUPLES_OK: c.int : 2
 PGRES_COMMAND_OK: c.int : 1
+
+err_buf: [512]byte
 
 @(default_calling_convention = "c")
 foreign DB {
@@ -58,6 +61,14 @@ Database :: struct {
 
 
 DB_CONNECT_FORMAT :: "dbname=%s user=%s password=%s"
+
+
+set_err :: proc(db: Database) {
+  slice.zero(err_buf[:])
+  err := PQerrorMessage(db.conn)
+  mem.copy(raw_data(err_buf[:]), err, len(err))
+
+}
 
 
 connect :: proc(db_name: string, user_name: string, password: string) -> (Database, DatabaseError) {
@@ -291,12 +302,13 @@ exec_quary_with_result :: proc(database: ^Database, quary: string) -> ([][]strin
   }
 
   raws := PQntuples(database.res)
-  lines := PQnfields(database.res)
+  cols := PQnfields(database.res)
 
   result := make([][]string, raws)
 
   for i in 0..<raws {
-    for j in 0..<lines {
+    result[i] = make([]string, cols)
+    for j in 0..<cols {
       s := PQgetvalue(database.res, i, j)
       result[i][j] = strings.clone_from_cstring(s)
     }

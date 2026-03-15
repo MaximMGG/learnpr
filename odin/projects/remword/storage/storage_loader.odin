@@ -8,7 +8,7 @@ import "core:strconv"
 DB_CHECK_MODULE_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'module'"
 DB_CHECK_WORDS_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'words'"
 
-DB_CREATE_MODULE_TABLE : string : "CREATE TABLE module (id SEREAL PRIMARY KEY, module_name VARCHAR(64))"
+DB_CREATE_MODULE_TABLE : string : "CREATE TABLE module (id SERIAL PRIMARY KEY, module_name VARCHAR(64));"
 DB_CREATE_WORDS_TABLE : string : "CREATE TABLE words (module_id integer REFERENCES module(id), word VARCHAR(128) NOT NULL, translation VARCHAR(128) NOT NULL);"
 
 DB_CREATE_MODULE : string : "INSERT INTO module (module_name) VALUES ('%s');"
@@ -31,7 +31,7 @@ checkTables :: proc(db: ^Database) -> DatabaseError {
     return .CHECK_TABLES_ERROR
   }
 
-  if len(res) == 0 {
+  if res[0][0] == "0" {
     res_ok = exec_quary_without_result(db, DB_CREATE_MODULE_TABLE)
     if res_ok != nil {
       return .CREATE_TABLE_ERROR
@@ -45,7 +45,7 @@ checkTables :: proc(db: ^Database) -> DatabaseError {
     return .CHECK_TABLES_ERROR
   }
 
-  if len(res) == 0 {
+  if res[0][0] == "0" {
     res_ok = exec_quary_without_result(db, DB_CREATE_WORDS_TABLE)
     if res_ok != nil {
       return .CREATE_TABLE_ERROR
