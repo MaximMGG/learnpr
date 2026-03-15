@@ -54,11 +54,13 @@ init :: proc(modules: []string) -> (Net, NetError) {
   n := Net{sock = socket, modules = modules}
   n.cur_module = nil
 
+  html_fmt_prepare()
   return n, nil
 }
 
 shutdown :: proc(n: ^Net) {
   net.close(n.sock)
+  html_fmt_destroy()
 }
 
 waitNewConnection :: proc(n: ^Net) -> NetError {
@@ -69,18 +71,15 @@ waitNewConnection :: proc(n: ^Net) -> NetError {
 
   log.info("New Connection", new_endpoint.address, "-", new_endpoint.port)
 
-  worker := thread.create(processConn)
-  worker.user_index = int(new_conn)
-  worker.data = n
-  thread.start(worker)
+  readRequest(n, new_conn)
 
   return nil
 }
 
-processConn :: proc(t: ^thread.Thread) {
-  sock := net.TCP_Socket(t.user_index)
-  readRequest((^Net)(t.data), sock)
-}
+// processConn :: proc(t: ^thread.Thread) {
+//   sock := net.TCP_Socket(t.user_index)
+//   readRequest((^Net)(t.data), sock)
+// }
 
 // GET /combine-modules.html HTTP/1.1
 // Host: localhost:8080
@@ -133,7 +132,9 @@ parseRequest :: proc(request_buf: []byte) -> ^Request {
   for header in request_lines[1:] {
     split_header := strings.split(header, ": ")
     defer delete(split_header)
-    request.headers[split_header[0]] = split_header[1]
+    if len(split_header) == 2 {
+      request.headers[split_header[0]] = split_header[1]
+    }
   }
 
   return request
@@ -199,18 +200,6 @@ sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
     case .DELETE_MODULE:
 
     }
-    if len(req.path) == 0 {
-      index_html := html_fmt_get_index_html(n.modules)
-      defer delete(index_html)
-      net.send_tcp(sock, transmute([]byte)index_html)
-    } else if (true) {
-      href := getHeader(&req.headers, "href")
-      _ = href
-    }
-  } else if req.type == .POST {
-
-  } else {
-
   }
 }
 

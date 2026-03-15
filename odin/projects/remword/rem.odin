@@ -24,13 +24,10 @@ main :: proc() {
   }
 
   net_conn, net_err := NET.init(modules)
-  NET.shutdown(&net_conn)
+  defer NET.shutdown(&net_conn)
 
   for true {
-    err := NET.waitNewConnection(&net_conn)
-    if err != nil {
-      break
-    }
+    NET.waitNewConnection(&net_conn)
 
   }
 }

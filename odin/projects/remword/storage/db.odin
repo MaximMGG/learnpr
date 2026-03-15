@@ -66,7 +66,7 @@ DB_CONNECT_FORMAT :: "dbname=%s user=%s password=%s"
 set_err :: proc(db: Database) {
   slice.zero(err_buf[:])
   err := PQerrorMessage(db.conn)
-  mem.copy(raw_data(err_buf[:]), err, len(err))
+  mem.copy(raw_data(err_buf[:]), cast(rawptr)err, len(err))
 
 }
 

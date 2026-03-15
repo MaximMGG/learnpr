@@ -34,46 +34,45 @@ Html_Fmt :: struct {
 html_fmt: Html_Fmt
 
 html_fmt_prepare :: proc() {
-  hf: Html_Fmt
   index_file, index_ok := os.read_entire_file("./html/index.html")
   if !index_ok {
     log.error("open index.html error")
     return
   } else {
-    hf.index_html = transmute(string)index_file 
+    html_fmt.index_html = transmute(string)index_file 
   }
   module_file, module_ok := os.read_entire_file("./html/module.html")
   if !module_ok {
     log.error("open module.html error")
-    delete(hf.index_html)
+    delete(html_fmt.index_html)
     return
   } else {
-    hf.module_html = transmute(string)module_file
+    html_fmt.module_html = transmute(string)module_file
   }
   combine_module_file, combine_module_of := os.read_entire_file("./html/combine_modules.html")
   if !index_ok {
     log.error("open combine-modules.html error")
-    delete(hf.index_html)
-    delete(hf.module_html)
+    delete(html_fmt.index_html)
+    delete(html_fmt.module_html)
     return
   } else {
-    hf.combine_module_html = transmute(string)combine_module_file
+    html_fmt.combine_module_html = transmute(string)combine_module_file
   }
   create_module_file, create_module_ok := os.read_entire_file("./html/create-module.html")
   if !create_module_ok {
     log.error("open create-module.html error")
-    delete(hf.index_html)
-    delete(hf.module_html)
-    delete(hf.combine_module_html)
+    delete(html_fmt.index_html)
+    delete(html_fmt.module_html)
+    delete(html_fmt.combine_module_html)
     return
   }
   delete_module_file, delete_module_ok := os.read_entire_file("./html/delete-module.html")
   if !delete_module_ok {
     log.error("open delete-module.html error")
-    delete(hf.index_html)
-    delete(hf.module_html)
-    delete(hf.combine_module_html)
-    delete(hf.create_module_html)
+    delete(html_fmt.index_html)
+    delete(html_fmt.module_html)
+    delete(html_fmt.combine_module_html)
+    delete(html_fmt.create_module_html)
     return
   }
 }
