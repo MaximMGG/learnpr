@@ -5,7 +5,6 @@ import "core:thread"
 import "core:sync"
 import "core:log"
 import "core:strings"
-import "core:os"
 import _module "../module"
 
 REQUEST_FMT_OK_200 :: "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
@@ -21,7 +20,6 @@ html_pages := []string{
 NetError :: enum {
   NET_INIT_ERROR,
   NET_NEW_CONNECTION_ERROR,
-
 }
 
 Net :: struct {
@@ -33,6 +31,10 @@ Net :: struct {
 
 Request_Type :: enum {
   GET, POST, NOT_SUPPORT
+}
+
+Request_Path :: enum {
+  INDEX, COMBINE_MODULES, CREATE_MODULE, DELETE_MODULE, MODULE,
 }
 
 Request :: struct {
@@ -90,6 +92,23 @@ processConn :: proc(t: ^thread.Thread) {
 // Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/sstack: 7
 
 @(private)
+requestType :: proc(path: string) -> Request_Path {
+  switch(path) {
+  case "":
+    return .INDEX
+  case "module.html":
+    return .MODULE
+  case "combine-modules.html":
+    return .COMBINE_MODULES
+  case "create-module.html":
+    return .CREATE_MODULE
+  case "delete-module.html":
+    return .DELETE_MODULE
+  }
+  return nil
+}
+
+@(private)
 parseRequest :: proc(request_buf: []byte) -> ^Request {
 
   request := new(Request)
@@ -144,16 +163,42 @@ readRequest :: proc(n: ^Net, sock: net.TCP_Socket) {
   }
 }
 
+getHeader :: proc(m: ^map[string]string, header: string) -> string {
+  for k, v in m {
+    if header == k {
+      return v
+    } 
+  } 
+  return ""
+}
+
+
 getIndexHtml :: proc(n: ^Net) -> string {
 
   return ""
 }
 
-
-
 sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
   if req.type == .GET {
+    switch(requestType(req.path)) {
+    case .INDEX:
+      index_html := html_fmt_get_index_html(n.modules)
+      defer delete(index_html)
+      net.send_tcp(sock, transmute([]byte)index_html)
+    case .MODULE:
+
+    case .CREATE_MODULE:
+    case .COMBINE_MODULES:
+    case .DELETE_MODULE:
+
+    }
     if len(req.path) == 0 {
+      index_html := html_fmt_get_index_html(n.modules)
+      defer delete(index_html)
+      net.send_tcp(sock, transmute([]byte)index_html)
+    } else if (true) {
+      href := getHeader(&req.headers, "href")
+      
 
     }
   } else if req.type == .POST {

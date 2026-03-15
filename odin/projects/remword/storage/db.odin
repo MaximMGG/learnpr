@@ -26,11 +26,11 @@ foreign DB {
 	PQfinish :: proc(conn: ^PGconn) ---
 	PQresultStatus :: proc(res: ^PGresult) -> c.int ---
 	PQntuples :: proc(res: ^PGresult) -> c.int ---
+  PQnfields :: proc(res: ^PGresult) -> c.int ---
 	PQgetvalue :: proc(res: ^PGresult, tup_num: c.int, field_num: c.int) -> cstring ---
 	PQerrorMessage :: proc(conn: ^PGconn) -> cstring ---
 	PQprepare :: proc(conn: ^PGconn, stmtName: cstring, query: cstring, nParams: c.int, paramTypes: rawptr) -> ^PGresult ---
 	PQexecParams :: proc(conn: ^PGconn, command: cstring, nParams: c.int, paramTypes: rawptr, paramValues: []cstring, paramLength: ^c.int, paramFormats: ^c.int, resultFormat: c.int) -> PGresult ---
-  PQnfields :: proc(res: ^PGresult) -> c.int ---
 }
 
 DatabaseError :: enum {
@@ -83,7 +83,6 @@ disconnect :: proc(database: ^Database) {
   }
 
 }
-
 
 @(private)
 insert_struct_prepare_quary :: proc(t: $T, table: string) -> string {

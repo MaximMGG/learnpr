@@ -1,6 +1,5 @@
 package net
 
-
 import _module "../module"
 import "core:os"
 import "core:log"
@@ -9,7 +8,7 @@ import "core:strings"
 import "core:slice"
 
 
-INDEX_MODULE_NAME :: "<li><a class=\"module-link\" href=\"module.html\">%s</a></li>\n"
+INDEX_MODULE_NAME :: "<li><a class=\"module-link\" href=\"%s\">%s</a></li>\n"
 
 MODULE_WORD_TRANSLATION :: ` 
 <tr>
@@ -94,7 +93,7 @@ html_fmt_get_index_html :: proc(modules: []string) -> string {
   module_name: [128]byte
 
   for module in modules {
-    s := fmt.bprintf(module_name[:], INDEX_MODULE_NAME, module)
+    s := fmt.bprintf(module_name[:], INDEX_MODULE_NAME, module, module)
     strings.write_string(&sb, s)
     slice.zero(module_name[:])
   }
@@ -121,8 +120,3 @@ html_fmt_get_module :: proc(module: _module.Module) -> string {
 
   return res
 }
-
-
-
-
-
