@@ -7,6 +7,7 @@ import "core:log"
 import "core:strings"
 import _module "../module"
 import DB "../storage"
+import "core:fmt"
 
 REQUEST_FMT_OK_200 :: "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
 
@@ -41,6 +42,7 @@ Request_Path :: enum {
 Request :: struct {
   type: Request_Type,
   path: string,
+  path_type: Request_Path,
   headers: map[string]string,
 }
 
@@ -128,6 +130,7 @@ parseRequest :: proc(request_buf: []byte) -> ^Request {
   }
 
   request.path = strings.clone(first_line[1][1:])
+  request.path_type = requestType(request.path)
 
   for header in request_lines[1:] {
     split_header := strings.split(header, ": ")
@@ -154,6 +157,9 @@ readRequest :: proc(n: ^Net, sock: net.TCP_Socket) {
     defer delete(buf)
 
     read_bytes, err = net.recv(sock, buf)
+    if read_bytes == 0 {
+      continue
+    }
     if err != nil {
       log.error("ReadRequest from socket:", sock, "error")
       return
@@ -187,19 +193,27 @@ sendResponse :: proc(n: ^Net, sock: net.TCP_Socket, req: ^Request) {
     case .INDEX:
       index_html := html_fmt_get_index_html(n.modules)
       defer delete(index_html)
-      net.send_tcp(sock, transmute([]byte)index_html)
+      response := fmt.aprintf(REQUEST_FMT_OK_200, len(index_html), index_html)
+      defer delete(response)
+      net.send_tcp(sock, transmute([]byte)response)
     case .MODULE:
       href := getHeader(&req.headers, "href")
       if n.cur_module.name == href {
         module_html := html_fmt_get_module(n.cur_module)
         defer delete(module_html)
-        net.send_tcp(sock, transmute([]byte)module_html)
+        response := fmt.aprintf(REQUEST_FMT_OK_200, len(module_html), module_html)
+        defer delete(response)
+        net.send_tcp(sock, transmute([]byte)response)
       }
     case .CREATE_MODULE:
     case .COMBINE_MODULES:
     case .DELETE_MODULE:
 
+    case nil:
+      fmt.eprintf("Not corrent path: %s\n", req.path)
+      return
     }
+
   }
 }
 
