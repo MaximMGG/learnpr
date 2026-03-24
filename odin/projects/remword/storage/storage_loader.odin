@@ -3,6 +3,7 @@ package storage
 import "core:slice"
 import "core:fmt"
 import "core:strconv"
+import "core:strings"
 
 
 DB_CHECK_MODULE_TABLE_EXISTS : string : "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename = 'module'"
@@ -84,7 +85,8 @@ getModules :: proc(db: ^Database) -> ([]string, DatabaseError) {
   defer delete(modules)
 
   for i in 0..<len(res) {
-    append(&modules, res[i][0])
+    tmp := strings.clone(res[i][0])
+    append(&modules, tmp)
   }
 
   return slice.clone(modules[0:len(res)]), nil

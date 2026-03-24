@@ -160,9 +160,14 @@ readRequest :: proc(n: ^Net, sock: net.TCP_Socket) {
     if read_bytes == 0 {
       continue
     }
+
     if err != nil {
       log.error("ReadRequest from socket:", sock, "error")
       return
+    }
+
+    when ODIN_DEBUG {
+      fmt.println(transmute(string)buf[0:read_bytes])
     }
 
     request := parseRequest(buf[0:read_bytes])

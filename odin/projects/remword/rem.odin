@@ -9,25 +9,35 @@ import STORAGE "storage"
 import NET "net"
 
 main :: proc() {
+
   db, db_err := STORAGE.init("mydb", "maxim", "maxim")
   defer STORAGE.disconnect(&db)
   if db_err != nil {
-    log.error("Connect to DB error")
+    fmt.println("Connect to db error:", db_err)
     return
   }
 
-  modules: []string
-  modules, db_err = STORAGE.getModules(&db)
-  defer delete(modules)
-  if db_err != nil {
-    log.error("Cant load modules")
+  db_module, db_module_err := STORAGE.getModules(&db)
+  defer delete(db_module)
+  if db_module_err != nil {
+    fmt.println("Select module from DB error:", db_module_err)
+    return
   }
 
-  net_conn, net_err := NET.init(modules)
-  defer NET.shutdown(&net_conn)
+  fmt.println(db_module)
 
-  for true {
-    NET.waitNewConnection(&net_conn)
+  n, n_err := NET.init(db_module)
+  defer NET.shutdown(&n)
+  if n_err != nil {
+    fmt.eprintln("Inet connection error:", n_err)
+    return
+  }
 
+  for {
+    NET.waitNewConnection(&n)
+  }
+
+  for s in db_module {
+    delete(s)
   }
 }
