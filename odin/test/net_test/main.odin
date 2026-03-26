@@ -4,10 +4,13 @@ package net_test
 import "core:fmt"
 import "core:net"
 import "core:os"
+import "core:strings"
 
 
-HEADER :: "<h1>Hello world</h1>"
+INDEX_MODULE_NAME :: "<li><a class=\"module-link\" href=\"%s\">%s</a></li>\n"
 
+
+NAMES := []string{"ijij", "aqqqq", "fsoidjfsidf"}
 REQUEST_FMT_OK_200 :: "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
 
 get_header :: proc() -> string {
@@ -17,13 +20,27 @@ get_header :: proc() -> string {
     return ""
   }
   defer delete(index)
-  buf := fmt.aprintf(transmute(string)index, HEADER)
-  defer delete(buf)
 
-  answer := fmt.aprintf(REQUEST_FMT_OK_200, len(buf), buf)
+  sb: strings.Builder
+  strings.builder_init(&sb)
+  defer strings.builder_destroy(&sb)
 
-  return answer
+  for i in 0..<len(NAMES) {
+    line := fmt.aprintf(INDEX_MODULE_NAME, NAMES[i], NAMES[i])
+    defer delete(line)
+    strings.write_string(&sb, line)
+  }
+
+  answer := fmt.aprintf(transmute(string)index, strings.to_string(sb))
+  defer delete(answer)
+
+
+  response := fmt.aprintf(REQUEST_FMT_OK_200, len(answer), answer)
+
+
+  return response
 }
+
 
 main :: proc() {
   endpoint := net.Endpoint{port = 8080, address = net.IP4_Address{127, 0, 0, 1}}
@@ -33,13 +50,13 @@ main :: proc() {
     fmt.eprintln("listen_tcp error:", sock_err)
     return
   }
+  conn, conn_endpoint, conn_err := net.accept_tcp(sock)
 
+  if conn_err != nil {
+    fmt.eprintln("accept_tcp error:", conn_err)
+    return
+  }
   for {
-    conn, conn_endpoint, conn_err := net.accept_tcp(sock)
-    if conn_err != nil {
-      fmt.eprintln("accept_tcp error:", conn_err)
-      return
-    }
 
     buf: [1024]byte
 
@@ -48,6 +65,7 @@ main :: proc() {
     fmt.printf("Get request: %s\n", transmute(string)buf[:bytes_recved])
 
     response := get_header()
+    defer delete(response)
 
     net.send_tcp(conn, transmute([]byte)response)
 
