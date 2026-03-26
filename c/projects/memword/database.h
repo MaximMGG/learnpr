@@ -40,7 +40,6 @@ typedef struct {
   Map *prepared_select;
 
   DatabaseResult quary_result;
-  Allocator *allocator;
 } Database;
 
 typedef struct {
@@ -55,15 +54,13 @@ typedef struct {
   i32 cols;
 } QuaryStructRes;
 
-Database *      databaseConnect(Allocator *allocator, str db_name, str user_name, str password);
+Database *      databaseConnect(str db_name, str user_name, str password);
 void            databaseDisconnect(Database *db);
 void            databaseInsert(Database *db, str quary, ...);
 QuaryRes        databaseSelect(Database *db, str quary);
-void            databaseInsertStruct(Database *db, str table, str struct_variables, ptr val);
-QuaryStructRes  databaseSelectStruct(Database *db, str table, str struct_variables, str quary);
 QuaryRes        databaseExecQuaryWithRes(Database *db, str quary);
 void            databaseExecQuaryWithoutRes(Database *db, str quary);
 str             databaseGetError(Database *db);
-void            databaseClearQuaryRes(Allocator *allocator, QuaryRes *qr);
+void            databaseClearQuaryRes(QuaryRes *qr);
 
 #endif// DATABASE_H

@@ -18,8 +18,8 @@ typedef struct {
 
 } Request;
 
-Net *netInit(Allocator *allocator, List *module) {
-  Net *net = MAKE(allocator, Net);
+Net *netInit(List *module) {
+  Net *net = make(Net);
   
   struct addrinfo hints = {0};
   hints.ai_family = AF_INET;
@@ -29,42 +29,41 @@ Net *netInit(Allocator *allocator, List *module) {
 
   if (getaddrinfo("127.0.0.1", "8080", &hints, &res) == 0) {
     log(ERROR, "getaddrinfo error");
-    DEALLOC(allocator, net);
+    dealloc(net);
     return null;
   }
   net->socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
   if (net->socket <= 0) {
     log(ERROR, "socket error");
-    DEALLOC(allocator, net);
+    dealloc(net);
     return null;
   }
 
   if (bind(net->socket, res->ai_addr, res->ai_addrlen)) {
     log(ERROR, "bind error");
     close(net->socket);
-    DEALLOC(allocator, net);
+    dealloc(net);
     return null;
   }
 
   if (listen(net->socket, 10)) {
     log(ERROR, "listen error");
     close(net->socket);
-    DEALLOC(allocator, net);
+    dealloc(net);
     return null;
   }
   log(INFO, "init net module");
-  net->allocator = allocator;
-  net->connections = listCreate(allocator, PTR);
+  net->connections = listCreate(PTR);
   return net;
 }
 
 void netShutdown(Net *net) {
   close(net->socket);
   for(u32 i = 0; i < net->connections->len; i++) {
-    DEALLOC(net->allocator, listGet(net->connections, i));
+    dealloc(listGet(net->connections, i));
   }
   listDestroy(net->connections);
-  DEALLOC(net->allocator, net);
+  dealloc(net);
   log(INFO, "shutdown net module");
 }
 
@@ -91,7 +90,7 @@ void netWaitConnection(Net *net) {
   
   log(INFO, "New connection %s - %s", name, port);
 
-  Net_Conn *nc = MAKE(net->allocator, Net_Conn);
+  Net_Conn *nc = make(Net_Conn);
   nc->net = net;
   nc->conn = new_conn;
 

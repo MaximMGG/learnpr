@@ -8,10 +8,9 @@ typedef struct {
   str name;
   u32 id;
   Map *content;
-  Allocator *allocator;
 } Module;
 
-Module *moduleLoad(Allocator *allocator, Database *db, u32 module_id, str module_name);
+Module *moduleLoad(Database *db, u32 module_id, str module_name);
 void moduleFree(Module *module);
 void moduleAddWord(Module *module, Database *db, str word, str translation);
 void moduleRemoveWord(Module *module, Database *db, str word);

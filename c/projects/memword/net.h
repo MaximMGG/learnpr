@@ -14,12 +14,9 @@ typedef struct {
   i32 socket;
   List *modules;
   List *connections;
-
-  Allocator *allocator;
-
 } Net;
 
-Net *netInit(Allocator *allocator, List *module);
+Net *netInit(List *module);
 void netShutdown(Net *net);
 void netRecvRequest(Net *net);
 void netSendResponse(Net *net);
