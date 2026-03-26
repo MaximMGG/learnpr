@@ -1,5 +1,4 @@
 #include <cstdext/core.h>
-#include <cstdext/core.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,16 +55,16 @@ void *generic_do_job(void *arg) {
   pthread_mutex_unlock(&init_mutex);
   a->do_job(a->arg);
   pthread_mutex_unlock(a->m);
-  DEALLOC(heap_allocator, a);
+  dealloc(a);
   
   return null;
 }
 
 TPool *threadPoolInit(u32 n_threads) {
-  TPool *p = MAKE(heap_allocator, TPool);
-  p->p_arr = MAKE_MANY(heap_allocator, pthread_t, n_threads);
-  p->m_arr = MAKE_MANY(heap_allocator, pthread_mutex_t, n_threads);
-  p->was_init = MAKE_MANY(heap_allocator, bool, n_threads);
+  TPool *p = make(TPool);
+  p->p_arr = make_many(pthread_t, n_threads);
+  p->m_arr = make_many(pthread_mutex_t, n_threads);
+  p->was_init = make_many(bool, n_threads);
   for(u32 i = 0; i < n_threads; i++) {
     p->p_arr[i] = PTHREAD_CREATE_JOINABLE;
     pthread_mutex_init(&p->m_arr[i], null);
@@ -85,16 +84,16 @@ void threadPoolDestroy(TPool *p) {
   for(u32 i = 0; i < p->len; i++) {
     pthread_mutex_destroy(&p->m_arr[i]);
   }  
-  DEALLOC(heap_allocator, p->p_arr);
-  DEALLOC(heap_allocator, p->m_arr);
-  DEALLOC(heap_allocator, p->was_init);
-  DEALLOC(heap_allocator, p);
+  dealloc(p->p_arr);
+  dealloc(p->m_arr);
+  dealloc(p->was_init);
+  dealloc(p);
   pthread_mutex_destroy(&init_mutex);
 }
 
 void thread_pool_do_job(TPool *t, void *(*some_job)(void *), void *arg) {
   u32 worker_id = get_worker(t);
-  TPool_Args *a = MAKE(heap_allocator, TPool_Args);
+  TPool_Args *a = make(TPool_Args);
   a->do_job = some_job;
   a->t = &t->p_arr[worker_id];
   a->arg = arg;

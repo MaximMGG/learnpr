@@ -11,9 +11,7 @@
 
 #define STD_RESPONSE "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
 
-
 i32 module = 0;
-
 
 bool read_conn(i32 sock) {
   byte buf[512] = {0};
@@ -137,9 +135,7 @@ int main() {
     pthread_t worker;
     pthread_create(&worker, null, process, &new_conn);
     pthread_detach(worker);
-
   }
-
 
   return 0;
 }
