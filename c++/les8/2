@@ -1,0 +1,106 @@
+#include <iostream>
+#include <stdio.h>
+
+//questions--------------------------------------
+
+void song(char *name = "O, My Papa?", int times = 1) {
+    std::cout << name << " " << times << std::endl;
+}
+
+void iquote(int x) {
+    std::cout << "\"" << x << "\"" << std::endl;
+}
+void iquote(double x) {
+    std::cout << "\"" << x << "\"" << std::endl;
+}
+void iquote(std::string x) {
+    std::cout << "\"" << x << "\"" << std::endl;
+}
+
+typedef struct {
+    char maker[40];
+    float height;
+    float width;
+    float length;
+    float volume;
+} box;
+
+void show(box& x) {
+    printf( "Name is: %s\nheight: %f\nwidth: %f\nlength: %f\nvolume: %f\n", 
+            x.maker, x.height, x.width, x.length, x.volume);
+}
+
+void set_volume(box& x) {
+    x.volume = x.length * x.width * x.height;
+}
+
+double mass(double density, double volume = 1.0);
+
+void repeat(int x, std::string s);
+void repeat(std::string s);
+
+int average(int, int);
+double average(double, double);
+char mangle(char*);
+// char *mangle(char*);
+
+
+template <typename T>
+T bigger (T a, T b) {
+    return a > b ? a : b;
+}
+
+template <> box bigger<box> (box a, box b) {
+    return a.volume > b.volume ? a : b;
+}
+
+
+
+//questions--------------------------------------
+//exersizes========================================
+
+void print_count(char *str, int x = 0) {
+    static int count = 1;
+    if (x == 0) {
+        std::cout << str << std::endl;
+    } else {
+        for(int i = 0; i < count; i++) {
+            std::cout << str << std::endl;
+        }
+    }
+    count++;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//exersizes========================================
+
+
+int main() {
+
+    iquote(2);
+    iquote(3.0);
+    iquote("Hello");
+
+    box box_t {"Julia", 20.2, 30.9, 123.1, 2.0};
+    show(box_t);
+    set_volume(box_t);
+    show(box_t);
+
+    return 0;
+}
+

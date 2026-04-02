@@ -1,0 +1,14 @@
+Script started on 2023-10-28 14:07:00+03:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="162" LINES="39"]
+[?2004h]0;maxim@DESKTOP-7VN330O: ~/learnpr[01;32mmaxim@DESKTOP-7VN330O[00m:[01;34m~/learnpr[00m$ ls
+[?2004lfile1.txt  [0m[01;32mhello.sh[0m  protocol.txt  shcommads.txt  test.txt
+[?2004h]0;maxim@DESKTOP-7VN330O: ~/learnpr[01;32mmaxim@DESKTOP-7VN330O[00m:[01;34m~/learnpr[00m$ ehco "Hello"
+[?2004lCommand 'ehco' not found, did you mean:
+  command 'ehlo' from snap ehlo (0.0.83)
+  command 'echo' from deb coreutils (8.32-4.1ubuntu1)
+See 'snap info <snapname>' for additional versions.
+[?2004h]0;maxim@DESKTOP-7VN330O: ~/learnpr[01;32mmaxim@DESKTOP-7VN330O[00m:[01;34m~/learnpr[00m$ echo "Hello"
+[?2004lHello
+[?2004h]0;maxim@DESKTOP-7VN330O: ~/learnpr[01;32mmaxim@DESKTOP-7VN330O[00m:[01;34m~/learnpr[00m$ [?2004l
+exit
+
+Script done on 2023-10-28 14:07:25+03:00 [COMMAND_EXIT_CODE="0"]

@@ -1,0 +1,13 @@
+bin_name:
+prog
+
+src:
+main.c
+
+lib:
+glfw
+GL
+GLEW
+
+flags:
+-g

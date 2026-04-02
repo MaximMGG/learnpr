@@ -1,0 +1,8 @@
+build/
+out/
+project.json
+lib
+resources
+docs
+test
+scripts

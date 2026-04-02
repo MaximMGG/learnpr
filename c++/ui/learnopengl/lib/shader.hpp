@@ -1,0 +1,170 @@
+#ifndef SHADER_HPP
+#define SHADER_HPP
+#include <iostream>
+#include <cstring>
+#include <fstream>
+#include <string>
+#include <map>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GL/glew.h>
+#include "glcall.hpp"
+#include "types.hpp"
+
+class Shader {
+public:
+    unsigned int id = 0;
+    std::map<std::string, int> uniforms;
+
+    Shader(const char *v_path, const char *f_path) {
+        unsigned int v_shader = compileShader(v_path, GL_VERTEX_SHADER);
+        if (v_shader == 0) {
+          return;
+        }
+        unsigned int f_shader = compileShader(f_path, GL_FRAGMENT_SHADER);
+        if (f_shader == 0) {
+          return;
+        }
+        id = glCreateProgram();
+        GLCall(glAttachShader(id, v_shader));
+        GLCall(glAttachShader(id, f_shader));
+        GLCall(glLinkProgram(id));
+        GLCall(glDeleteShader(v_shader));
+        GLCall(glDeleteShader(f_shader));
+        if (!checkStatus(id, GL_PROGRAM)) {
+           GLCall(glDeleteProgram(id));
+            return;
+        }
+        GLCall(glValidateProgram(id));
+    }
+    ~Shader() {
+        GLCall(glDeleteProgram(id));
+    }
+    void use() {
+        GLCall(glUseProgram(id));
+    }
+
+    void setFloat(const char *name, f32 value) {
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform1f(loc, value);
+      }
+    }
+
+
+    void setInt(const char *name, int value) {
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform1i(loc, value);
+      }
+    }
+
+    void setVec3(const char *name, glm::vec3 value) {
+        auto it = uniforms.find(name);
+        if (it != uniforms.end()) {
+            GLCall(glUniform3fv(it->second, 1, &value[0]));
+        } else {
+            int loc;
+            GLCall(loc = glGetUniformLocation(id, name));
+            if (loc != -1) {
+                GLCall(glUniform3fv(loc, 1, &value[0]));
+                uniforms[name] = loc;
+            } else {
+                std::cerr << "Con't find location " << name << '\n';
+            }
+        }
+    }
+
+    void setVec3(const char *name, f32 v0, f32 v1, f32 v2) {
+      int loc = getLocation(name);
+      if (loc != -1) {
+        glUniform3f(loc, v0, v1, v2);
+      }
+
+    }
+
+    void setMat4(const char *name, glm::mat4 &value) {
+      i32 loc = getLocation(name);
+      if (loc != -1) {
+        glUniformMatrix4fv(loc, 1, GL_FALSE, &value[0][0]);
+      }
+    }
+
+private:
+
+    int getLocation(const char *name) {
+      auto it = uniforms.find(name);
+      if (it == uniforms.end()) {
+        int loc = glGetUniformLocation(id, name);
+        if (loc != -1) {
+          uniforms[name] = loc;
+          return loc;
+        } else {
+          std::cerr << "Can't find uniform location " << name << '\n';
+          std::flush(std::cerr);
+          return -1;
+        }
+      } 
+      return it->second;
+    }
+
+
+    unsigned int compileShader(const char *path, unsigned int type) {
+        std::ifstream file(path);
+        if (file.is_open()) {
+            file.seekg(0, std::ios::end);
+            long file_size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            char *buf = new char[file_size + 1];
+            memset(buf, 0, file_size + 1);
+            file.read(buf, file_size);
+            unsigned int shader;
+            GLCall(shader = glCreateShader(type));
+            GLCall(glShaderSource(shader, 1, &buf, NULL));
+            GLCall(glCompileShader(shader));
+            if (!checkStatus(shader, type)) {
+                GLCall(glDeleteShader(shader));
+                return 0;
+            }
+            return shader;
+        } else {
+            std::cerr << "Open file " << path << " error\n";
+            return 0;
+        }
+        return 0;
+    }
+
+    bool checkStatus(unsigned int shader, unsigned int type) {
+        if (type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER) {
+            int res;
+            GLCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &res));
+            if (res == GL_FALSE) {
+                int len;
+                GLCall(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len));
+                char *err_msg = new char[len + 1];
+                memset(err_msg, 0, len + 1);
+                GLCall(glGetShaderInfoLog(shader, len, &len, err_msg));
+                std::cerr << "Compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader failed: "
+                    << err_msg << '\n';
+                delete [] err_msg;
+                return false;
+            }
+        } else if (type == GL_PROGRAM) {
+            int res;
+            GLCall(glGetProgramiv(shader, GL_LINK_STATUS, &res));
+            if (res == GL_FALSE) {
+                int len;
+                GLCall(glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &len));
+                char *err_msg = new char[len + 1];
+                memset(err_msg, 0, len + 1);
+                GLCall(glGetProgramInfoLog(shader, len, &len, err_msg));
+                std::cerr << "Link program failed: " << err_msg << '\n';
+                delete [] err_msg;
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+#endif //SHADER_HPP

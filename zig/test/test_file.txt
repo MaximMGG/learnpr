@@ -1,0 +1,2 @@
+[ERROR] - logtest.zig - main - 11 - Tets log 0
+[WARN] - logtest.zig - main - 12 - Test log2 0

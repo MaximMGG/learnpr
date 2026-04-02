@@ -1,0 +1,7 @@
+cat - кот
+
+Hello world!New line
+друг
+New too line
+New too line
+One more line

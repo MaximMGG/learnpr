@@ -1,0 +1,10 @@
+{
+    "tokens": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "LTCUSDT",
+        "BTCUSDT"
+    ],
+    "dbname": "mydb"
+}

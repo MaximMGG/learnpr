@@ -1,0 +1,5 @@
+package educationalsp
+
+main :: proc() {
+
+}

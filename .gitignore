@@ -1,0 +1,13 @@
+*.exe
+*.out
+*.obj
+*.o
+
+*.*~
+
+zig-zen.txt
+*/.zig-cache/*
+.zig-cache
+zig-out
+CMakeFiles/*
+

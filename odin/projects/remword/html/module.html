@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Module: %s</h1>
+
+<h2>Words</h2>
+
+<table>
+
+%s
+
+</table>
+
+<br>
+
+<h2>Add Word</h2>
+
+<form action="/add_word" method="post">
+
+<p>Word</p>
+<input type="text" name="word" required>
+
+<p>Translation</p>
+<input type="text" name="translation" required>
+
+<br><br>
+
+<input type="submit" value="Add Word">
+
+</form>
+
+<br>
+
+<a href="index.html">
+<button>Back</button>
+</a>
+
+</div>
+
+</body>
+</html>

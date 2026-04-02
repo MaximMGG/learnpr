@@ -1,0 +1,167 @@
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+;COLORCHEME=========================
+(use-package base16-theme
+  :ensure t
+  :config
+  (load-theme 'base16-ashes t))
+;COLORCHEME END======================
+
+;CORE SETTING========================
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(column-number-mode 2)
+(global-display-line-numbers-mode t)
+
+(setq visible-bell t)
+(setq electrice-pair-pairs '(
+			     (?\( . ?\))
+			     (?\{ . ?\})
+			     (?\[ . ?\])
+			     (?\" . ?\")
+			     (?\' . ?\')))
+
+(electric-pair-mode t)
+	        
+;CORE SETTING END====================
+
+;PACKAGES============================
+
+;COMMAND LOG MODE
+
+(use-package command-log-mode
+  :ensure t)
+(command-log-mode)
+;COMMAND LOG MODE END
+
+;KEY BINDINGS========================
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;KEY BINDINGS END====================
+;IVY
+(use-package ivy
+  :ensure t
+  :init
+  (ivy-mode))
+
+(use-package ivy-rich
+  :ensure t
+  :init
+  (ivy-rich-mode t))
+;IVY END
+;COUNSEL
+(use-package counsel
+  :ensure t
+  :bind(
+	("M-x" . counsel-M-x)
+	("C-x b" . counsel-ibuffer)
+	("C-x C-f" . counsel-find-file)
+	("C-x w" . counsel-switch-buffer)))
+
+;COUNSEL END
+
+
+
+;WHICH KEY
+(use-package which-key
+  :ensure t
+  :init (which-key-mode)
+  :config (setq which-key-idle-delay 0.3))
+;WHICH KEY END
+
+;COMPANY
+(use-package company
+  :ensure t
+  :hook (prog-mode . company-mode))
+
+;COMPANY END
+;LSP
+(use-package lsp-mode
+  :ensure t
+  :commands(lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-format-buffer-on-save nil)
+  :config
+  (lsp-enable-which-key-integration t)
+  :hook ((zig-mode . lsp)
+	 (c-mode . lsp)
+	 (c++-mode . lsp)))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode
+  :commands lsp-ui-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-doc-enable t)
+  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-delay 0.6)
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-delay 0.6)
+  (lsp-ui-doc-show-with-cursor t)
+  :config
+  (setq lsp-modeline-code-actions-mode t))
+
+
+(use-package zig-mode
+  :ensure t
+  :after lsp-mode
+  :hook (zig-mode . lsp-deferred))
+
+;LSP END
+
+;AVY
+(use-package avy
+  :ensure t
+  :bind ("C-c s" . avy-goto-char))
+
+
+;AVY END
+
+
+;PACKAGES END========================
+
+
+;CUSTOM FUNCS
+(defun copyWholeLine ()
+    (interactive)
+  (kill-whole-line)
+  (yank))
+
+(defun dupeLine ()
+    (interactive)
+  (kill-whole-line)
+  (yank)
+  (yank))
+
+
+(global-set-key (kbd "C-c c") 'copyWholeLine)
+(global-set-key (kbd "C-c d") 'dupeLine)
+
+;CUSTOM FUNCS END
+
+
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(base16-theme vertico consult use-package zig-mode lsp-ui lsp-mode))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(avy company counsel which-key ivy-rich ivy command-log-mode base16-theme vertico consult use-package zig-mode lsp-ui lsp-mode)))

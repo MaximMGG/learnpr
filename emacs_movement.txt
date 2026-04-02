@@ -1,0 +1,58 @@
+[C-v] move page buffer down
+[M-v] move page buffer up
+[C-l] redisplea whole the text
+
+[C-f]	Move forward a character
+[C-b]	Move backward a character
+
+[M-f]	Move forward a word
+[M-b]	Move backward a word
+
+[C-n]	Move to next line
+[C-p]	Move to previous line
+
+[C-a]	Move to beginning of line
+[C-e]	Move to end of line
+
+[M-A]	Move back to beginning of sentence
+[M-e] Move forward to end of sentence
+[M-<] move cursore to the begging of the whole text
+[M->] move cursore to the end of the whole text
+[C-u] <number> <command> do <number> type <command> command (for example C-u 8 C-f move curesore 8 tymes forward)
+[C-g] exit from command
+[C-x 1] kill other wondow exept window in which curesor
+[<DEL>] Delete the character just before the cursor
+[C-d] Delete the next character after the cursor
+
+[M-<DEL>] Kill the word immediately before the cursor
+[M-d] Kill the next word after the cursor
+
+[C-k] Kill from the cursor position to end of line
+[M-k] Kill to the end of the current sentence
+
+[C-<SPC>] Create mark to highlight segment of text
+[C-w] kill whole segment between C-<SPC> hightlights points
+[C-y] insert copyed or killed text
+[C-/] undo
+
+[C-x C-f] Find file
+[C-x C-s] Save buffer to file
+[C-x s]	Save some buffers to their files
+[C-x C-b] List buffers
+[C-x b] Switch buffer
+[C-x C-c] Quit Emacs
+[C-x 1]	Delete all but one window
+[C-x u]	Undo
+[C-s] search forward
+[C-r] search backwards
+[C-x 2] split window horisontaly
+[C-x 3] split window verticaly
+[C-x o] switch betwean windows
+[C-x 4 C-f] open search file window, open new window in vertical split mode
+[C-x 5 2] See a new frame appear on your screen.
+[C-x 5 0] This removes the selected frame.
+
+
+
+
+

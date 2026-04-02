@@ -1,0 +1,2 @@
+[INFO ] --- [2026-01-13 19:53:16] [main.odin:14:main()] [educationlsp] I, started
+[INFO ] --- [2026-01-13 19:53:16] [main.odin:37:handle_message()] [educationlsp] Received msg with method: initialize

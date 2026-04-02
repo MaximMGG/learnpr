@@ -1,0 +1,2 @@
+Here we speeks about SSE operations xmm0 to xmm15 registers and scalar or packed
+datas
