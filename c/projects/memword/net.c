@@ -1,6 +1,11 @@
 #include "net.h"
 #include <cstdext/container/map.h>
 #include "module.h"
+#include "html_loader.h"
+
+
+#define STD_RESPONSE_200 "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: keep-alive\r\n\r\n%s"
+#define STD_RESPONSE_400 "HTTP/1.1 400 BAD REQUEST\r\nContent-Type: text/html\r\nContent-Length: %d\r\nConnection: close\r\n\r\n%s"
 
 typedef struct {
   Net *net;
@@ -8,6 +13,8 @@ typedef struct {
   Module *cur_module;
   List *modules;
 } Net_Conn;
+
+
 
 typedef enum {
   REQUEST_GET, REQUEST_POST,
@@ -108,7 +115,23 @@ Map *netParseHeaders(str buf) {
   return header;
 }
 
-Request *netParseResponse(str buf) {
+static void netDeallocRequest(Request *req) {
+
+  if (req->headers != null) {
+    Iterator *it = mapIterator(req->headers);
+    while(mapItNext(it)) {
+      dealloc(it->key);
+      dealloc(it->val);
+    }
+    mapItDestroy(it);
+    mapDestroy(req->headers);
+    dealloc(req->path);
+  }
+  dealloc(req);
+}
+
+
+Request *netParseRequest(str buf) {
   Request *req = make(Request);
   i32 first_line = strFind(buf, "\r\n");
   if (first_line == -1) {
@@ -125,7 +148,7 @@ Request *netParseResponse(str buf) {
   } else if (streql(first_line_list[0], "POST")) {
     req->type = REQUEST_POST;
   } else {
-	arr_destroy(first_line_list);
+    arr_destroy(first_line_list);
     dealloc(req);
     return null;
   }
@@ -169,15 +192,29 @@ Request *netRecvRequest(Net_Conn *conn) {
     return null;
   }
   
-  return netParseResponse(buf);
+  return netParseRequest(buf);
 }
 
 void netSendResponse(Net_Conn *conn, Request *req) {
   if (req->type == REQUEST_GET) {
 	switch(req->path_type) {
 	case INDEX: {
+	  str index_html = loadIndexHtml(conn->modules);
+	  u32 index_html_len = strlen(index_html);
+	  str response = strCreateFmt(STD_RESPONSE_200, index_html_len, index_html);
+	  u32 response_len = strlen(response);
+
+	  u32 send_bytes = send(conn->conn, response, response_len, 0);
+	  if (send_bytes != response_len) {
+	    log(ERROR, "send response error");
+	  }
+	  netDeallocRequest(req);
 	} break;
 	case MODULE: {
+	  KV href = mapGet(req->headers, "href");
+	  if (href.val == null) {
+	    log(ERROR, "Don not have href with module name");
+	  }
 	  
 	} break;
 	case CREATE_MODULE: {
@@ -196,20 +233,7 @@ void netSendResponse(Net_Conn *conn, Request *req) {
   }
 }
 
-static void netDeallocRequest(Request *req) {
 
-  if (req->headers != null) {
-    Iterator *it = mapIterator(req->headers);
-    while(mapItNext(it)) {
-      dealloc(it->key);
-      dealloc(it->val);
-    }
-    mapItDestroy(it);
-    mapDestroy(req->headers);
-    dealloc(req->path);
-  }
-  dealloc(req);
-}
 
 ptr netProcessConnection(ptr net) {
   Net_Conn *nc = (Net_Conn *) net;

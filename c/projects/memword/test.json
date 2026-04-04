@@ -1,0 +1,7 @@
+{
+  "dir": "./test",
+  "test_case": [
+      ["database_test.c", "database.c", "-lcext", "-lpq"],
+  ],
+  "file-log-name": "test.log"
+}

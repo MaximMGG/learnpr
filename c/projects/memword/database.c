@@ -48,8 +48,8 @@ Database *databaseConnect(str db_name, str user_name, str password) {
   db->password = strCopy(password);
 
   db->prepared_insert = mapCreate(STR, STR, null, null);
-
   db->prepared_select = mapCreate(STR, STR, null, null);
+  
   db->quary_result = DATABASE_OK;
 
   return db;
@@ -153,6 +153,7 @@ QuaryRes databaseExecQuaryWithRes(Database *db, str quary) {
   res.tuples = make_many(str *, res.rows);
 
   for(i32 i = 0; i < res.rows; i++) {
+    res.tuples[i] = make_many(str, res.cols);
     for(i32 j = 0; j < res.cols; j++) {
       str val = PQgetvalue(db->res, i, j);
       res.tuples[i][j] = strCopy(val);
@@ -182,6 +183,7 @@ void databaseClearQuaryRes(QuaryRes *qr) {
     for(i32 j = 0; j < qr->cols; j++) {
       dealloc(qr->tuples[i][j]);
     }
+    dealloc(qr->tuples[i]);
   }
   dealloc(qr->tuples);
 }
