@@ -1,37 +1,41 @@
 
 
 fn main() {
-	{
-		let mut s = String::from("Hello"); // create string on heap
+    {
+        let mut s = String::from("Hello"); // create string on heap
 
-		s.push_str(", world!"); // done one more allocation
+        s.push_str(", world!"); // done one more allocation
 
-		println!("{s}!");
+        println!("{s}!");
 
-		let mut s2 = String::from("Bye"); // create string on heap
+        let mut s2 = String::from("Bye"); // create string on heap
 
-		s2.push_str(" world!"); // done one more allocation
+        s2.push_str(" world!"); // done one more allocation
 
-		println!("{s2}!");
-		//drop(s2);
-		let s3 = s2.clone(); // clone string on heap
+        println!("{s2}!");
+        //drop(s2);
+        let s3 = s2.clone(); // clone string on heap
 
-		println!("S3 {s3}");
+        println!("S3 {s3}");
 
-		let s4 = s3; // s3 no longer ivalable
+        let s4 = s3; // s3 no longer ivalable
 
-		println!("S4 {s4}");
-	}
-	
-	let mut b: i32 = 123;
+        println!("S4 {s4}");
+    }
+    
+    let mut b: i32 = 123;
 
-	ptr_int(&mut b);
-	println!("After ptr_int: {b}");
+    ptr_int(&mut b);
+    println!("After ptr_int: {b}");
 
-	main2();
-	main3();
-	main4();
-	main5();
+    main2();
+    main3();
+    main4();
+    main5();
+    main6();
+    main7();
+    main8();
+    main9();
 }
 
 fn ptr_int(a: *mut i32) {
@@ -104,3 +108,56 @@ fn calculate_length2(s: &String) -> usize {
 	let len = s.len();
 	len
 }
+
+fn main6() {
+    println!("Main6");
+    let mut s = String::from("Hello");
+    change(&mut s);
+    println!("{s}");
+}
+
+fn change(s: &mut String) {
+    s.push_str(" ,world!");
+}
+
+fn main7() {
+    println!("main7");
+    let mut s = String::from("hello");
+
+    let s1 = &mut s; //here would be a problem
+    // let s2 = &mut s; //here would be a problem
+
+
+    // println!("{s1} {s2}");
+    println!("{s1}");
+
+}
+
+fn main8() {
+    println!("main8");
+    let mut s = String::from("hello");
+
+    let s1 = &s; //here is not a problem
+    let s2 = &s;
+
+    // let s3 = &mut s; //and here become a problem
+
+    println!("{s1} {s2}");
+
+    let s3 = &mut s;
+
+    println!("{s3}");
+
+}
+
+fn main9() {
+    println!("main9");
+    let s = dagle();
+    println!("{s}");
+}
+
+fn dagle() -> String {
+    let s = String::from("Hello");
+    s
+}
+
