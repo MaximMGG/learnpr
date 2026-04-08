@@ -36,6 +36,8 @@ fn main() {
     main7();
     main8();
     main9();
+    main10();
+	main11();
 }
 
 fn ptr_int(a: *mut i32) {
@@ -161,3 +163,64 @@ fn dagle() -> String {
     s
 }
 
+fn main10() {
+    println!("\n\nMAIN10");
+    let s = String::from("What a butifoul day");
+    println!("index -> {}", first_word(&s));
+}
+
+fn first_word(s: &String) -> usize {
+    let bytes = s.as_bytes();
+
+    for(i, &item) in bytes.iter().enumerate() {
+        print!("Char: {} ", item as char);
+        if item == b' ' {
+            return i
+        }
+    }
+    s.len()
+}
+
+
+fn main11() {
+	let s = String::from("Hello world!");
+
+	let (start, end) = second_word(&s);
+
+	let s1 = &s[0..start];
+	let s2 = &s[start + 1..end];
+
+	println!("first '{s1}', second '{s2}'");
+
+	println!("From anather func: {}", first_word_slice(&s));
+}
+
+fn second_word(s: &String) -> (usize, usize) {
+	let bytes = s.as_bytes();
+	let mut first_word: usize = 0;
+	let mut second_word: usize = s.len();
+
+	for(i, &item) in bytes.iter().enumerate() {
+		if item == b' ' {
+			if first_word == 0 {
+				first_word = i;
+			} else {
+				second_word = i;
+				break;
+			}
+		}
+	}
+
+	return (first_word, second_word);
+}
+
+fn first_word_slice(s: &String) -> &str {
+	let bytes = s.as_bytes();
+
+	for (i, &item) in bytes.iter().enumerate() {
+		if item == b' ' {
+			return &s[0..i];
+		}
+	}
+	&s[..]
+}
