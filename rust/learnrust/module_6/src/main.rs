@@ -29,4 +29,40 @@ fn main() {
     let m = Message::Write(String::from("write"));
 
     m.call();
+	main2();
+	main3();
 }
+
+fn main2() {
+	let _some_number = Some(5);
+	let _some_char = Some('e');
+
+	let _absent_number: Option<i32> = None;
+}
+
+enum Coin {
+	Penny,
+	Nickel,
+	Dime,
+	Quarter,
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+	match coin {
+		Coin::Penny => {
+			println!("Lacky penny");
+			1
+		}
+		Coin::Nickel => 5,
+		Coin::Dime => 10,
+		Coin::Quarter => 25,
+	}
+}
+
+fn main3() {
+	let c = Coin::Penny;
+
+	println!("coin is: {}", value_in_cents(c));
+}
+
+
