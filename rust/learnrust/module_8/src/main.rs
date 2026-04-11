@@ -159,6 +159,7 @@ fn hash_map_main() {
     }
 
     borrowed_keys();
+    updated_hashmap();
 }
 
 fn borrowed_keys() {
@@ -175,6 +176,16 @@ fn borrowed_keys() {
         println!("{k} -> {v}");
     }
     // println!("{one}"); 
+}
+
+fn updated_hashmap() {
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Blue"), 15);
+
+    println!("{scores:?}");
+
 }
 
 
