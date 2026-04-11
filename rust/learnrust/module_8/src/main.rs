@@ -36,6 +36,7 @@ fn main() {
     main3();
     main4();
     main_string();
+    hash_map_main();
 }
 
 
@@ -92,7 +93,7 @@ fn main4() {
 }
 
 fn main_string() {
-    println!("String collection");
+    println!("=============String collection============");
     let data = "initial contents";
 
     let d: u32 = 123;
@@ -102,6 +103,78 @@ fn main_string() {
 
     println!("{s}");
 
+    push_to_string();
+    concatenate_str();
+    iterating_through_str();
+}
+
+fn push_to_string() {
+    let mut s1 = String::from("foo");
+    let s2 = String::from(" bar");
+    s1.push_str(" bar");
+    s1.push_str(s2.as_str());
+    s1.push('l');
+    println!("s1: {s1}, s2: {s2}");
+
+    s1 += &s2;
+    // let s3 = s1 + &s2; after the s1 will be borrowed
+    println!("s1 += &s2 => {s1}");
+}
+
+fn concatenate_str() {
+    let s1 = String::from("tic");
+    let s2 = String::from("tac");
+    let s3 = String::from("toe");
+
+    //let s = s1 + "-" + &s2 + "-" + &s3;
+    let s = format!("{s1}-{s2}-{s3}");
+
+    println!("{s}");
+}
+
+fn iterating_through_str() {
+    let mut s1 = String::from("String for iteration");
+    s1 = s1.replace("for", "the");
+
+    for i in s1.chars() {
+        println!("{i}");
+    }
+}
+
+use std::collections::HashMap;
+
+fn hash_map_main() {
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+    scores.insert(String::from("Yellow"), 15);
+
+    let team_name = String::from("Blue");
+    let score = scores.get(&team_name).copied().unwrap_or(0);
+    println!("Score blue team is: {score}");
+
+
+    for (k, v) in &scores {
+        println!("{k} -> {v}");
+    }
+
+    borrowed_keys();
+}
+
+fn borrowed_keys() {
+    
+    let one = String::from("One");
+    let two = String::from("Two");
+
+
+    let mut vals = HashMap::new();
+
+    vals.insert(one, two); // here 'one' and 'two' borrowed to hashmap
+
+    for (k, v) in &vals {
+        println!("{k} -> {v}");
+    }
+    // println!("{one}"); 
 }
 
 
