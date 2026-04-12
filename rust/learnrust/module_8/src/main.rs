@@ -160,6 +160,8 @@ fn hash_map_main() {
 
     borrowed_keys();
     updated_hashmap();
+    add_key_val_if_not_present();
+    update_value_based_on_old_value();
 }
 
 fn borrowed_keys() {
@@ -187,5 +189,30 @@ fn updated_hashmap() {
     println!("{scores:?}");
 
 }
+
+fn add_key_val_if_not_present() {
+    let mut scores = HashMap::new();
+
+    scores.insert(String::from("Blue"), 10);
+
+    scores.entry(String::from("Yellow")).or_insert(12);
+    scores.entry(String::from("Blue")).or_insert(50);
+
+    println!("{scores:?}");
+}
+
+fn update_value_based_on_old_value() {
+
+    let text = "hello world wonderful world";
+    let mut map = HashMap::new();
+
+    for word in text.split_whitespace() {
+        let count = map.entry(word).or_insert(0);
+        *count += 1;
+    }
+
+    println!("{map:?}");
+}
+
 
 
