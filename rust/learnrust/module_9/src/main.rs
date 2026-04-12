@@ -1,4 +1,5 @@
 use std::{fs::File, io::Read};
+use std::io::ErrorKind;
 
 
 fn main() {
@@ -12,18 +13,47 @@ fn main() {
     //     Err(e) => panic!("{e}"),
     // };
     
+    // let greeting_file = match File::open("hello.txt") {
+    //     Ok(file) => file,
+    //     Err(_) => match File::create("hello.txt") {
+    //         Ok(file) => file,
+    //         Err(_) => panic!("File::create error"),
+    //     }
+    // };
+    //
+    // for b in greeting_file.bytes() {
+    //     let c = if let Ok(ch) = b {ch as char} else {'0'};
+    //     print!("{c}");
+    // }
+    // _ = greeting_file;
+    
+
     let greeting_file = match File::open("hello.txt") {
         Ok(file) => file,
-        Err(_) => match File::create("hello.txt") {
-            Ok(file) => file,
-            Err(_) => panic!("File::create error"),
+        Err(error) => match error.kind() {
+            ErrorKind::NotFound => match File::create("hello.txt") {
+                Ok(fc) => fc,
+                Err(e) => panic!("Problem creating the file: {e:?}"),
+            },
+            _ => {
+                panic!("Problem opening the file: {error:?}");
+            }
+
         }
     };
-
-    for b in greeting_file.bytes() {
-        let c = if let Ok(ch) = b {ch as char} else {'0'};
-        print!("{c}");
-    }
     _ = greeting_file;
+    main2();
 }
 
+fn main2() { 
+    let greeting_file = File::open("hello.txt").unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            File::create("hello.txt").unwrap_or_else(|error| {
+                panic!("Problem creating the file: {error:?}");
+            })
+        } else {
+            panic!("Problem opening the file: {error:?}");
+        }
+    });
+    _ = greeting_file;
+}
