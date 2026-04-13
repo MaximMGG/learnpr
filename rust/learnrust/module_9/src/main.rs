@@ -1,5 +1,6 @@
 use std::{fs::File, io::Read};
 use std::io::ErrorKind;
+use std::io;
 
 
 fn main() {
@@ -56,4 +57,37 @@ fn main2() {
         }
     });
     _ = greeting_file;
+    shortcuts_for_panic_on_error();
+    let username = match read_username_from_file() {
+        Ok(name) => name,
+        Err(_) => String::from("Can't read name"),
+    };
+    println!("User name is: {username}");
 }
+
+
+fn shortcuts_for_panic_on_error() {
+    let greeting_file = File::open("hello.txt").unwrap();
+    _ = greeting_file;
+
+    let file = File::open("hello.txt").expect("file should be included in project");
+    _ = file;
+}
+
+fn read_username_from_file() -> Result<String, io::Error> {
+   let user_file_result = File::open("hello.txt");
+
+   let mut username_file = match user_file_result {
+       Ok(file) => file,
+       Err(e) => return Err(e),
+   };
+
+   let mut username = String::new();
+
+   match username_file.read_to_string(&mut username) {
+       Ok(_) => Ok(username),
+       Err(e) => Err(e),
+   }
+}
+
+
