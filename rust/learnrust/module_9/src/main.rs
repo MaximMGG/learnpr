@@ -1,13 +1,11 @@
-use std::{fs::File, io::Read};
+use std::{fs, fs::File, io::Read};
 use std::io::ErrorKind;
 use std::io;
+use std::error::Error;
 
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     println!("==========module_9 error hendling============");
-
-
-
     // let greeting_file_result = File::open("hello.txt");
     // let greeting_file = match greeting_file_result {
     //     Ok(file) => file,
@@ -43,7 +41,9 @@ fn main() {
         }
     };
     _ = greeting_file;
+
     main2();
+    Ok(())
 }
 
 fn main2() { 
@@ -63,6 +63,15 @@ fn main2() {
         Err(_) => String::from("Can't read name"),
     };
     println!("User name is: {username}");
+    let username_2 = read_username_from_file2().unwrap();
+    println!("User name 2 is: {username_2}");
+    let username_3 = read_username_from_file3();
+    println!("{}", username_3.unwrap());
+}
+
+fn _main_test() -> Result<String, io::Error> {
+    let name = read_username_from_file3()?;
+    Ok(name)
 }
 
 
@@ -90,4 +99,18 @@ fn read_username_from_file() -> Result<String, io::Error> {
    }
 }
 
+fn read_username_from_file2() -> Result<String, io::Error> {
+    let mut username = String::new();
 
+    _ = File::open("hello.txt").unwrap().read_to_string(&mut username);
+    //let username = fs::read_to_string("hello.txt")?; //just one line
+
+    return Ok(username)
+}
+
+fn read_username_from_file3() -> Result<String, io::Error> {
+    let mut username_file = File::open("hello.txt")?;
+    let mut username = String::new();
+    username_file.read_to_string(&mut username)?;
+    Ok(username)
+}
