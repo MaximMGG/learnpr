@@ -53,6 +53,7 @@ fn main() {
 
     main2();
     helper();
+    main3();
 }
 
 
@@ -76,6 +77,36 @@ fn main2() {
     };
 
     println!("1 new post: {}", post.summarize());
+    notify(&post);
+    notify2(&post);
+}
+
+fn main3() {
+    let string1 = String::from("abcd");
+    let string2 = "abc";
+
+    let result = longest(string1.as_str(), string2);
+    println!("The longest string is {}", result);
+
+
+    let result2 = longest2(string1.as_str(), string2);
+    println!("Longest 2: {}", result2);
+} 
+
+fn longest(a: &str, b: &str) -> String {
+    if a.len() > b.len() {
+        return String::from(a)
+    } else {
+        return String::from(b)
+    }
+}
+
+fn longest2<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        return x
+    } else {
+        return y
+    }
 }
 
 
