@@ -1,5 +1,7 @@
 
 
+pub mod lib2;
+
 #[derive(Debug, PartialEq)]
 struct Rectangle {
     width: u32,
