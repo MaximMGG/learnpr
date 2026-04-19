@@ -32,7 +32,7 @@ int main() {
     std::string key = "Key000000";
 
     while(increase_key(key)) {
-        std::cout << "Key -> " << key << '\n';
     }
+    std::cout << "Key -> " << key << '\n';
 
 }
