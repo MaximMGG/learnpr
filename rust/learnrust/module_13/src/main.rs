@@ -2,6 +2,7 @@
 
 use std::thread;
 use std::time::Duration;
+use module_13::iter_examples;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum ShirtColor {
@@ -52,6 +53,7 @@ fn main() {
     println!("The user with preference {:?} gets {:?}", user_pref2, giveaway2);
     capturing_references();
     sorting_example();
+    iter_examples();
 }
 
 fn closure_example() {
