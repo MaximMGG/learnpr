@@ -1,3 +1,3 @@
 [workspace]
 resolver = "3"
-members = ["box_main"]
+members = ["box_main", "rc_main"]
