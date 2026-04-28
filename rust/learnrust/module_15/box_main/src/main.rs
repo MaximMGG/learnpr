@@ -1,5 +1,3 @@
-
-
 use List::{Cons, Nil};
 
 fn main() {

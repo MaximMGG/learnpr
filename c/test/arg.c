@@ -10,3 +10,7 @@ void arg_print(int a, ...) {
 
   int res = va_arg(li, char);
 }
+
+void print_num(int a) {
+  printf("%d\n", a);
+}
