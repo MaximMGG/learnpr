@@ -1,9 +1,10 @@
 
 use num::Complex;
 use std::str::FromStr;
-use image::ColorType;
+use image::{ColorType, ImageEncoder, ExtendedColorType};
 use image::codecs::png::PngEncoder;
 use std::fs::File;
+use std::env;
 
 fn complex_square_add_loop(c: Complex<f64>) {
     let mut z = Complex{re: 0.0, im: 0.0};
@@ -33,7 +34,23 @@ fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
 
 
 fn main() {
-    println!("Hello, world!");
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() != 5 {
+        eprintln!("Usage: {} FILE PIXELS UPPERLEFT LOWERRIGHT", args[0]);
+        eprintln!("Example: {} mandel.png 1000x750 -1.20,0.35 -1,0.20", args[0]);
+        std::process::exit(1);
+    }
+
+    let bounds: (usize, usize) = parse_pair(&args[2], 'x').expect("Erro parsing image dimensions");
+    let upper_left = parse_complex(&args[3]).expect("Error parsing upper left corner point");
+    let lower_right = parse_complex(&args[4]).expect("Error parsing lower right corner point");
+
+    let mut pixels = vec![0; bounds.0 * bounds.1];
+
+    render(&mut pixels, bounds, upper_left, lower_right);
+
+    write_image(&args[1], &pixels, bounds).expect("Error writing PNG file.");
 }
 
 fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
@@ -82,7 +99,12 @@ fn render(pixels: &mut [u8], bounds: (usize, usize),
 fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize)) -> Result<(), std::io::Error> {
     let output = File::create(filename)?;
     let encoder = PngEncoder::new(output);
-    encoder.write_image(pixels, bounds.0 as u32, bounds.1 as u32, ColorType::Rgb8);
+    match encoder.write_image(pixels, bounds.0 as u32, bounds.1 as u32, ExtendedColorType::Rgb8) {
+        Ok(t) => return Ok(t),
+        Err(e) => {println!("Error: {e}")}
+    };
+
+    Ok(())
 }
 
 
