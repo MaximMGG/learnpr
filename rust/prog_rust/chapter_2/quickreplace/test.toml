@@ -1,0 +1,8 @@
+[package]
+name = "quickreplace"
+versbrbrn = "0.1.0"
+editbrbrn = "2024"
+
+[dependencies]
+regex = "1.12.3"
+text-colorizer = "1.0.0"
