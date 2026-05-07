@@ -1,4 +1,11 @@
 
+#[derive(Debug)]
+struct Dog {
+    name: String,
+    age: u32,
+}
+
+
 
 fn main() {
     assert_eq!(10_i8 as u16, 10_u16); // in range
@@ -117,4 +124,170 @@ fn main() {
     assert_eq!(tail, "in thine eye");
 
 
+    println!("Pointer Types");
+
+    let mut d = Dog{name: String::from("Billy"), age: 3};
+    set_age(&mut d); //&mut T example
+
+    println!("{:?}", d);
+
+    let t = (12, "eggs");
+    let b = Box::new(t);
+
+    print_tuple(b);
+
+    println!("Arrays, Vectors and Slices");
+
+    let lazy_catere: [u32; 6] = [1 ,2, 4, 7, 11, 16];
+    let taxonomy = ["Animalia", "Arthropoda", "Insecta"];
+
+    assert_eq!(lazy_catere[3], 7);
+    assert_eq!(taxonomy.len(), 3);
+
+    let mut sieve = [true; 10000];
+    for i in 2..100 {
+        if sieve[i] {
+            let mut j = i * i;
+            while j < 10000 {
+                sieve[j] = false;
+                j += i;
+            }
+        }
+    }
+    assert!(sieve[211]);
+    assert!(!sieve[9876]);
+
+    let mut chaos = [3, 5, 4, 1, 2];
+    chaos.sort();
+    assert_eq!(chaos, [1, 2, 3, 4, 5]);
+
+
+    let mut primes = vec![2, 3, 5, 7];
+    assert_eq!(primes.iter().product::<i32>(), 210);
+
+    primes.push(11);
+    primes.push(13);
+    assert_eq!(primes.iter().product::<i32>(), 30030);
+
+    let mut pal = Vec::new();
+
+    pal.push("step");
+    pal.push("on");
+    pal.push("no");
+    pal.push("pets");
+
+    assert_eq!(pal, vec!["step", "on", "no", "pets"]);
+
+    let mut palindrome = vec!["a man", "a plan", "a canal", "panama"];
+
+    palindrome.reverse();
+
+    assert_eq!(palindrome, vec!["panama", "a canal", "a plan", "a man"]);
+
+    let mut v = Vec::with_capacity(2);
+
+    assert_eq!(v.len(), 0);
+    assert_eq!(v.capacity(), 2);
+
+    v.push(1);
+    v.push(2);
+
+    assert_eq!(v.len(), 2);
+    assert_eq!(v.capacity(), 2);
+
+    v.push(3);
+    assert_eq!(v.len(), 3);
+    println!("capacity is now {}", v.capacity());
+
+    let mut v = vec![10, 20, 30, 40, 50];
+
+    v.insert(3, 35);
+    assert_eq!(v, [10, 20, 30, 35, 40, 50]);
+
+    v.remove(1);
+
+    assert_eq!(v, [10, 30, 35, 40, 50]);
+
+    let mut v = vec!["Snow Puff", "Glass Gem"];
+    assert_eq!(v.pop(), Some("Glass Gem"));
+    assert_eq!(v.pop(), Some("Snow Puff"));
+    assert_eq!(v.pop(), None);
+
+    //let languages: Vec<String> = std::env::args().skip(1).collect();
+    let languages: Vec<String> = vec!["a", "Lisp", "C", "C++", "Fortran"].iter().map(|x| x.to_string()).skip(1).collect();
+
+    for l in languages {
+        println!("{}: {}", l, if l.len() % 2 == 0 {
+            "functional"
+        } else {
+            "imperative"
+        })
+    }
+
+    let v: Vec<f64> = vec![0.0, 0.707, 1.0, 0.707];
+    let a: [f64; 4] = [0.0, 0.707, 1.0, 0.707];
+
+    print(&v);
+    print(&a);
+    let sv: &[f64] = &v;
+    let sa: &[f64] = &a;
+    print(sv);
+    print(sa);
+    let v2 = v.clone();
+
+    let handle = std::thread::spawn(move || {
+        print(&v2);
+    });
+
+    handle.join().unwrap();
+
+    print(&v[0..1]);
+    
+    println!("String types");
+
+    println!(r###"
+    This raw string started wiht 'r###'.
+    Therefore it does not end until we reach a quote mark ('"')
+    follwed immediately by three pound signs ('###'):
+    "###);
+
+    println!("Byte string");
+
+    let method = b"GET";
+    assert_eq!(method, &[b'G', b'E', b'T']);
+    println!("{:?}", method);
+
+    assert_eq!(format!("{}C{:02}`{:02}``N", 24, 5, 23), "24C05`23``N".to_string());
+
+    let bits = vec!["veni", "vidi", "vici"];
+
+    assert_eq!(bits.concat(), "venividivici");
+    assert_eq!(bits.join(", "), "veni, vidi, vici");
+
+    for word in "veni, vidi, vici".split(", ") {
+        assert!(word.starts_with("v"));
+    }
+
 }
+
+fn print(n: &[f64]) {
+    for el in n {
+        println!("{}", el);
+    }
+}
+
+fn new_pixel_buffer(rows: usize, cols: usize) -> Vec<u8> {
+    vec![0; rows * cols]
+}
+
+fn set_age(d: &mut Dog) {
+    d.age += 1
+}
+
+fn print_tuple(t: Box<(u32, &str)>) {
+    println!("{} - {}", t.0, t.1)
+}
+
+
+
+
