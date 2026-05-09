@@ -268,6 +268,17 @@ fn main() {
         assert!(word.starts_with("v"));
     }
 
+    println!("Type Aliases");
+
+}
+
+type Bytes = Vec<u8>;
+
+
+fn decode(data: &Bytes) {
+    for b in data {
+        println!("{b}");
+    }
 }
 
 fn print(n: &[f64]) {
