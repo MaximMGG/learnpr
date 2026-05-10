@@ -44,4 +44,38 @@ fn main() {
     let third = std::mem::replace(&mut v[2], "substitute".to_string());
     assert_eq!(third, "103");
     assert_eq!(v, vec!["101", "104", "substitute"]);
+    some_struct();
 }
+
+struct Person {
+    name: Option<String>,
+    birth: i32,
+}
+
+
+fn some_struct() {
+
+    let mut composer = Vec::new();
+    composer.push(Person{name: Some("Palestrina".to_string()), birth: 1525});
+
+    let first_name = std::mem::replace(&mut composer[0].name, None);
+    assert_eq!(first_name, Some("Palestrina".to_string()));
+    assert_eq!(composer[0].name, None);
+}
+
+#[derive(Copy, Clone)]
+struct Label {
+    number: u32
+}
+
+fn print(l: Label) {
+    println!("STAMP: {}", l.number)
+}
+
+fn copy_trait() {
+    let l = Label{number: 3};
+    print(l);
+    println!("My label nu8mber is: {}", l.number);
+
+}
+
