@@ -86,3 +86,59 @@ fn main() {
     let rrr: &&&Point = &rr;
     assert_eq!(rrr.y, 729);
 }
+
+fn lifetime() {
+    let r;
+    {
+        let x = 1;
+        r = &x;
+        assert_eq!(*r, 1);
+    }
+    let v = vec![1, 2, 3];
+    let a = &v[0];
+    assert_eq!(*a, 1);
+}
+
+fn call_smallest() {
+    let res;
+    {
+        let arr = [3, 8, 9, 0, 1, 2, -3];
+        res = smallest(&arr);
+        assert_eq!(*res, -3);
+    }
+    // assert_eq!(*res, -3); bad code, arr doesnt alive here
+}
+
+fn smallest<'a>(arr: &'a[i32]) -> &'a i32 {
+    let mut b = &arr[0];
+    for r in &arr[0..] {
+        if *r < *b {
+            b = r;
+        }
+    }
+    b
+}
+
+struct S {
+    r: &'static i32, // it is mians the 'r' should live all till the end of programm
+}
+
+struct B<'a> {
+    r: &'a i32, //it has the same lifetime as 'r'
+}
+
+
+struct StringTable { 
+    elements: Vec<String>,
+}
+
+impl StringTable {
+    fn find_by_prefix(&self, prefix: &str) -> Option<&String> {
+        for i in &self.elements {
+            if i.starts_with(prefix) {
+                return Some(i);
+            }
+        }
+        None
+    }
+}
