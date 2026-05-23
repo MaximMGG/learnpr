@@ -103,6 +103,11 @@ fn main() {
     let mut parent = Node::new("parent node");
     let shader_node = Rc::new(Node::new("first"));
     shader_node.append_to(&mut parent);
+
+    let scaled = Vector2::UNIT.scaled_by(2.0);
+
+    println!("Vector scaled by 2.0: {:?}", scaled);
+
 }
 
 
@@ -159,5 +164,24 @@ impl Queue {
         (self.older, self.younger)
     }
 }
+
+
+#[derive(Debug)]
+pub struct Vector2 {
+    x: f32,
+    y: f32,
+}
+
+impl Vector2 {
+    const NAME: &'static str = "Vector2";
+    const ID: u32 = 18;
+    const ZERO: Vector2 = Vector2{x: 0.0, y: 0.0};
+    const UNIT: Vector2 = Vector2{x: 1.0, y: 0.0};
+
+    pub fn scaled_by(self, m: f32) -> Vector2 {
+        Vector2{x: self.x * m, y: self.y * m}
+    }
+}
+
 
 
