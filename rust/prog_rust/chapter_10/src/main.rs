@@ -66,6 +66,28 @@ struct TreeNode<T> {
     right: BinaryTree<T>
 }
 
+use std::cmp::Ord;
+
+impl<T: Ord> BinaryTree<T> {
+    fn add(&mut self, value: T) {
+        match *self {
+            BinaryTree::Empty => {
+                *self = BinaryTree::NonEmpty(Box::new(TreeNode{
+                    element: value,
+                    left: BinaryTree::Empty,
+                    right: BinaryTree::Empty,
+                }))
+            },
+            BinaryTree::NonEmpty(ref mut node) => {
+                if value > node.element {
+                    node.right.add(value);
+                } else {
+                    node.left.add(value);
+                }
+            }
+        }
+    }
+}
 
 
 
