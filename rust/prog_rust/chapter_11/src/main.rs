@@ -54,6 +54,10 @@ fn main() {
     for word in words {
         println!("{word}");
     }
+
+
+    println!("Test Trait Iterator");
+    test_cycles();
 }
 
 use std::hash::Hash;
@@ -118,5 +122,68 @@ impl<W: Write> WriteHtml for W {
         Ok(())
     }
 }
+
+use std::iter;
+use std::vec::IntoIter;
+
+fn cyclical_zyp(v: Vec<u8>, u: Vec<u8>) -> iter::Cycle<iter::Chain<IntoIter<u8>, IntoIter<u8>>> {
+    v.into_iter().chain(u.into_iter()).cycle()
+}
+
+fn cyclical_zip(v: Vec<u8>, u: Vec<u8>) -> Box<dyn Iterator<Item=u8>> {
+    Box::new(v.into_iter().chain(u.into_iter()).cycle())
+}
+
+fn cyclical_zip_2(v: Vec<u8>, u: Vec<u8>) -> impl Iterator<Item=u8> {
+    v.into_iter().chain(u.into_iter()).cycle()
+}
+
+
+fn test_cycles() {
+    let a1: Vec<u8> = vec![1, 2, 3, 4, 7];
+    let a2: Vec<u8> = vec![9, 7, 3, 1, 0];
+
+    let mut it = cyclical_zip(a1, a2);
+
+    while let Some(val) = it.next() {
+        println!("{val}");
+    }
+
+}
+
+use std::fmt::Display;
+
+fn print<T: Display>(val: T) {
+    println!("{}", val);
+}
+
+fn print_2(val: impl Display) {
+    println!("{}", val);
+}
+
+fn print_3(val: &dyn Display) {
+    println!("{}", val);
+}
+
+use std::ops::Add;
+use std::ops::Mul;
+
+fn dot<N>(v1: &[N], v2: &[N]) -> N 
+    where N: Add<Output=N> + Mul<Output=N> + Default + Copy {
+        let mut total = N::default();
+
+        for i in 0..v1.len() {
+            total = total + v1[i] * v2[i];
+        }
+        total
+}
+
+#[test]
+fn test_dot() {
+    assert_eq!(dot(&[1, 2, 3, 4], &[1, 1, 1, 1]), 10);
+    assert_eq!(dot(&[53.0, 7.0], &[1.0, 5.0]), 88.0);
+}
+
+
 
 
