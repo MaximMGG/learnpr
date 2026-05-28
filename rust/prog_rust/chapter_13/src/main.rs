@@ -2,9 +2,9 @@
 use std::{ffi::c_int, ops::Drop, marker::Sized, fmt::Display};
 use std::ops::{Deref, DerefMut};
 use std::collections::HashSet;
+use glium;
 
-struct Appelation {
-    name: String,
+struct Appelation { name: String,
     nicknames: Vec<String>
 }
 
@@ -106,6 +106,12 @@ fn main() {
     assert_eq!(upper, "GTO");
     assert_eq!(lower, "reat eacher nizuka");
 
+    let params = glium::DrawParameters{
+        line_width: Some(0.02),
+        point_size: Some(0.02),
+        .. Default::default()
+    };
+    println!("{:?}", params);
 }
 
 
