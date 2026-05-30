@@ -1,8 +1,7 @@
 const std = @import("std");
-const c = @cImport({
-    @cInclude("stdlib.h");
-    @cInclude("stdio.h");
-});
+const c = zig.c;
+
+
 const stdout = std.io.getStdOut().writer();
 
 var lines: [2000][]u8 = undefined;

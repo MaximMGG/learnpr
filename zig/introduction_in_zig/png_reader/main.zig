@@ -1,9 +1,5 @@
 const std = @import("std");
-const c = @cImport({
-    @cDefine("_NO_CRT_STDIO_INLINE", "1");
-    @cInclude("stdio.h");
-    @cInclude("spng.h");
-});
+const c = @import("c");
 
 fn get_png_header(ctx: *c.spng_ctx) !c.spng_ihdr {
     var image_header: c.spng_ihdr = undefined;
@@ -12,7 +8,6 @@ fn get_png_header(ctx: *c.spng_ctx) !c.spng_ihdr {
     }
 
     return image_header;
-
 }
 
 fn calc_output_size(ctx: *c.spng_ctx) !u64 {
@@ -23,7 +18,6 @@ fn calc_output_size(ctx: *c.spng_ctx) !u64 {
     }
 
     return output_size;
-
 }
 
 fn read_data_to_buffer(ctx: *c.spng_ctx, buffer: []u8) !void {
@@ -39,7 +33,7 @@ fn applay_image_filter(buffer: []u8) !void {
     const green_factor: f16 = 0.7152;
     const blue_factor: f16 = 0.0722;
     var index: u64 = 0;
-    while(index < len) : (index += 4) {
+    while (index < len) : (index += 4) {
         const rf: f16 = @floatFromInt(buffer[index]);
         const gf: f16 = @floatFromInt(buffer[index + 1]);
         const bf: f16 = @floatFromInt(buffer[index + 2]);
@@ -61,22 +55,18 @@ fn save_png(image_header: *c.spng_ihdr, buffer: []u8) !void {
     _ = c.spng_set_png_file(ctx, @ptrCast(file));
     _ = c.spng_set_ihdr(ctx, image_header);
 
-    const encode_status = c.spng_encode_image(ctx, 
-                    @ptrCast(buffer.ptr), buffer.len, c.SPNG_FMT_PNG, c.SPNG_ENCODE_FINALIZE);
+    const encode_status = c.spng_encode_image(ctx, @ptrCast(buffer.ptr), buffer.len, c.SPNG_FMT_PNG, c.SPNG_ENCODE_FINALIZE);
     if (encode_status != 0) {
         return error.CouldNotEncodeImage;
     }
     if (c.fclose(file) != 0) {
         return error.CouldNotCloseFile;
     }
-
 }
 
 pub fn main() !void {
-
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
-
 
     const path = "pedro_pascal.png";
     const file = c.fopen(path, "rb");
@@ -103,5 +93,4 @@ pub fn main() !void {
     try applay_image_filter(buffer);
 
     try save_png(&image_header, buffer);
-
 }
