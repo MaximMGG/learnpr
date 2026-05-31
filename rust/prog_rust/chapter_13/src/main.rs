@@ -2,6 +2,7 @@
 use std::{ffi::c_int, ops::Drop, marker::Sized, fmt::Display};
 use std::ops::{Deref, DerefMut};
 use std::collections::HashSet;
+use std::convert::AsRef;
 use glium;
 
 struct Appelation { name: String,
@@ -154,6 +155,17 @@ impl<T> DerefMut for Selector<T> {
         &mut self.elements[self.current]
     }
 }
+
+
+impl<'a, T, U> AsRef<U> for &'a T
+where T: AsRef<U>,
+      T: ?Sized, U: ?Sized
+{
+    fn as_ref(&self) -> &U {
+        (*self).as_ref()
+    }
+}
+
 
 
 
