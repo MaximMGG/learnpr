@@ -1,5 +1,3 @@
-
-
 use std::{ffi::c_int, ops::Drop, marker::Sized, fmt::Display};
 use std::ops::{Deref, DerefMut};
 use std::collections::HashSet;
@@ -179,6 +177,23 @@ fn try_into_test() {
     });
     println!("{smaller}");
 }
+
+use std::borrow::Cow;
+use std::error::Error;
+
+fn decribe(error: &Error) -> Cow<'static, str> {
+    match *error {
+	Error::OutOfMemory => "out of memory".into(),
+	Error::StackOverflow => "out of memory".into(),
+	Error::MachineOnFire => "out of memory".into(),
+	Error::Unfathomable => "out of memory".into(),
+	Error::FileNotFound(ref path) => {
+	    format!("file not found: {}", path.display()).into()
+	}
+    }
+}
+
+
 
 
 
