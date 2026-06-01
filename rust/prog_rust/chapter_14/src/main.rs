@@ -1,4 +1,5 @@
 use std::thread;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct City {
@@ -90,6 +91,52 @@ fn call_twice_example() {
     };
     call_twice(incr);
 }
+
+fn copy_example() {
+    let y = 10;
+    let add_y = |x| x + y;
+    let copy_of_add_y = add_y;
+
+    assert_eq!(add_y(copy_of_add_y(22)), 42);
+
+
+
+//    let mut add_to_x = |n| { x += n; x};
+    //let copy_off_add_to_x = add_to_x;
+
+    let mut greeting = String::from("Hello, ");
+
+    let greet = move |name| {
+	greeting.push_str(name);
+	println!("{}", greeting);
+    };
+
+    greet.clone()("Alfred");
+    greet.clone()("Bruce");
+}
+struct Vegetable;
+
+struct Salad<V: Vegetable> {
+    veggies: Vec<V>
+}
+
+type BoxedCallback = Box<dyn Fn(&Salad<Vegetable>) -> String>;
+
+struct BasicRouter {
+    routes: HashMap<String, BoxedCallback>
+}
+impl BasicRouter {
+    fn new() -> BasicRouter {
+	BasicRouter {routes: HashMap::new()}
+    }
+    fn add_route<C>(&mut self, url: &str, callback: C)
+    where C: Fn(&Salad<Vegetable>) -> String {
+	self.routes.insert(url.to_string(), Box::new(callback))
+    }
+}
+
+
+
 
 fn main() {
     println!("Chapter 14, Closures");
