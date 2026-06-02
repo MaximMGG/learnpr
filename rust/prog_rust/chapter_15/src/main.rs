@@ -5,6 +5,28 @@ use std::iter::from_fn;
 use num::Complex;
 use std::iter::successors;
 
+
+fn drain_example() {
+    let mut outer = "Helllo".to_string();
+    let inner = String::from_iter(outer.drain(1..4));
+
+    assert_eq!(outer, "Hlo");
+    assert_eq!(inner, "ell")
+}
+
+fn fibonaci() -> impl Iterator<Item=usize> {
+    let mut state = (0, 1);
+    std::iter::from_fn(move || {
+	state = (state.1, state.0 + state.1);
+	Some(state.0)
+    })
+}
+
+fn fibonacci_test() {
+    let f: Vec<_> = fibonaci().take(8).collect::<Vec<_>>();
+    f.iter().for_each(|x| println!("{x}"));
+}
+
 fn escape_time(c: Complex<f64>, limit: usize) -> Option<usize> {
     let zero = Complex{re: 0.0, im: 0.0};
 
@@ -120,6 +142,16 @@ fn iter_next() {
 use std::ffi::OsStr;
 use std::path::Path;
 
+fn trim_example() {
+    let s = "    apples \n \r\r   for    nanny";
+    let trimnd_s: Vec<&str> = s.lines()
+	.map(str::trim)
+	.filter(|&x| !x.starts_with("for"))
+	.collect();
+
+    Iterator::for_each(trimnd_s.iter(), |x| println!("{x}"));
+}
+
 fn path_ter() {
     let path = Path::new("C:/Users/JimBo/Downloads/Fedora.iso");
     let mut iterator = path.iter();
@@ -150,5 +182,8 @@ fn main() {
     let elapsed = escape_time(c, 100).expect("Actually velue");
     println!("Elapsed complex value: {:?} is: {elapsed}", c);
     successors_example();
+    fibonacci_test();
+    drain_example();
+    trim_example();
 }
 
