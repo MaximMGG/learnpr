@@ -1,9 +1,64 @@
 use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fmt::Debug;
 use rand::random;
 use std::iter::from_fn;
 use num::Complex;
 use std::iter::successors;
+use std::str::FromStr;
+
+
+fn filtered_map_example() {
+    let text = "fiejf\n\r2 93 \n3.8 ijid .1";
+
+    for number in text
+        .split_whitespace()
+        .filter_map(|w| f64::from_str(w).ok()) {
+	    println!("{number}");
+	}
+
+    for number in text
+        .split_whitespace()
+        .map(|n| f64::from_str(n))
+        .filter(|n| n.is_ok())
+        .map(|n| n.unwrap()) {
+	    println!("{number}");
+	}
+}
+
+fn flat_map_example() {
+    let mut map = HashMap::new();
+    map.insert("John", vec![2, 2, 2]);
+    map.insert("Bill", vec![1, 1, 1]);
+    map.insert("Bolyna", vec![3, 3, 3]);
+    map.insert("Shon", vec![9, 9, 9]);
+
+    let names = ["Bill", "Shon"];
+
+    for &numbers in names.iter().flat_map(|name| &map[name]) {
+	println!("{}", numbers);
+    }
+}
+
+fn flatten_example() {
+    let mut map = BTreeMap::new();
+    map.insert("John", vec![2, 2, 2]);
+    map.insert("Bill", vec![1, 1, 1]);
+    map.insert("Bolyna", vec![3, 3, 3]);
+    map.insert("Shon", vec![9, 9, 9]);
+
+    let all_numbers: Vec<_> = map.values().flatten().cloned().collect();
+
+    println!("{:?}", all_numbers);
+    assert_eq!(all_numbers, vec![ 1, 1, 1, 3, 3, 3, 2, 2, 2, 9, 9, 9]);
+
+    let s = ["Hello", " ", "my friend!", " ", "I am here!!"];
+    let s2 = "Hello my friend! I am here!!";
+
+    let c: String = s.iter().map(|w| w.chars()).flatten().collect();
+    let c2: String = s2.split_whitespace().map(|w| w.chars()).flatten().collect();
+    println!("{c}\nand\n{c2}");
+}
 
 
 fn drain_example() {
@@ -185,5 +240,8 @@ fn main() {
     fibonacci_test();
     drain_example();
     trim_example();
+    filtered_map_example();
+    flat_map_example();
+    flatten_example();
 }
 
