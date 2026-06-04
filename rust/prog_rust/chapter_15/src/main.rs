@@ -1,12 +1,75 @@
 use std::collections::HashMap;
 use std::collections::BTreeMap;
-use std::fmt::Debug;
 use rand::random;
 use std::iter::from_fn;
 use num::Complex;
 use std::iter::successors;
 use std::str::FromStr;
 use std::iter::Peekable;
+
+fn inspect_example() {
+	let upper_case: String = "grobe".chars()
+		.inspect(|c| println!("Before: {:?}", c))
+		.flat_map(|c| c.to_uppercase())
+		.inspect(|c| println!("After: {:?}", c))
+		.collect();
+
+	assert_eq!(upper_case, "GROBE");
+}
+use std::fmt::Debug;
+
+fn rev_iter_example() {
+	let meals = ["breakfast", "lunch", "dinner"];
+
+	let mut iter = meals.iter().rev();
+
+	assert_eq!(iter.next(), Some(&"dinner"));
+	assert_eq!(iter.next(), Some(&"lunch"));
+	assert_eq!(iter.next(), Some(&"breakfast"));
+	assert_eq!(iter.next(), None);
+}
+
+
+fn next_back_example() {
+	let bee_parts = ["head", "thorax", "abdomen"];
+
+	let mut iter = bee_parts.iter();
+	assert_eq!(iter.next(), Some(&"head"));
+	assert_eq!(iter.next_back(), Some(&"abdomen"));
+	assert_eq!(iter.next(), Some(&"thorax"));
+
+	assert_eq!(iter.next_back(), None);
+	assert_eq!(iter.next(), None);
+}
+
+
+struct Flaky(bool);
+
+impl Iterator for Flaky {
+	type Item = &'static str;
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.0 {
+			self.0 = false;
+			Some("totally the last item")
+		} else {
+			self.0 = true;
+			None
+		}
+	}
+}
+
+fn fuse_example() {
+	let mut flaky = Flaky(true);
+	assert_eq!(flaky.next(), Some("totally the last item"));
+	assert_eq!(flaky.next(), None);
+	assert_eq!(flaky.next(), Some("totally the last item"));
+
+	let mut not_flaky = Flaky(true).fuse();
+	assert_eq!(not_flaky.next(), Some("totally the last item"));
+	assert_eq!(not_flaky.next(), None);
+	assert_eq!(not_flaky.next(), None);
+}
+
 
 fn parse_number<I>(tokens: &mut Peekable<I>) -> u32
 where I: Iterator<Item=char> {
@@ -24,8 +87,15 @@ where I: Iterator<Item=char> {
 
 
 fn peekapble_example() {
-    let text = "This is test text message".to_string();
-    let num = parse_number(text.i;
+    let mut text = "This is text for 9381845 peekable example!!!".chars().peekable();
+	let n = parse_number(&mut text);
+	println!("{n}");
+
+	while let Some(n) = text.next() {
+		println!("{n}");
+		println!("{}", parse_number(&mut text));
+	}
+	
 }
 
 fn take_while_example() {
@@ -277,5 +347,10 @@ fn main() {
     flat_map_example();
     flatten_example();
     take_while_example();
+	peekapble_example();
+	fuse_example();
+	next_back_example();
+	rev_iter_example();
+	inspect_example();
 }
 
