@@ -25,7 +25,7 @@ where I: Iterator<Item=char> {
 
 fn peekapble_example() {
     let text = "This is test text message".to_string();
-    let num = parse_number(text.i;
+    let num = parse_number(text.into_;
 }
 
 fn take_while_example() {
