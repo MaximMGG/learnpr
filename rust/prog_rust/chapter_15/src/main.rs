@@ -6,6 +6,64 @@ use num::Complex;
 use std::iter::successors;
 use std::str::FromStr;
 use std::iter::Peekable;
+use std::iter::{repeat, once};
+
+
+fn cycle_example() {
+
+    let fizzes = repeat("").take(2).chain(once("Fizz")).cycle();
+    let buzzes = repeat("").take(4).chain(once("Buzz")).cycle();
+    let fizzes_buzzes = fizzes.zip(buzzes);
+
+    let fizz_buzz = (1..100).zip(fizzes_buzzes)
+        .map(|tuple| {
+	    match tuple {
+		(i, ("", "")) => i.to_string(),
+		(_, (f, b)) => format!("{}{}", f, b)
+	    }
+	});
+
+    for line in fizz_buzz {
+	println!("{line}");
+    }
+    
+}
+
+
+fn by_ref_example() {
+    let lines = "To: jim\r\nFrom: Misha\r\n\r\nOOOOOH!! Donats!!!\r\n";
+    let mut lines = lines.lines();
+
+    
+    println!("Headers");
+    for header in lines.by_ref().take_while(|l| !l.is_empty()) {
+
+	
+	println!("{header}");
+    }
+    println!("Body");
+    for body in lines {
+	println!("{body}");
+    }
+}
+
+
+fn zip_example() {
+    let numbers = vec![1, 2, 3, 4];
+    let sum: Vec<_> = numbers.iter().zip("ABCD".chars()).collect();
+    println!("{} - {}", sum[0].0, sum[0].1);
+    println!("{} - {}", sum[1].0, sum[1].1);
+    println!("{} - {}", sum[2].0, sum[2].1);
+    println!("{} - {}", sum[3].0, sum[3].1);
+}
+
+fn enumerate_example() {
+    let names = vec!["Jesika", "Bill", "Valian", "Kate"];
+
+    for (i, name) in names.iter().enumerate() {
+	println!("{i} - {name}");
+    }
+}
 
 fn inspect_example() {
 	let upper_case: String = "grobe".chars()
@@ -347,10 +405,14 @@ fn main() {
     flat_map_example();
     flatten_example();
     take_while_example();
-	peekapble_example();
-	fuse_example();
-	next_back_example();
-	rev_iter_example();
-	inspect_example();
+    peekapble_example();
+    fuse_example();
+    next_back_example();
+    rev_iter_example();
+    inspect_example();
+    enumerate_example();
+    zip_example();
+    by_ref_example();
+    cycle_example();
 }
 
