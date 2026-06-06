@@ -89,6 +89,16 @@ main :: proc() {
 	fmt.println(v)
     }
     one()
+
+
+    q := foo(int, 10)
+
+    switch v in q {
+    case None:
+    case Data([10]int):
+    }
+
+
 }
 
 Test :: union {
@@ -97,10 +107,30 @@ Test :: union {
     f64,
 }
 
-
 find_random_thing_in_special_array :: proc(arr: Special_Array($T, $N)) -> T {
     return arr.items[rand.int_max(arr.num_items_used)]
 }
+
+
+
+None :: enum {
+    
+}
+
+Data :: union($T: typeid) {
+    T
+}
+
+Option :: union($T: typeid) {
+    Data(T),
+    None
+}
+
+foo :: proc($T: typeid, $N: int) -> Option([N]T) {
+    o: Option([N]T)
+    return o
+}
+
 
 
 Special_Array :: struct($T: typeid, $N: int) {

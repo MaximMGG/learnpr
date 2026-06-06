@@ -1,7 +1,5 @@
 package ncurc
 
-import "core:fmt"
-import "vendor:sdl2"
 import "core:c"
 
 foreign import lib {

@@ -29,7 +29,7 @@ main :: proc() {
     //do_work()
     //two()
     //three()
-    //four()
+    four()
     //five()
     six()
 }
@@ -65,35 +65,21 @@ some_end_work :: proc() {
 }
 
 
+
 four :: proc() {
-    mode: int = 0
+    logh, logh_err := os.open("log.txt", {.Read, .Trunc, .Create, .Write})
 
-    when ODIN_OS == .Linux || ODIN_OS == .Darwin {
-	mode = os.S_IRUSR | os.S_IWUSR | os.S_IRGRP | os.S_IROTH
-    }
-
-    logh, logh_err := os.open("log.txt", (os.O_CREATE | os.O_TRUNC | os.O_RDWR), mode)
     if logh_err == os.ERROR_NONE {
-	os.stdout = logh
-	os.stderr = logh
+        os.stdout = logh
+        os.stderr = logh
     }
 
     logger := logh_err == os.ERROR_NONE ? log.create_file_logger(logh) :
-	log.create_console_logger()
+    log.create_console_logger()
     context.logger = logger
 
-    some_work()
-    some_end_work()
-
-    if logh_err == os.ERROR_NONE {
-	log.destroy_file_logger(logger)
-    } else {
-	log.destroy_console_logger(logger)
-    }
+    log.info("Logger was created")
 }
-
-
-
 
 
 five :: proc() {
