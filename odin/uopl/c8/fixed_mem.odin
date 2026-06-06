@@ -2,7 +2,6 @@ package fixedmem
 
 import "core:fmt"
 
-
 main :: proc() {
     arr := [5]int {4234, 151, 23423, 343, 1919}
 
@@ -49,5 +48,11 @@ main :: proc() {
 	fmt.println(i)
     }
 
-    
+    arrd: [dynamic]int
+    defer delete(arrd)
+    append(&arrd, 5)
+    fmt.printfln("Len: %v", len(arrd))
+    fmt.printfln("Cap: %v", cap(arrd))
+
+
 }

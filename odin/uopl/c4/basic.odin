@@ -53,6 +53,7 @@ main :: proc() {
 	fmt.println(i)
     }
     test_proc()
+    revies()
 }
 
 test_proc :: proc() {
@@ -64,6 +65,25 @@ test_proc :: proc() {
 
     for n in numbers {
 	if is_bigger_then(n, cmp) {
+	    fmt.printfln("%v is bigger than %v", n, cmp)
+	}
+    }
+}
+
+
+is_bigger_then_2 :: proc(n, c: int) -> bool {
+    return n > c
+}
+
+revies :: proc() {
+    numbers := [10]int {
+	4, 8, 1, -1, 8 ,3, 3, 9, 1, 8
+    }
+
+    cmp := 6
+
+    for n in numbers {
+	if is_bigger_then_2(n, cmp) {
 	    fmt.printfln("%v is bigger than %v", n, cmp)
 	}
     }

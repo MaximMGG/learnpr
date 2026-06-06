@@ -67,6 +67,8 @@ two :: proc() {
     name := "Pontus"
     age := 7
     str := fmt.tprint(name, "is", age)
+    str2 := fmt.aprint(name, "isisis", age)
+    defer delete(str2)
     delete(str, allocator = context.temp_allocator)
     fmt.println(str)
 

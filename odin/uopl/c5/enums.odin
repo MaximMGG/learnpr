@@ -1,6 +1,5 @@
 package enums
 
-
 import "core:fmt"
 
 

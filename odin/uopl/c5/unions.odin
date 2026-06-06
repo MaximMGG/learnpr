@@ -77,6 +77,7 @@ main :: proc() {
 	texture = player_graphics,
     }
     fmt.println(player_entity)
+
 }
 
 Entity :: struct {
@@ -115,6 +116,10 @@ My_Struct :: struct {
 Maybe :: union($T: typeid) {
     T,
 }
+
+foo :: proc($t: typeid) -> Maybe(t) {
+    return Maybe{t}
+} 
 
 Shape :: union #no_nil {
     Shape_Circle,
