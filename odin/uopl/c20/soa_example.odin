@@ -74,6 +74,8 @@ soa_bench :: proc($N: int) {
     fmt.printfln("For %v bytes of extra data in each array element:", N)
     time_aos := benchmark_aos_array(N)
     time_soa := benchmark_soa_array(N)
+    fmt.printfln("Soa time is -> %f", time_soa)
+    fmt.printfln("Aos time is -> %f", time_aos)
     fmt.printfln("SoA is %.2f times faster than AoS", time_aos/time_soa)
     fmt.println()
 }

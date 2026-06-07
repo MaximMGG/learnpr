@@ -5,7 +5,7 @@ import "core:c"
 
 when ODIN_OS == .Linux {
     foreign import my_lib {
-	"my_lib.a",
+        "my_lib.a",
     }
 } else {}
 
