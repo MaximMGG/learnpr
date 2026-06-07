@@ -21,9 +21,7 @@ basic_foo :: proc(n: int = 1, c: int = 8) -> bool {
 }
 
 main :: proc() {
-
     o := Basic_String{name = "Hello", a = 3, b = 1, c = 8}
-    
     fmt.println("Hellope")
     b := i32(2)
     c: u32 = cast(u32)b
