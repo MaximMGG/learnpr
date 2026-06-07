@@ -5,6 +5,8 @@ import "core:io"
 import "core:fmt"
 import "core:strconv"
 import "core:slice"
+import "core:strings"
+import "core:mem"
 
 
 Calc_Error :: enum {
@@ -15,7 +17,7 @@ Calc_Error :: enum {
 
 
 Token_Type :: enum {
-    MUL, ADD, SUB, DIV, O_BRACKET, C_BRACKET, SQUARE, NUM
+    MUL, ADD, SUB, DIV, O_BRACKET, C_BRACKET, SQUARE, NUM, NONE
 }
 
 Calc_Token :: struct {
@@ -40,6 +42,7 @@ tokenizer_validate_check_next :: #force_inline proc(cur: Token_Type, next: Token
         case .NUM:
             return "", .None
         case .SQUARE:
+        case .NONE:
         }
     case .O_BRACKET: {
         switch next {
@@ -48,6 +51,7 @@ tokenizer_validate_check_next :: #force_inline proc(cur: Token_Type, next: Token
         case .C_BRACKET:
         case .NUM:
         case .SQUARE:
+        case .NONE:
         }
     }
     case .C_BRACKET: {
@@ -57,6 +61,7 @@ tokenizer_validate_check_next :: #force_inline proc(cur: Token_Type, next: Token
         case .C_BRACKET:
         case .NUM:
         case .SQUARE:
+        case .NONE:
         }
     }
     case .NUM: {
@@ -66,9 +71,11 @@ tokenizer_validate_check_next :: #force_inline proc(cur: Token_Type, next: Token
         case .C_BRACKET:
         case .NUM:
         case .SQUARE:
+        case .NONE:
         }
     }
     case .SQUARE:
+    case .NONE:
     }
     return "", .None
 }
@@ -89,90 +96,123 @@ tokenzer_validate :: proc(tokens: [dynamic]Calc_Token) -> bool {
     return true
 }
 
+check_negative_value :: proc(c: u8) -> bool {
+
+    return false
+}
+
 tokenize :: proc(user_input: []u8) -> ([dynamic]Calc_Token, Calc_Error) {
     tokens: [dynamic]Calc_Token
+    user_input_prep := strings.trim(transmute(string)user_input, " \r\n")
 
     number_buf: [64]u8
     number_buf_i: int
     find_number: bool
-    maybe_negatime: bool
+    maybe_negative: bool
 
-    for v in user_input {
+    brecket: int
 
-        if (v >= '0') && (v <= '9') {
-            if find_number {
-                number_buf[number_buf_i] = v
-                number_buf_i += 1
-            } else {
-                find_number = true
-                if maybe_negatime {
-                    maybe_negatime = false
-                    number_buf[number_buf_i] = '-'
+    next: Calc_Token
+    cur: Calc_Token
+    i: int
+
+    for i < len(user_input) {
+        if (user_input[i] >= '0' && user_input[i] <= '9') || user_input[i] == '.' {
+            if user_input[i] == '.' {
+                if number_buf_i >= 1 && number_buf[0] != '-' {
+                    number_buf[number_buf_i] = '.'
                     number_buf_i += 1
+                    i += 1
+                    continue
+                } else {
+                    fmt.eprintln("Wrong . use, can't parse number")
+                    delete(tokens)
+                    return {}, .Tokenize_Error
                 }
-                number_buf[number_buf_i] = v
-                number_buf_i += 1
-            }
-            continue
-        }
-
-        if v == '.' {
-            if find_number {
-                number_buf[number_buf_i] = v
-                number_buf_i += 1
             } else {
-                find_number = true
-                if maybe_negatime {
-                    maybe_negatime = false
-                    number_buf[number_buf_i] = '-'
+                if !find_number {
+                    find_number = true
+                    number_buf[number_buf_i] = user_input[i]
                     number_buf_i += 1
+                    i += 1
+                    continue
+                } else {
+                    number_buf[number_buf_i] = user_input[i]
+                    number_buf_i += 1
+                    i += 1
+                    continue
                 }
-                number_buf[number_buf_i] = '0'
-                number_buf[number_buf_i + 1] = '.'
-                number_buf_i += 2
             }
-            continue
-        }
-
-        if find_number {
-            find_number = false
-            val, val_ok := strconv.parse_f64(transmute(string)number_buf[:number_buf_i])
-            if val_ok {
-                append(&tokens, Calc_Token{type = .NUM, val = val})
-                slice.zero(number_buf[:])
-                number_buf_i = 0
-            } else {
-                delete(tokens)
-                return {}, .Tokenize_Error
+        } else {
+            if find_number == true {
+                val, val_ok := strconv.parse_f64(transmute(string)number_buf[:number_buf_i])
+                if val_ok {
+                    append(&tokens, Calc_Token{type = .NUM, val = val})
+                    slice.zero(number_buf[:])
+                    number_buf_i = 0
+                    find_number = false
+                } else {
+                    fmt.eprintfln("%s can't parse that number", transmute(string)number_buf[:number_buf_i])
+                    delete(tokens)
+                    return {}, .Tokenize_Error
+                }
             }
         }
 
-        switch v {
+        switch user_input[i] {
         case '+':
             append(&tokens, Calc_Token{type = .ADD})
         case '-':
-            maybe_negatime = true
-        case '/':
-            append(&tokens, Calc_Token{type = .DIV})
+            if i + 1 < len(user_input) {
+                if ((user_input[i + 1] >= '0') && (user_input[i + 1] <= '9')) || user_input[i + 1] == '.' {
+                    find_number = true
+                    number_buf[0] = '-'
+                    number_buf_i += 1
+                } else if user_input[i + 1] == ' ' {
+                    append(&tokens, Calc_Token{type = .SUB})
+                }
+            } else {
+                fmt.eprintfln("%s\nWrong expression in %d postion", user_input, i)
+                delete(tokens)
+                return {}, .Tokenize_Error
+            }
         case '*':
             append(&tokens, Calc_Token{type = .MUL})
+        case '/':
+            append(&tokens, Calc_Token{type = .DIV})
         case '(':
             append(&tokens, Calc_Token{type = .O_BRACKET})
+            brecket += 1
         case ')':
-            append(&tokens, Calc_Token{type = .C_BRACKET})
-        case ' ':
-            if maybe_negatime {
-                maybe_negatime = false
-                append(&tokens, Calc_Token{type = .SUB})
+            if brecket >= 1 {
+                brecket -= 1
+            } else {
+                fmt.eprintln("Brocket breckets pattern, closed breckets more than opened")
+                delete(tokens)
+                return {}, .Tokenize_Error
             }
-
+            append(&tokens, Calc_Token{type = .C_BRACKET})
+        }
+        i += 1
+    }
+    if brecket != 0 {
+        fmt.eprintln("Brocket breckets pattern, opened breckets more than closed")
+        delete(tokens)
+        return {}, .Tokenize_Error
+    }
+    if find_number {
+        val, val_ok := strconv.parse_f64(transmute(string)number_buf[:number_buf_i])
+        if val_ok {
+            append(&tokens, Calc_Token{type = .NUM, val = val})
+        } else {
+            fmt.eprintfln("%s can't parse that number", transmute(string)number_buf[:number_buf_i])
+            delete(tokens)
+            return {}, .Tokenize_Error
         }
     }
 
     return tokens, .None
 }
-
-
 
 calc_runtime :: proc() {
     reader := os.to_reader(os.stdin)
@@ -196,9 +236,26 @@ calc_runtime :: proc() {
 
 main :: proc() {
 
+    when ODIN_DEBUG {
+        tracking: mem.Tracking_Allocator
+        defer mem.tracking_allocator_destroy(&tracking)
+        mem.tracking_allocator_init(&tracking, context.allocator)
+        tr_allocator := mem.tracking_allocator(&tracking)
+        context.allocator = tr_allocator
+
+        defer {
+            for _, v in tracking.allocation_map {
+                fmt.printfln("Leakd %d bytes, from: %s", v.size, v.location)
+            }
+        }
+    }
+
+
+    input := "(3 + 4) * 1 - -8"
+    tokens, ok := tokenize(transmute([]u8)input)
+    defer delete(tokens)
+    fmt.println(tokens)
+
     fmt.print("=> ")
-
-
-
 
 }
