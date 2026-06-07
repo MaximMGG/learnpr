@@ -11,8 +11,11 @@ import "core:mem"
 
 Calc_Error :: enum {
     None,
+    No_Calc,
     Tokenize_Error,
-    Tokenize_Validator_Error
+    Calc_Expression_In_Range_Error,
+    Calc_Expression_Error,
+    Calc_Prcessing_Error,
 }
 
 
@@ -25,81 +28,106 @@ Calc_Token :: struct {
     val: f64
 }
 
-tokenizer_validate_check_next :: #force_inline proc(cur: Token_Type, next: Token_Type, o_brecket: ^int, c_brecket: ^int) -> (string, Calc_Error){
-    switch cur {
-    case .MUL, .SUB, .DIV, .ADD:
-        switch next {
-        case .MUL, .SUB, .DIV, .ADD:
-            return "MUL, SUB, DIV, ADD can't be upplyed to each other!", .Tokenize_Validator_Error
-        case .O_BRACKET:
-            o_brecket^ += 1
-            return "", .None
-        case .C_BRACKET:
-            c_brecket^ += 1
-            if c_brecket^ > o_brecket^ {
-                return "Closed breckets more then open!", .Tokenize_Validator_Error
+
+calc_expression :: proc(tokens: ^[dynamic]Calc_Token, pos: int) -> Calc_Error {
+    first := &tokens[pos - 1]
+    second := &tokens[pos + 1]
+
+    #partial switch tokens[pos].type {
+    case .MUL:
+        first.val *= second.val
+    case .SUB:
+        first.val -= second.val
+    case .ADD:
+        first.val += second.val
+    case .DIV:
+        first.val /= second.val
+    }
+
+    ordered_remove(tokens, pos + 1)
+    ordered_remove(tokens, pos)
+
+    return .None
+}
+
+
+calc_expression_in_range :: proc(tokens: ^[dynamic]Calc_Token, from: int, to: int) -> Calc_Error {
+    if to - from <= 1 {
+        return .No_Calc
+    }
+
+    to := to
+    i: int = from
+
+    for  i < to {
+        if tokens[i].type == .MUL || tokens[i].type == .DIV {
+            calc_expression(tokens, i)
+            to -= 2
+            i = from
+            continue
+        }
+        i += 1
+    }
+
+    i = from
+    for i < to {
+        if tokens[i].type == .ADD || tokens[i].type == .SUB {
+            calc_expression(tokens, i)
+            to -= 2
+            i = from
+            continue
+        }
+        i += 1
+    }
+
+    return .None
+}
+//(2 + 3 - (4 * 1 + (1 + 1)))
+
+//(3 + 3) + (1 + 8 - (3 + 3))
+check_breckets :: proc(tokens: ^[dynamic]Calc_Token) -> (bool, Calc_Error) {
+    open_i: int
+    close_i: int
+
+    for i in 0..<len(tokens) {
+        if tokens[i].type == .O_BRACKET {
+            open_i = i
+        }
+        if tokens[i].type == .C_BRACKET {
+            close_i = i
+            status := calc_expression_in_range(tokens, open_i + 1, close_i - 1)
+            if status == .None {
+                ordered_remove(tokens, open_i + 2)
+                ordered_remove(tokens, open_i)
             }
-        case .NUM:
-            return "", .None
-        case .SQUARE:
-        case .NONE:
-        }
-    case .O_BRACKET: {
-        switch next {
-        case .MUL, .SUB, .DIV, .ADD:
-        case .O_BRACKET:
-        case .C_BRACKET:
-        case .NUM:
-        case .SQUARE:
-        case .NONE:
+            return true, .None
         }
     }
-    case .C_BRACKET: {
-        switch next {
-        case .MUL, .SUB, .DIV, .ADD:
-        case .O_BRACKET:
-        case .C_BRACKET:
-        case .NUM:
-        case .SQUARE:
-        case .NONE:
-        }
-    }
-    case .NUM: {
-        switch next {
-        case .MUL, .SUB, .DIV, .ADD:
-        case .O_BRACKET:
-        case .C_BRACKET:
-        case .NUM:
-        case .SQUARE:
-        case .NONE:
-        }
-    }
-    case .SQUARE:
-    case .NONE:
-    }
-    return "", .None
+
+    return false, .None
 }
 
-tokenzer_validate :: proc(tokens: [dynamic]Calc_Token) -> bool {
-    open_bracket: int
-    close_bracket: int
 
-    cur: int
-    prev: int
-    next: int = 1
+process_calculation :: proc(tokens: ^[dynamic]Calc_Token) -> (f64, Calc_Error) {
 
-    for next < len(tokens) {
-
+    for {
+        if ok, err := check_breckets(tokens); ok {
+            continue
+        } else {
+            break
+        }
     }
 
+    calc_expression_in_range(tokens, 0, len(tokens))
+    if len(tokens) != 1 {
+        return f64(0), .Calc_Prcessing_Error
+    }
 
-    return true
-}
+    return tokens[0].val, .None
 
-check_negative_value :: proc(c: u8) -> bool {
+} 
 
-    return false
-}
+
 
 tokenize :: proc(user_input: []u8) -> ([dynamic]Calc_Token, Calc_Error) {
     tokens: [dynamic]Calc_Token
@@ -217,12 +245,16 @@ tokenize :: proc(user_input: []u8) -> ([dynamic]Calc_Token, Calc_Error) {
 calc_runtime :: proc() {
     reader := os.to_reader(os.stdin)
     for {
-        fmt.println("Enter expression down bellow.")
+        fmt.print("Enter expression down bellow.\n=>")
         buf: [256]u8
         read_bytes, read_err := io.read(reader, buf[:])
         if read_err != .None {
             fmt.eprintln("Read error, something got complitely wrong...")
             os.exit(1)
+        }
+        if transmute(string)buf[:read_bytes] == "exit\n" {
+            fmt.println("Goodby")
+            break
         }
         user_input := buf[:read_bytes]
         tokens, tokenize_err := tokenize(user_input)
@@ -230,9 +262,16 @@ calc_runtime :: proc() {
             fmt.eprintln("Error while tokenize user input...")
             os.exit(1)
         }
+        val, val_ok := process_calculation(&tokens)
+        if val_ok != .None {
+            fmt.eprintln("Error while processing calculation...")
+            delete(tokens)
+            os.exit(1)
+        } 
+        fmt.printfln("Anwer is: %.2f", val)
+        delete(tokens)
     }
 }
-
 
 main :: proc() {
 
@@ -250,12 +289,5 @@ main :: proc() {
         }
     }
 
-
-    input := "(3 + 4) * 1 - -8"
-    tokens, ok := tokenize(transmute([]u8)input)
-    defer delete(tokens)
-    fmt.println(tokens)
-
-    fmt.print("=> ")
-
+    calc_runtime()
 }
