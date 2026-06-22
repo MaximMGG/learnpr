@@ -12,7 +12,7 @@ const str extensions[] = {"sh"};
 const i32 files_size = 1;
 const str files[] = {"remexe"};
 
-writer *wr;
+Writer *wr;
 
 bool check_exception(str file_name) {
   str dot = strstr(file_name, ".");
@@ -20,7 +20,7 @@ bool check_exception(str file_name) {
     dot++;
     for(i32 i = 0; i < extensions_size; i++) {
       if (strcmp(dot, extensions[i]) == 0) {
-	return false;
+        return false;
       }
     }
   }
@@ -30,14 +30,14 @@ bool check_exception(str file_name) {
       return false;
     }
   }
-  
+
   return true;
 }
 
 
 void print_level(i32 level) {
   for(i32 i = 0; i < level; i++) {
-    writer_write(wr, " ");
+    writerWrite(wr, " ");
     //printf("  ");
   }
 }
@@ -50,29 +50,29 @@ void check_dir(str dir_name, i32 level) {
   }
   print_level(level);
   //printf("Check dir %s...\n", dir_name);
-  writer_print(wr, "Check dir %s...\n", dir_name);
+  writerPrint(wr, "Check dir %s...\n", dir_name);
   struct dirent *d;
   struct stat st;
-  
+
   while((d = readdir(dir)) != null) {
     if (d->d_type == DT_DIR) {
       if (d->d_name[0] == '.') continue;
       str new_name = strCreateFmt("%s/%s", dir_name, d->d_name);
       check_dir(new_name, level + 1);
-      dealloc(new_name);
+      DEALLOC(new_name);
       continue;
     } else if (d->d_type == DT_REG) {
       str file_name = strCreateFmt("%s/%s", dir_name, d->d_name);
       stat(file_name, &st);
       if ((st.st_mode & S_IXUSR) > 0) {
-	if (check_exception(d->d_name)) {
-	  print_level(level);
-	  //printf("Removing file %s\n", file_name);
-	  writer_print(wr, "Removing file %s\n", file_name);
-	  remove(file_name);
-	}
+        if (check_exception(d->d_name)) {
+          print_level(level);
+          //printf("Removing file %s\n", file_name);
+          writerPrint(wr, "Removing file %s\n", file_name);
+          remove(file_name);
+        }
       }
-      dealloc(file_name);
+      DEALLOC(file_name);
     }
   }
   closedir(dir);
@@ -81,9 +81,9 @@ void check_dir(str dir_name, i32 level) {
 
 int main() {
   //byte buf[4096] = {0};
-  wr = writer_create(STDOUT_FILENO, null, 4096);
+  wr = writerCreate(STDOUT_FILENO, null, 4096);
   check_dir(".", 0);
-  writer_flush(wr);
-  writer_destroy(wr);
+  writerFlush(wr);
+  writerDestroy(wr);
   return 0;
 }
