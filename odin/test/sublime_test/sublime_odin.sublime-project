@@ -1,0 +1,15 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"build_systems": 
+	[
+		{
+			"name": "sublime_odin_template",
+			"cmd": "odin run ."
+		}
+	]
+}
