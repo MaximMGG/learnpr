@@ -11,12 +11,18 @@ str menu[] = {
 #define MENU_LEN 5
 
 
+#define CTRL(n) (n & 0x1f)
+
+#define CTRL_Q CTRL('q')
+
 
 
 void draw_option_menu(str menu_name, u32 option_count) {
   clear();
   i32 x = 1;
-  mvprintw(0, 1, "%s", menu_name);
+  attron(COLOR_PAIR(3));
+  mvprintw(0, 1, "%-*s", COLS - 1, menu_name);
+  attroff(COLOR_PAIR(3));
 
   i32 ch = 0;
   while(true) {
@@ -60,6 +66,7 @@ void run_menu() {
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   init_pair(2, COLOR_WHITE, COLOR_BLACK);
+  init_pair(3, COLOR_WHITE, COLOR_BLUE);
   while(true) {
     for(i32 i = 1; i <= MENU_LEN; i++) {
       if (i == x) {
@@ -100,7 +107,7 @@ void run_menu() {
         }
         continue;
       } 
-      case 'q': {
+      case CTRL_Q: {
                   return;
                 } break;
       case 'j': {
