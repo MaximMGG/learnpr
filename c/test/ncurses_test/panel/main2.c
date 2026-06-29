@@ -2,12 +2,14 @@
 #include <panel.h>
 #include <cstdext/core.h>
 #include <string.h>
+#include <cstdext/io/logger.h>
 
 typedef struct _PANEL_DATA {
   i32 x, y, w, h;
   i8 *label;
   i32 label_color;
   PANEL *next;
+  bool hiden;
 } PANEL_DATA;
 
 
@@ -23,7 +25,9 @@ void set_user_ptrs(ST_ARR(PANEL *) panels);
 int main() {
   WINDOW **my_wins   = makeArr(WINDOW *, 3);
   PANEL **my_panels = makeArr(PANEL *, 3);
+  log(INFO, "Create arrs for window and panels");
   PANEL_DATA *top;
+  PANEL_DATA *temp;
   PANEL *stack_top;
   WINDOW *temp_win, *old_win;
   i32 ch;
@@ -70,6 +74,36 @@ int main() {
   newh = top->h;
   while((ch = getch()) != KEY_F(1)) {
     switch(ch) {
+    case '1':
+      temp = cast(PANEL_DATA *, panel_userptr(my_panels[0]));
+      if (temp->hiden) {
+	temp->hiden = false;
+	show_panel(my_panels[0]);
+      } else {
+	temp->hiden = true;
+	hide_panel(my_panels[0]);
+      }
+      break;
+    case '2':
+      temp = cast(PANEL_DATA *, panel_userptr(my_panels[1]));
+      if (temp->hiden) {
+	temp->hiden = false;
+	show_panel(my_panels[1]);
+      } else {
+	temp->hiden = true;
+	hide_panel(my_panels[1]);
+      }
+      break;
+    case '3':
+      temp = cast(PANEL_DATA *, panel_userptr(my_panels[2]));
+      if (temp->hiden) {
+	temp->hiden = false;
+	show_panel(my_panels[2]);
+      } else {
+	temp->hiden = true;
+	hide_panel(my_panels[2]);
+      }
+      break;
     case 9:  // tab
       top = cast(PANEL_DATA *, panel_userptr(stack_top)); // maybe this is doesn' t need, check later
       top_panel(top->next);
@@ -168,7 +202,7 @@ int main() {
     update_panels();
     doupdate();
   }
-  
+  //getch();
 
   endwin();
 
@@ -176,10 +210,11 @@ int main() {
     PANEL_DATA *d = cast(PANEL_DATA *, panel_userptr(my_panels[i]));
     DEALLOC(d->label);
   }
-
-  DEALLOC(my_wins);
-  DEALLOC(my_panels);
   
+  printf("Before arrDestroy\n");
+  arrDestroy(my_wins);
+  arrDestroy(my_panels);
+
   return 0;
 }
 
