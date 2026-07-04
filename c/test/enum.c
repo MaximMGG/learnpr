@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-
 typedef enum {
     INFO, WARN, ERROR, DEBUG, FATAL
 } Level;
@@ -10,12 +9,15 @@ typedef enum {
 void INFO_call(Level level) {
     printf("INFO %d\n", level);
 }
+
 void WARN_call(Level level) {
     printf("WARN %d\n", level);
 }
+
 void ERROR_call(Level level) {
     printf("ERROR %d\n", level);
 }
+
 void DEBUG_call(Level level) {
     printf("DEBUG %d\n", level);
 }

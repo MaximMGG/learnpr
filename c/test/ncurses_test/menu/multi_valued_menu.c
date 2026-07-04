@@ -62,10 +62,10 @@ i32 main() {
       tmp_items = menu_items(menu);
       temp[0] = '\0';
       for(i32 i = 0; i < item_count(menu); i++) {
-	if (item_value(tmp_items[i]) == true) {
-	  strcat(temp, item_name(tmp_items[i]));
-	  strcat(temp, " ");
-	}
+        if (item_value(tmp_items[i]) == true) {
+          strcat(temp, item_name(tmp_items[i]));
+          strcat(temp, " ");
+        }
       }
       
       move(20, 0);
