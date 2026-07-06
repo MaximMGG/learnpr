@@ -4,7 +4,7 @@ PROG = term
 
 
 SRC = $(wildcard *.c)
-OBJ = $(SRC:*.c=*.o)
+OBJ = $(SRC:%.c=%.o)
 
 
 .PHONY: default build run clear
