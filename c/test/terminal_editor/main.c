@@ -70,6 +70,7 @@ i32 main() {
   while(true) {
     i8 c = '\0';
     if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
+    if (c == 0) continue;
     if (iscntrl(c)) { // iscntrl tests whether a char is control character.
                       // contral characters are nonprintable chars that we don't want to print to the screen. ACCII codes 0-31 and 127
                       // Ctrl-s means thet you've asked program to stop sending
@@ -84,7 +85,7 @@ i32 main() {
     if (c == 'q') break;
   }
   return 0;
-}
+} 
 
 
 

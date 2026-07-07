@@ -247,9 +247,9 @@ void editorDrawRows(struct abuf *ab) {
 		  abAppend(ab, "~", 1);		
 		}
 	  } else {
-		int len = E.row.size;
+		int len = E.row->size;
 		if (len > E.screencols) len = E.screencols;
-		abAppend(ab, E.row.chars, len);
+		abAppend(ab, E.row->chars, len);
 	  }
 
 
