@@ -4,28 +4,42 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/ioctl.h>
 #include <cstdext/core.h>
 
+#define CTRL_KEY(k) ((k) & 0x1F)
+#define REFRESH_SCREEN_CODE "\x1b[2J", 4
+#define REPOSITION_CURSORE_CODE "\x1b[H", 3
 
-struct termios orig_termios;
+
+typedef struct {
+  i32 s_rows;
+  i32 s_cols;
+  struct termios orig_termios;
+
+} EditorConfig;
+
+EditorConfig E;
 
 void die(const i8 *s) {
+  write(STDOUT_FILENO, REFRESH_SCREEN_CODE);
+  write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
   perror(s);
   exit(EXIT_FAILURE);
 }
 
 void disableRawMode() {
-  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1) {
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1) {
     die("tcsetattr");
   }
 }
 
 void enableRawMode() {
-  if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) // get attributes of STDIN_FILENO, write to struct termios
+  if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) // get attributes of STDIN_FILENO, write to struct termios
     die("tcgetattr");
   atexit(disableRawMode); //this fuction registred function the will be call on exit call
 
-  struct termios raw = orig_termios;
+  struct termios raw = E.orig_termios;
 
   raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
   //IXON disable Ctrl-s and Ctrl-q XON enable it
@@ -63,26 +77,79 @@ void enableRawMode() {
   
 }
 
+i8 editorReadKey() {
+  i32 nread;
+  i8 c;
+  while((nread = read(STDIN_FILENO, &c, 1)) != 1) {
+    if (nread == -1 && errno != EAGAIN) die("read");
+  }
+  return c;
+}
+
+i32 getWindowSize(i32 *rows, i32 *cols) {
+  struct winsize ws;
+
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+    //ioctl with this code TIOCGWINSZ, write to ws terminal window size
+    return -1;
+  } else {
+    *cols = ws.ws_col;
+    *rows = ws.ws_row;
+    return 0;
+  }
+}
+
+void editorProcessKeypress() { 
+  i8 c = editorReadKey();
+
+  switch(c) {
+    case CTRL_KEY('q'):
+      write(STDOUT_FILENO, REFRESH_SCREEN_CODE);
+      write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+      exit(0);
+      break;
+  }
+}
+
+void editorDrawRows() {
+  for(i32 i = 0; i < E.s_cols; i++) {
+    write(STDOUT_FILENO, "~\r\n", 3);
+  }
+}
+
+void editorRefreshScreen() {
+
+  write(STDOUT_FILENO, REFRESH_SCREEN_CODE); // "\x1b[2J" this is escape
+  // sequence to the terminal
+  // Here we are using 'J' comand
+  // (Erase In Display) to clear the
+  // screen
+  // arguments for escape sequences comming before command. 
+  // In this case the argument is 2, which says to clear the entire screen.
+  // <esc>[1J would clear the screen up to the end of the screen. Also 0 is the
+  // default argument for 'J', so just <esc>[J be itself would also clear the
+  // screen from the cursor to the end
+
+  write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+  //"\x1b[H" is command for cursor position, is takes 2 arguments, for example
+  //\x1b[12;33H
+
+  editorDrawRows();
+  write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+}
+
+void editorInit() {
+  if (getWindowSize(&E.s_rows, &E.s_cols) == -1) die("getWindowSize");
+}
+
 
 i32 main() {
   enableRawMode();
+  editorInit();
 
   while(true) {
-    i8 c = '\0';
-    if (read(STDIN_FILENO, &c, 1) == -1 && errno != EAGAIN) die("read");
-    if (c == 0) continue;
-    if (iscntrl(c)) { // iscntrl tests whether a char is control character.
-                      // contral characters are nonprintable chars that we don't want to print to the screen. ACCII codes 0-31 and 127
-                      // Ctrl-s means thet you've asked program to stop sending
-                      // you output
-                      // Ctrl-z tell program to suspend to the background
-                      // Ctrl-c is SIGINT for terminatin terminal application
-                      // Ctrl-q is used or software flow control
-      printf("%d\r\n", c);
-    } else {
-      printf("%d ('%c')\r\n", c, c);
-    }
-    if (c == 'q') break;
+    editorRefreshScreen();
+    editorProcessKeypress();
   }
   return 0;
 } 

@@ -2,10 +2,6 @@
 #include <unistd.h>
 
 
-enable_raw_mode :: proc() {
-
-}
-
 int main() {
   struct termios s;
 
