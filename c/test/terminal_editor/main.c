@@ -1,12 +1,14 @@
 #include <unistd.h>
 #include <termios.h> // for terminal attributes
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <cstdext/core.h>
 
+#define TEST_EDITOR_VERSION "0.0.1"
 #define CTRL_KEY(k) ((k) & 0x1F)
 #define REFRESH_SCREEN_CODE "\x1b[2J", 4
 #define REPOSITION_CURSORE_CODE "\x1b[H", 3
@@ -20,6 +22,28 @@ typedef struct {
 } EditorConfig;
 
 EditorConfig E;
+
+
+typedef struct {
+  i8 *b;
+  i32 len;
+} abuf;
+
+#define ABUF_INIT {null, 0}
+
+void abAppend(abuf *ab, const i8 *s, i32 len) {
+  i8 *new = realloc(ab->b, ab->len + len);
+
+  if (new == null) return;
+  memcpy(&new[ab->len], s, len);
+  ab->b = new;
+  ab->len += len;
+}
+
+void abFree(abuf *ab) {
+  free(ab->b);
+}
+
 
 void die(const i8 *s) {
   write(STDOUT_FILENO, REFRESH_SCREEN_CODE);
@@ -86,12 +110,31 @@ i8 editorReadKey() {
   return c;
 }
 
+i32 getCursorPosition(i32 *rows, i32 *cols) {
+  i8 buf[32];
+  u32 i = 0;
+  if (write(STDOUT_FILENO, "\x1b[6b", 4) != 4) return -1;
+
+  printf("\r\n");
+  i8 c;
+  while(i < sizeof(buf) - 1) {
+    if (read(STDIN_FILENO, &buf[i], 1) != 1) break;
+    if (buf[i] == 'R') break;
+    i++;
+  }
+  buf[i] = '\0';
+  if (buf[0] != '\x1b' || buf[1] != '[') return -1;
+  if (scanf(&buf[2], "%d;%d", rows, cols) != 2) return -1;
+  return -1;
+}
+
 i32 getWindowSize(i32 *rows, i32 *cols) {
   struct winsize ws;
 
   if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
+    if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12) return -1;
     //ioctl with this code TIOCGWINSZ, write to ws terminal window size
-    return -1;
+    return getCursorPosition(rows, cols);
   } else {
     *cols = ws.ws_col;
     *rows = ws.ws_row;
@@ -111,15 +154,38 @@ void editorProcessKeypress() {
   }
 }
 
-void editorDrawRows() {
-  for(i32 i = 0; i < E.s_cols; i++) {
-    write(STDOUT_FILENO, "~\r\n", 3);
+void editorDrawRows(abuf *ab) {
+  i32 i = 0;
+  for(i = 0; i < E.s_rows; i++) {
+    if (i == E.s_rows / 3) {
+      byte welcome[80];
+      i32 welcomelen = snprintf(welcome, sizeof(welcome), "Test editor -- version  %s", TEST_EDITOR_VERSION);
+      if (welcomelen > E.s_cols) welcomelen = E.s_cols;
+      i32 padding = (E.s_cols - welcomelen) / 2;
+      if (padding) {
+        abAppend(ab, "~", 1);
+        padding--;
+      }
+      while(padding--) abAppend(ab, " ", 1);
+      abAppend(ab, welcome, welcomelen);
+    } else {
+      abAppend(ab, "~", 1);
+    }
+    //write(STDOUT_FILENO, "~\r\n", 3);
+    abAppend(ab, "\x1b[K", 3);
+    if (i < E.s_rows - 1) {
+      abAppend(ab, "\r\n", 2);
+      // write(STDOUT_FILENO, "\r\n", 2);
+    }
   }
 }
 
 void editorRefreshScreen() {
+  abuf ab = ABUF_INIT;
 
-  write(STDOUT_FILENO, REFRESH_SCREEN_CODE); // "\x1b[2J" this is escape
+  abAppend(&ab, "\x1b[?25l", 6);
+  //abAppend(&ab, "\x1b[2J", 4);
+  //write(STDOUT_FILENO, REFRESH_SCREEN_CODE); // "\x1b[2J" this is escape
   // sequence to the terminal
   // Here we are using 'J' comand
   // (Erase In Display) to clear the
@@ -130,12 +196,17 @@ void editorRefreshScreen() {
   // default argument for 'J', so just <esc>[J be itself would also clear the
   // screen from the cursor to the end
 
-  write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+  abAppend(&ab, "\x1b[H", 3);
+  // write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
   //"\x1b[H" is command for cursor position, is takes 2 arguments, for example
   //\x1b[12;33H
 
-  editorDrawRows();
-  write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+  editorDrawRows(&ab);
+  //write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
+  abAppend(&ab, "\x1b[H", 3);
+  abAppend(&ab, "\x1b[?25l", 6);
+  write(STDOUT_FILENO, ab.b, ab.len);
+  abFree(&ab);
 }
 
 void editorInit() {
