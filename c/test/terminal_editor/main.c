@@ -13,6 +13,12 @@
 #define REFRESH_SCREEN_CODE "\x1b[2J", 4
 #define REPOSITION_CURSORE_CODE "\x1b[H", 3
 
+typedef enum {
+  ARROW_LEFT = 1000,
+  ARROW_RIGHT,
+  ARROW_UP,
+  ARROW_DOWN,
+} EditorKey;
 
 typedef struct {
   i32 cx, cy;
@@ -102,13 +108,31 @@ void enableRawMode() {
   
 }
 
-i8 editorReadKey() {
+i32 editorReadKey() {
   i32 nread;
   i8 c;
   while((nread = read(STDIN_FILENO, &c, 1)) != 1) {
     if (nread == -1 && errno != EAGAIN) die("read");
   }
-  return c;
+
+  if (c == '\x1b') {
+    i8 seq[3];
+
+    if (read(STDIN_FILENO, &seq[0], 1) != 1) return '\x1b';
+    if (read(STDIN_FILENO, &seq[1], 1) != 1) return '\x1b';
+
+    if (seq[0] == '[') {
+      switch(seq[1]) {
+        case 'A': return ARROW_UP;
+        case 'B': return ARROW_DOWN;
+        case 'C': return ARROW_RIGHT;
+        case 'D': return ARROW_LEFT;
+      }
+    }
+    return '\x1b';
+  } else {
+    return  c;
+  }
 }
 
 i32 getCursorPosition(i32 *rows, i32 *cols) {
@@ -143,25 +167,25 @@ i32 getWindowSize(i32 *rows, i32 *cols) {
   }
 }
 
-void editorMoveCursor(i8 key) {
+void editorMoveCursor(i32 key) {
   switch(key) {
-    case 'a':
+    case ARROW_LEFT:
       E.cx--;
       break;
-    case 'd':
+    case ARROW_RIGHT:
       E.cx++;
       break;
-    case 'w':
+    case ARROW_UP:
       E.cy--;
       break;
-    case 's':
+    case ARROW_DOWN:
       E.cy++;
       break;
   }
 }
 
 void editorProcessKeypress() { 
-  i8 c = editorReadKey();
+  i32 c = editorReadKey();
 
   switch(c) {
     case CTRL_KEY('q'):
@@ -169,10 +193,10 @@ void editorProcessKeypress() {
       write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
       exit(0);
       break;
-    case 'w':
-    case 's':
-    case 'a':
-    case 'd':
+    case ARROW_UP:
+    case ARROW_DOWN:
+    case ARROW_LEFT:
+    case ARROW_RIGHT:
       editorMoveCursor(c);
   }
 }
@@ -251,6 +275,7 @@ i32 main() {
     editorRefreshScreen();
     editorProcessKeypress();
   }
+  exit(1);
   return 0;
 } 
 
