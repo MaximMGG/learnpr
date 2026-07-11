@@ -63,7 +63,10 @@ void disableRawMode() {
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1) {
     die("tcsetattr");
   }
+	printf("Win size %d %d", E.s_rows, E.s_cols);
+
 }
+
 
 void enableRawMode() {
   if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1) // get attributes of STDIN_FILENO, write to struct termios
@@ -275,6 +278,7 @@ i32 main() {
     editorRefreshScreen();
     editorProcessKeypress();
   }
+
   exit(1);
   return 0;
 } 

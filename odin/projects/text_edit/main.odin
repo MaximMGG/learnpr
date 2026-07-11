@@ -3,15 +3,20 @@ package text_edit
 import "core:fmt"
 import "core:c/libc"
 import "core:sys/posix"
+import "core:sys/linux"
 
+
+WinSize :: struct {
+		ws_row, ws_col, ws_xpixel, ws_ypixel: i32
+}
 
 EditorConfig :: struct {
 		orig_termios: posix.termios,
 		cx, cy: i32,
-		width, height: i32,
+		ws: WinSize
 }
 
-E: EditorConfig = {cx = 1, cy = 1, width = 100, height = 100}
+E: EditorConfig = {cx = 1, cy = 1}
 
 CODE_CLEAR_SCREEN        : string : "\x1b[2J"
 CODE_CURSOR_DEFAULT_POS  : string : "\x1b[H"
@@ -54,6 +59,13 @@ enable_raw_mode :: proc() {
   }
 }
 
+editor_init :: proc() {
+		enable_raw_mode()
+		ws: WinSize
+		linux.ioctl(posix.STDOUT_FILENO, linux.TIOCGWINSZ, cast(uintptr)&ws)
+		editor_run()
+}
+
 
 editor_refresh :: proc() {
 		if posix.write(posix.STDOUT_FILENO, raw_data(CODE_CLEAR_SCREEN), len(CODE_CLEAR_SCREEN)) != len(CODE_CLEAR_SCREEN) {
@@ -69,13 +81,6 @@ editor_refresh :: proc() {
 editor_read_key :: proc() -> (c: byte) {
 		for posix.read(posix.STDIN_FILENO, &c, 1) != 1 {
 		}
-
-		buf: [64]byte
-		cur_pos := fmt.bprintf(buf[:], "\x1b[%d;%dH", 15, 15)
-		posix.write(posix.STDOUT_FILENO, raw_data(cur_pos), len(cur_pos))
-		msg := fmt.bprintf(buf[:], "%d ('%c')", i32(c), c)
-		posix.write(posix.STDOUT_FILENO, raw_data(msg), len(msg))
-		
 		return
 }
 
@@ -86,13 +91,13 @@ editor_run :: proc() {
 
 				switch c {
 				case 'j':
-						E.cy = E.cy + 1 if E.cy < E.height else E.cy
+						E.cy = E.cy + 1 if E.cy < E.ws.ws_row else E.cy
 				case 'k':
 						E.cy = E.cy - 1 if E.cy > 1 else E.cy
 				case 'h':
 						E.cx = E.cx - 1 if E.cx > 1 else E.cx
 				case 'l':
-						E.cx = E.cx + 1 if E.cx < E.width else E.cx
+						E.cx = E.cx + 1 if E.cx < E.ws.ws_col else E.cx
 				case 'q':
 						return
 				}
@@ -101,8 +106,7 @@ editor_run :: proc() {
 }
 
 main :: proc() { 
-  enable_raw_mode()
-		editor_run()
-
-  libc.exit(libc.EXIT_SUCCESS)
+		editor_init()
+		fmt.printf("Win size is %d %d", E.ws.ws_row, E.ws.ws_col)
+		libc.exit(libc.EXIT_SUCCESS)
 }
