@@ -12,7 +12,6 @@ fn void file_test() {
 
   f.seek(0, io::Seek.SET)!!;
 
-
   File *stderr = std::io::stderr();
 
   ichar [4096]buf;

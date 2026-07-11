@@ -255,7 +255,7 @@ void editorRefreshScreen() {
   abAppend(&ab, buf, strlen(buf));
   //write(STDOUT_FILENO, REPOSITION_CURSORE_CODE);
   abAppend(&ab, "\x1b[H", 3);
-  abAppend(&ab, "\x1b[?25l", 6);
+  abAppend(&ab, "\x1b[?25h", 6);
   write(STDOUT_FILENO, ab.b, ab.len);
   abFree(&ab);
 }

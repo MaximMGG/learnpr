@@ -6,7 +6,6 @@ fn int main() {
   return 0;
 }
 
-
 fn void call_bar(int num_foo) {
   bar(num_foo);
 }
