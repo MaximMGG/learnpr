@@ -11,7 +11,7 @@ EditorConfig :: struct {
 		width, height: i32,
 }
 
-E: EditorConfig = {cx = 1, cy = 1}
+E: EditorConfig = {cx = 1, cy = 1, width = 100, height = 100}
 
 CODE_CLEAR_SCREEN        : string : "\x1b[2J"
 CODE_CURSOR_DEFAULT_POS  : string : "\x1b[H"
@@ -69,10 +69,18 @@ editor_refresh :: proc() {
 editor_read_key :: proc() -> (c: byte) {
 		for posix.read(posix.STDIN_FILENO, &c, 1) != 1 {
 		}
+
+		buf: [64]byte
+		cur_pos := fmt.bprintf(buf[:], "\x1b[%d;%dH", 15, 15)
+		posix.write(posix.STDOUT_FILENO, raw_data(cur_pos), len(cur_pos))
+		msg := fmt.bprintf(buf[:], "%d ('%c')", i32(c), c)
+		posix.write(posix.STDOUT_FILENO, raw_data(msg), len(msg))
+		
 		return
 }
 
 editor_run :: proc() {
+		editor_refresh()
 		for {
 				c := editor_read_key()
 
@@ -86,16 +94,15 @@ editor_run :: proc() {
 				case 'l':
 						E.cx = E.cx + 1 if E.cx < E.width else E.cx
 				case 'q':
-						editor_exit("Bye")
+						return
 				}
+				editor_refresh()
 		}
 }
 
 main :: proc() { 
   enable_raw_mode()
+		editor_run()
 
-  for {
-
-  }
-  libc.exit(libc.EXIT_FAILURE)
+  libc.exit(libc.EXIT_SUCCESS)
 }
