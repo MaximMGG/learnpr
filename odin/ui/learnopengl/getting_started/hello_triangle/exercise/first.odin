@@ -1,5 +1,4 @@
-package hello_triangle
-
+package exercise
 
 import gl "vendor:OpenGL"
 import "vendor:glfw"
@@ -38,69 +37,92 @@ main :: proc() {
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
 
   vertexShader := load_shader("./vertex.glsl", gl.VERTEX_SHADER)
-  fragmentShader := load_shader("./fragment.glsl", gl.FRAGMENT_SHADER)
-  shaderProgram := gl.CreateProgram()
-  gl.AttachShader(shaderProgram, vertexShader)
-  gl.AttachShader(shaderProgram, fragmentShader)
-  gl.LinkProgram(shaderProgram)
+  fragmentShader1 := load_shader("./fragment1.glsl", gl.FRAGMENT_SHADER)
+  shaderProgram1 := gl.CreateProgram()
+  gl.AttachShader(shaderProgram1, vertexShader)
+  gl.AttachShader(shaderProgram1, fragmentShader1)
+  gl.LinkProgram(shaderProgram1)
 
   success: i32
   infoLog: [512]byte
 
-  gl.GetProgramiv(shaderProgram, gl.LINK_STATUS, &success)
+  gl.GetProgramiv(shaderProgram1, gl.LINK_STATUS, &success)
   if success == 0 {
     info_log_len: i32
-    gl.GetProgramiv(shaderProgram, gl.INFO_LOG_LENGTH, &info_log_len)
-    gl.GetProgramInfoLog(shaderProgram, 512, nil, raw_data(infoLog[:]))
-    log.error("Error link program:", transmute(string)infoLog[:info_log_len])
+    gl.GetProgramiv(shaderProgram1, gl.INFO_LOG_LENGTH, &info_log_len)
+    gl.GetProgramInfoLog(shaderProgram1, 512, nil, raw_data(infoLog[:]))
+    log.error("Error link program1:", transmute(string)infoLog[:info_log_len])
   }
 
+  gl.DeleteShader(fragmentShader1)
+
+  fragmentShader2 := load_shader("./fragment2.glsl", gl.FRAGMENT_SHADER)
+  shaderProgram2 := gl.CreateProgram()
+  gl.AttachShader(shaderProgram2, vertexShader)
+  gl.AttachShader(shaderProgram2, fragmentShader2)
+  gl.LinkProgram(shaderProgram2)
+  gl.GetProgramiv(shaderProgram1, gl.LINK_STATUS, &success)
+
+  if success == 0 {
+    info_log_len: i32
+    gl.GetProgramiv(shaderProgram2, gl.INFO_LOG_LENGTH, &info_log_len)
+    gl.GetProgramInfoLog(shaderProgram2, 512, nil, raw_data(infoLog[:]))
+    log.error("Error link program2:", transmute(string)infoLog[:info_log_len])
+  }
 
   gl.DeleteShader(vertexShader)
-  gl.DeleteShader(fragmentShader)
+  gl.DeleteShader(fragmentShader2)
 
-  vertices := [?]f32 {
+  vertices_1 := [?]f32 {
     -0.5, -0.5, 0.0,
     -0.5,  0.5, 0.0,
      0.5,  0.5, 0.0,
+  }
+
+  vertices_2 := [?]f32 {
+    -0.5, -0.5, 0.0,
      0.5, -0.5, 0.0,
+     0.5,  0.5, 0.0,
   }
 
-  indecies := [?]u32 {
-    0, 1, 2,
-    0, 3, 2
-  }
+  VBO1, VBO2, VAO1, VAO2: u32
+  gl.GenVertexArrays(1, &VAO1)
+  gl.GenVertexArrays(1, &VAO2)
+  gl.GenBuffers(1, &VBO1)
+  gl.GenBuffers(1, &VBO2)
 
-  VBO, VAO, EBO: u32
-  gl.GenVertexArrays(1, &VAO)
-  gl.GenBuffers(1, &VBO)
-  gl.GenBuffers(1, &EBO)
+  gl.BindVertexArray(VAO1)
 
-  gl.BindVertexArray(VAO)
-
-  gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
-  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW)
-
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indecies), &indecies[0], gl.STATIC_DRAW)
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO1)
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices_1), &vertices_1[0], gl.STATIC_DRAW)
 		
   gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), uintptr(0))
   gl.EnableVertexAttribArray(0)
 
   gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0)
   gl.BindVertexArray(0)
 
+  gl.BindVertexArray(VAO2)
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO2)
+
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO2)
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices_2), &vertices_2[0], gl.STATIC_DRAW)
+		
+  gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), uintptr(0))
+  gl.EnableVertexAttribArray(0)
 
   for !glfw.WindowShouldClose(window) {
     gl.ClearColor(0.2, 0.3, 0.3, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT)
 
 
-    gl.UseProgram(shaderProgram)
-    gl.BindVertexArray(VAO)
-    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-    gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+    gl.UseProgram(shaderProgram1)
+    gl.BindVertexArray(VAO1)
+    gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+    gl.UseProgram(shaderProgram2)
+    gl.BindVertexArray(VAO2)
+    gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
     process_input(window)
 
@@ -108,9 +130,12 @@ main :: proc() {
     glfw.PollEvents()
   }
 
-  gl.DeleteVertexArrays(1, &VAO)
-  gl.DeleteBuffers(1, &VBO)
-  gl.DeleteProgram(shaderProgram)
+  gl.DeleteBuffers(1, &VBO1)
+  gl.DeleteBuffers(1, &VBO2)
+  gl.DeleteVertexArrays(1, &VAO1)
+  gl.DeleteVertexArrays(1, &VAO2)
+  gl.DeleteProgram(shaderProgram1)
+  gl.DeleteProgram(shaderProgram2)
 
   glfw.DestroyWindow(window)
   glfw.Terminate()
