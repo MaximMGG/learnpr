@@ -4,12 +4,18 @@ import gl "vendor:OpenGL"
 import "core:os"
 import "core:log"
 
+Vec4 :: [4]f32
+Vec3 :: [3]f32
+Mat4 :: [4][4]f32
+Mat3 :: [3][3]f32
+
 load_shader_error :: enum {
   NONE,
   READ_SOURCE_ERR,
   COMPILE_VERTEX_SHADER_ERR,
   COMPILE_FRAGMENT_SHADER_ERR,
-  LINK_PROGRAM_ERR
+  LINK_PROGRAM_ERR,
+  SET_UNIFORM_ERR,
 }
 
 load_program :: proc(vertex_path: string, fragment_path: string) -> (u32, load_shader_error) {
@@ -43,8 +49,7 @@ load_shader :: proc(path: string, shader_type: u32) -> (u32, load_shader_error) 
     return 0, .READ_SOURCE_ERR
   }
 
-  shader: u32
-  gl.CreateShader(shader_type)
+  shader: u32 = gl.CreateShader(shader_type)
   shader_source_string := cstring(raw_data(shaderSource))
   gl.ShaderSource(shader, 1, &shader_source_string, nil)
   gl.CompileShader(shader)
@@ -95,5 +100,41 @@ check_status :: proc(element: u32, type: u32) -> load_shader_error {
   return .NONE
 }
 
+set_uniform4f :: proc(program: u32, uniform_name: string, a, b, c, d: f32) -> (load_shader_error){
+  location := gl.GetUniformLocation(program, cstring(raw_data(uniform_name)))
+  if location == -1 {
+    return .SET_UNIFORM_ERR
+  }
+  gl.Uniform4f(location, a, b, c, d)
 
+  return nil
+}
 
+set_uniformVec4 :: proc(program: u32, uniform_name: string, vec: Vec4) -> (load_shader_error) {
+  location := gl.GetUniformLocation(program, cstring(raw_data(uniform_name)))
+  if location == -1 {
+    return .SET_UNIFORM_ERR
+  }
+  vec := vec
+  gl.Uniform4fv(location, 1, &vec[0])
+
+  return nil
+}
+
+set_uniform1i :: proc(program: u32, uniform_name: string, value: int) -> (load_shader_error) {
+  location := gl.GetUniformLocation(program, cstring(raw_data(uniform_name)))
+  if location == -1 {
+    return .SET_UNIFORM_ERR
+  }
+  gl.Uniform1i(location, i32(value))
+  return nil
+}
+
+set_uniform1f :: proc(program: u32, uniform_name: string, value: f32) -> (load_shader_error) {
+  location := gl.GetUniformLocation(program, cstring(raw_data(uniform_name)))
+  if location == -1 {
+    return .SET_UNIFORM_ERR
+  }
+  gl.Uniform1f(location, value)
+  return nil
+}
