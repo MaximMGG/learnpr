@@ -67,8 +67,12 @@ main :: proc() {
   log.info("Load OpenGL 3.3")
 
 
-  tex, tex_err := texture.load("wall.jpg")
-  if tex_err != nil {
+  tex1, tex1_err := texture.load_jpg("wall.jpg")
+  if tex1_err != nil {
+    glfw.Terminate()
+  }
+  tex2, tex2_err := texture.load_png("awesomeface.png")
+  if tex2_err != nil {
     glfw.Terminate()
   }
 
@@ -77,6 +81,16 @@ main :: proc() {
     log.error("Load program error:", p_err)
     glfw.Terminate()
   }
+
+  gl.UseProgram(program)
+  gl.ActiveTexture(gl.TEXTURE0)
+  gl.BindTexture(gl.TEXTURE_2D, tex1)
+
+  gl.ActiveTexture(gl.TEXTURE1)
+  gl.BindTexture(gl.TEXTURE_2D, tex2)
+
+  shader.set_uniform1i(program, "texture1", 0)
+  shader.set_uniform1i(program, "texture2", 1)
 
   vertices := [?]f32 {
     //position       //colors         //texture coords 
@@ -122,7 +136,7 @@ main :: proc() {
     process_input(window)
 
     gl.UseProgram(program)
-    gl.BindTexture(gl.TEXTURE_2D, tex)
+
     gl.BindVertexArray(VAO)
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
     gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
@@ -131,7 +145,8 @@ main :: proc() {
     glfw.PollEvents()
   }
 
-  gl.DeleteTextures(1, &tex)
+  gl.DeleteTextures(1, &tex1)
+  gl.DeleteTextures(1, &tex2)
   glfw.DestroyWindow(window)
   glfw.Terminate()
   log.info("Terminate")
