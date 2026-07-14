@@ -1,0 +1,4 @@
+[INFO ] --- [2026-07-14 20:13:17] [main.odin:49:main()] glfw Init
+[INFO ] --- [2026-07-14 20:13:17] [main.odin:58:main()] Create Window
+[INFO ] --- [2026-07-14 20:13:17] [main.odin:69:main()] Load OpenGL 3.3
+[INFO ] --- [2026-07-14 20:13:42] [main.odin:159:main()] Terminate

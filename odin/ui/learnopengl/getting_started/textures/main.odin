@@ -13,6 +13,8 @@ import "base:runtime"
 WIDTH :: 640
 HEIGHT :: 480
 
+flip: int = 1
+
 framebuffer_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
   gl.Viewport(0, 0, width, height)
 }
@@ -67,10 +69,11 @@ main :: proc() {
   log.info("Load OpenGL 3.3")
 
 
-  tex1, tex1_err := texture.load_jpg("wall.jpg")
+  tex1, tex1_err := texture.load_jpg("container.jpg")
   if tex1_err != nil {
     glfw.Terminate()
   }
+
   tex2, tex2_err := texture.load_png("awesomeface.png")
   if tex2_err != nil {
     glfw.Terminate()
@@ -129,6 +132,8 @@ main :: proc() {
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0)
   gl.BindVertexArray(0)
 
+
+
   for !glfw.WindowShouldClose(window) {
     gl.ClearColor(0.2, 0.3, 0.3, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT)
@@ -136,6 +141,8 @@ main :: proc() {
     process_input(window)
 
     gl.UseProgram(program)
+
+    shader.set_uniform1i(program, "flip", flip)
 
     gl.BindVertexArray(VAO)
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
@@ -155,5 +162,8 @@ main :: proc() {
 process_input :: proc(window: glfw.WindowHandle) {
   if glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS {
     glfw.SetWindowShouldClose(window, true)
+  }
+  if glfw.GetKey(window, glfw.KEY_F) == glfw.PRESS {
+    flip = 1 if flip == 0 else 0
   }
 }
