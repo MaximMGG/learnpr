@@ -18,14 +18,14 @@ HEIGHT :: 480
 init_logger :: proc() -> runtime.Logger {
   f: ^os.File
   f_err: os.Error
-  if os.exists("gl_log.log") {
-    f, f_err = os.open("gl_log.log", {.Append, .Write, .Read})
+  if os.exists("./gl_log.log") {
+    f, f_err = os.open("./gl_log.log", {.Append, .Write, .Read})
     if f_err != nil {
       fmt.eprintln("Can't open gl_log.log")
       os.exit(1)
     }
   } else {
-    f, f_err = os.open("gl_log.log", {.Create, .Write, .Append})
+    f, f_err = os.open("./gl_log.log", {.Create, .Write, .Append})
     if f_err != nil {
       fmt.eprintln("Can't create gl_log.log")
       os.exit(1)
