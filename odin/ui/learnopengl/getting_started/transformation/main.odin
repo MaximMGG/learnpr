@@ -11,8 +11,8 @@ import "base:runtime"
 import "core:fmt"
 import la "core:math/linalg"
 
-WIDTH :: 640
-HEIGHT :: 480
+WIDTH :: 1280
+HEIGHT :: 960
 
 
 init_logger :: proc() -> runtime.Logger {
@@ -145,10 +145,29 @@ main :: proc() {
     gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
     gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 
+    //Second conteiner
+    transform = la.Matrix4f32(1.0)
+    transform *= la.matrix4_translate(la.Vector3f32{-0.5, 0.5, 0.0})
+    transform *= la.matrix4_rotate(-f32(glfw.GetTime()), la.Vector3f32{0.0, 0.0, 1.0})
+
+    gl.UseProgram(program)
+    shader.set_unfiromMat4(program, "transform", transform)
+
+    gl.BindVertexArray(VAO)
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
+    gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+
+
     glfw.SwapBuffers(window)
     glfw.PollEvents()
   }
 
+  gl.DeleteBuffers(1, &VBO)
+  gl.DeleteBuffers(1, &EBO)
+  gl.DeleteVertexArrays(1, &VAO)
+  gl.DeleteProgram(program)
+  gl.DeleteTextures(1, &tex1)
+  gl.DeleteTextures(1, &tex2)
 
   glfw.DestroyWindow(window)
   glfw.Terminate()
