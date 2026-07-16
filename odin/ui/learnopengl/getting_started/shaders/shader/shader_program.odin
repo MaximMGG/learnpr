@@ -3,6 +3,7 @@ package shader
 import gl "vendor:OpenGL"
 import "core:os"
 import "core:log"
+import la "core:math/linalg"
 
 Vec4 :: [4]f32
 Vec3 :: [3]f32
@@ -136,5 +137,16 @@ set_uniform1f :: proc(program: u32, uniform_name: string, value: f32) -> (load_s
     return .SET_UNIFORM_ERR
   }
   gl.Uniform1f(location, value)
+  return nil
+}
+
+set_uniformMat4 :: proc(program: u32, uniform_name: string, value: la.Matrix4f32) -> (load_shader_error) {
+  location := gl.GetUniformLocation(program, cstring(raw_data(uniform_name)))
+  if location == -1 {
+    return .SET_UNIFORM_ERR
+  }
+  value := value
+
+  gl.UniformMatrix4fv(location, 1, false, &value[0][0])
   return nil
 }
