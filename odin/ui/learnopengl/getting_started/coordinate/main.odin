@@ -51,6 +51,7 @@ main :: proc() {
 
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
   gl.load_up_to(3, 3, glfw.gl_set_proc_address)
+  gl.Enable(gl.DEPTH_TEST)
 
   log.info("Init OpenGL")
 
@@ -68,29 +69,70 @@ main :: proc() {
   }
 
   vertices := [?]f32 {
-     0.5,  0.5, 0.0,  1.0, 1.0,
-     0.5, -0.5, 0.0,  1.0, 0.0,
-    -0.5, -0.5, 0.0,  0.0, 0.0,
-    -0.5,  0.5, 0.0,  0.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 0.0,
+     0.5, -0.5, -0.5,  1.0, 0.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+    -0.5,  0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 0.0,
+
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 1.0,
+     0.5,  0.5,  0.5,  1.0, 1.0,
+    -0.5,  0.5,  0.5,  0.0, 1.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+
+    -0.5,  0.5,  0.5,  1.0, 0.0,
+    -0.5,  0.5, -0.5,  1.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+    -0.5,  0.5,  0.5,  1.0, 0.0,
+
+     0.5,  0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5,  0.5,  0.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5, -0.5,  1.0, 1.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+
+    -0.5,  0.5, -0.5,  0.0, 1.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+    -0.5,  0.5,  0.5,  0.0, 0.0,
+    -0.5,  0.5, -0.5,  0.0, 1.0
   }
 
-  indices := [?]u32 {
-    0, 1, 3,
-    1, 2, 3
+  cube_positions := [?]la.Vector3f32{
+    la.Vector3f32{ 0.0,  0.0,  0.0}, 
+    la.Vector3f32{ 2.0,  5.0, -15.0}, 
+    la.Vector3f32{-1.5, -2.2, -2.5},  
+    la.Vector3f32{-3.8, -2.0, -12.3},  
+    la.Vector3f32{ 2.4, -0.4, -3.5},  
+    la.Vector3f32{-1.7,  3.0, -7.5},  
+    la.Vector3f32{ 1.3, -2.0, -2.5},  
+    la.Vector3f32{ 1.5,  2.0, -2.5}, 
+    la.Vector3f32{ 1.5,  0.2, -1.5}, 
+    la.Vector3f32{-1.3,  1.0, -1.5}
   }
 
-  VBO, EBO, VAO: u32
+  VBO, VAO: u32
   gl.GenVertexArrays(1, &VAO)
   gl.GenBuffers(1, &VBO)
-  gl.GenBuffers(1, &EBO)
 
   gl.BindVertexArray(VAO)
 
   gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
   gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW)
-
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, EBO)
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices[0], gl.STATIC_DRAW)
 
   gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 5 * size_of(f32), uintptr(0))
   gl.EnableVertexAttribArray(0)
@@ -107,7 +149,7 @@ main :: proc() {
     process_input(window)
 
     gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-    gl.Clear(gl.COLOR_BUFFER_BIT)
+    gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     gl.ActiveTexture(gl.TEXTURE0)
     gl.BindTexture(gl.TEXTURE_2D, tex1)
@@ -116,20 +158,24 @@ main :: proc() {
     gl.BindTexture(gl.TEXTURE_2D, tex2)
 
 
-    model := la.MATRIX4F32_IDENTITY
     view := la.MATRIX4F32_IDENTITY
     projection := la.MATRIX4F32_IDENTITY
-    model *= la.matrix4_rotate_f32(f32(la.to_radians(-55.0)), la.Vector3f32{1.0, 0.0, 0.0})
-    view *= la.matrix4_translate_f32(la.Vector3f32{0.0, 0.0, -3.0})
+    view *= la.matrix4_translate_f32(la.Vector3f32{0.0, 0.0, -4.0})
     projection  *= la.matrix4_perspective_f32(f32(la.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
 
-    shader.set_unfiromMat4(program, "model", model)
     shader.set_unfiromMat4(program, "view", view)
     shader.set_unfiromMat4(program, "projection", projection)
 
-    gl.BindVertexArray(VAO)
-    gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
 
+    gl.BindVertexArray(VAO)
+    for i in 0..<len(cube_positions) {
+      model := la.MATRIX4F32_IDENTITY
+      model *= la.matrix4_translate_f32(cube_positions[i])
+      model *= la.matrix4_rotate_f32(f32(glfw.GetTime()) * 0.125 * f32(i), la.Vector3f32{1.0, 0.3, 0.5})
+      shader.set_unfiromMat4(program, "model", model)
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
+
+    }
 
     glfw.SwapBuffers(window)
     glfw.PollEvents()
