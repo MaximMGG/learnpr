@@ -29,7 +29,8 @@ public:
     }
     
     ID = glCreateProgram();
-    glAttachShader(v_s, f_s);
+    glAttachShader(ID, v_s);
+    glAttachShader(ID, f_s);
     glLinkProgram(ID);
     glDeleteShader(v_s);
     glDeleteShader(f_s);
