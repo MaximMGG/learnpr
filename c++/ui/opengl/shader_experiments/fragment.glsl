@@ -4,15 +4,22 @@
 out vec4 FragColor;
 
 uniform vec2 aResolution;
+uniform vec2 aMouse;
+uniform float aTime;
 
 void main() {
-  //vec2 resolution = vec2(1280.0, 960.0);
+
   vec2 uv = gl_FragCoord.xy/aResolution.xy * 2.0 - 1.0;
   float aspect = aResolution.x / aResolution.y;
   uv.x *= aspect;
 
+  //thickness = 1.0;
+  float fade = 0.005;
+  float thickness = aMouse.x / aResolution.x + fade;
+
   float distance = 1.0 - length(uv);
-  distance = step(0.0, distance);
-  FragColor.rgb = vec3(distance) * vec3(0.8, 0.4, 0.5);
-  //FragColor = vec4(0.8, 0.4, 0.5, 1.0);
+  vec3 col = vec3(smoothstep(0.0, fade, distance));
+  col *= vec3(smoothstep(thickness + fade, thickness, distance));
+  FragColor.rgb = col;
+  FragColor.rgb *= vec3(abs(cos(aTime)), cos(aTime), 0.5);
 }

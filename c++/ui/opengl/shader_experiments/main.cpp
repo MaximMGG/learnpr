@@ -6,14 +6,24 @@
 #include "shader.hpp"
 
 
-#define WIDTH 1280
-#define HEIGHT 960
+#define WIDTH 640
+#define HEIGHT 480
 
+
+bool mouse_press = false;
 
 void process_input(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
+
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    mouse_press = true;
+  }
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+    mouse_press = false;
+  }
+  
 }
 
 void framebuffer_callback(GLFWwindow *window, i32 width, i32 height) {
@@ -78,17 +88,40 @@ i32 main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     while (!glfwWindowShouldClose(window)) {
-      Shader prog{"./vertex.glsl", "./fragment.glsl"};
+      Shader prog{"./vertex.glsl", "./fragment_2.glsl"};
 
-      
-      
       glClearColor(0.2, 0.3, 0.3, 1.0);
       glClear(GL_COLOR_BUFFER_BIT);
       process_input(window);
 
       glm::vec2 resolution{f32(WIDTH), f32(HEIGHT)};
+      f64 xpos;
+      f64 ypos;
+      glfwGetCursorPos(window, &xpos, &ypos);
+      glm::vec2 mouse{f32(xpos), f32(ypos)};
+      f32 time = f32(glfwGetTime());
+      
       prog.use();
-      prog.setVec2("aResolution", resolution);
+      // This if for fragment_cirle.glsl
+      // prog.setVec2("aResolution", resolution);
+      // if (mouse_press) {
+      //   prog.setVec2("aMouse", mouse);
+      // } else {
+      //   prog.setVec2("aMouse", resolution);
+      // }
+      // prog.setFloat("aTime", time);
+
+      // This is for fragment_1.glsl
+
+      prog.setVec2("u_resolution", resolution);
+      if (mouse_press) {
+        prog.setVec2("u_mouse", mouse);
+      } else {
+        prog.setVec2("u_resolution", resolution);
+      }
+      prog.setFloat("u_time", time);
+      
+
 
       glBindVertexArray(VAO);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
