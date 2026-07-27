@@ -8,9 +8,15 @@ import gl "vendor:OpenGL"
 import "vendor:glfw"
 import "shader"
 import "texture"
+import la "core:math/linalg"
 
 WIDTH :: 1280
 HEIGHT :: 720
+
+
+framebuffer_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
+  gl.Viewport(0, 0, width, height)
+}
 
 init_logger :: proc() -> runtime.Logger {
 
@@ -18,7 +24,7 @@ init_logger :: proc() -> runtime.Logger {
   f_err: os.Error
 
   if os.exists("gl_log.log") {
-    f, f_err = os.open("gl_log.log", {.Append})
+    f, f_err = os.open("gl_log.log", {.Append, .Write})
   } else {
     f, f_err = os.open("gl_log.log", {.Create, .Write, .Append})
   }
@@ -31,77 +37,166 @@ deinit_logger :: proc() {
 
 
 main :: proc() {
-    context.logger = init_logger()
-    defer deinit_logger()
+  context.logger = init_logger()
+  defer deinit_logger()
 
-    if !glfw.Init() {
-      log.error("glfwInit error")
-      return
-    }
+  if !glfw.Init() {
+    log.error("glfwInit error")
+    return
+  }
 
-    log.info("initGlfw")
+  log.info("initGlfw")
 
-    window := glfw.CreateWindow(WIDTH, HEIGHT, "Camera window", nil, nil)
-    glfw.WindowHint(glfw.VERSION_MAJOR, 3)
-    glfw.WindowHint(glfw.VERSION_MINOR, 3)
-    glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+  window := glfw.CreateWindow(WIDTH, HEIGHT, "Camera window", nil, nil)
+  glfw.WindowHint(glfw.VERSION_MAJOR, 3)
+  glfw.WindowHint(glfw.VERSION_MINOR, 3)
+  glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 
-    glfw.MakeContextCurrent(window)
+  glfw.MakeContextCurrent(window)
+  glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
 
-    gl.load_up_to(3, 3, glfw.gl_set_proc_address)
+  gl.load_up_to(3, 3, glfw.gl_set_proc_address)
+  gl.Enable(gl.DEPTH_TEST)
 
-    log.info("setup window and load OpenGL library")
-
-    prog, prog_err := shader.load_program("vertex.glsl", "fragment.glsl")
-    if prog_err != nil {
-      log.error("Load shader program error")
-    }
+  log.info("setup window and load OpenGL library")
 
 
-      vertices := [?]f32 {
-        -0.5, -0.5, -0.5,  0.0, 0.0,
-         0.5, -0.5, -0.5,  1.0, 0.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-        -0.5,  0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 0.0,
-
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 1.0,
-         0.5,  0.5,  0.5,  1.0, 1.0,
-        -0.5,  0.5,  0.5,  0.0, 1.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-
-        -0.5,  0.5,  0.5,  1.0, 0.0,
-        -0.5,  0.5, -0.5,  1.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-        -0.5,  0.5,  0.5,  1.0, 0.0,
-
-         0.5,  0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5,  0.5,  0.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5, -0.5,  1.0, 1.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-
-        -0.5,  0.5, -0.5,  0.0, 1.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-        -0.5,  0.5,  0.5,  0.0, 0.0,
-        -0.5,  0.5, -0.5,  0.0, 1.0
+  prog, prog_err := shader.load_program("vertex.glsl", "fragment.glsl")
+  defer gl.DeleteProgram(prog)
+  if prog_err != nil {
+    log.error("Load shader program error")
   }
 
 
+  tex1, tex1_err := texture.load_jpg("container.jpg")
+  if tex1_err != nil {
+    log.error("load jpg texture failed")
+    glfw.Terminate()
+  }
+  defer gl.DeleteTextures(1, &tex1)
+  tex2, tex2_err := texture.load_png("awesomeface.png")
+  if tex2_err != nil {
+    log.error("load png texture failed")
+    glfw.Terminate()
+  }
+  defer gl.DeleteTextures(1, &tex2)
+
+  vertices := [?]f32 {
+    -0.5, -0.5, -0.5,  0.0, 0.0,
+     0.5, -0.5, -0.5,  1.0, 0.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+    -0.5,  0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 0.0,
+
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 1.0,
+     0.5,  0.5,  0.5,  1.0, 1.0,
+    -0.5,  0.5,  0.5,  0.0, 1.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+
+    -0.5,  0.5,  0.5,  1.0, 0.0,
+    -0.5,  0.5, -0.5,  1.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+    -0.5,  0.5,  0.5,  1.0, 0.0,
+
+     0.5,  0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5,  0.5,  0.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+     0.5, -0.5, -0.5,  1.0, 1.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+     0.5, -0.5,  0.5,  1.0, 0.0,
+    -0.5, -0.5,  0.5,  0.0, 0.0,
+    -0.5, -0.5, -0.5,  0.0, 1.0,
+
+    -0.5,  0.5, -0.5,  0.0, 1.0,
+     0.5,  0.5, -0.5,  1.0, 1.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+     0.5,  0.5,  0.5,  1.0, 0.0,
+    -0.5,  0.5,  0.5,  0.0, 0.0,
+    -0.5,  0.5, -0.5,  0.0, 1.0
+  }
+
+
+  cube_positions := [?]la.Vector3f32 {
+    la.Vector3f32{ 0.0,  0.0,  0.0}, 
+    la.Vector3f32{ 2.0,  5.0, -15.0}, 
+    la.Vector3f32{-1.5, -2.2, -2.5},  
+    la.Vector3f32{-3.8, -2.0, -12.3},  
+    la.Vector3f32{ 2.4, -0.4, -3.5},  
+    la.Vector3f32{-1.7,  3.0, -7.5},  
+    la.Vector3f32{ 1.3, -2.0, -2.5},  
+    la.Vector3f32{ 1.5,  2.0, -2.5}, 
+    la.Vector3f32{ 1.5,  0.2, -1.5}, 
+    la.Vector3f32{-1.3,  1.0, -1.5}
+  }
+
+  VBO, VAO: u32
+  gl.GenVertexArrays(1, &VAO)
+  gl.GenBuffers(1, &VBO)
+
+  gl.BindVertexArray(VAO)
+
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW)
+  gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 5 * size_of(f32), uintptr(0))
+  gl.impl_EnableVertexAttribArray(0)
+  gl.VertexAttribPointer(1, 2, gl.FLOAT, gl.FALSE, 5 * size_of(f32), uintptr(3 * size_of(f32)))
+  gl.impl_EnableVertexAttribArray(1)
+
+  //gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+
+  gl.UseProgram(prog)
+  shader.set_uniform1i(prog, "texture1", 0)
+  shader.set_uniform1i(prog, "texture2", 1)
+
+  log.info("Bind vertices and textures")
+
+  for !glfw.WindowShouldClose(window) {
+    process_input(window)
+    gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+    gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+    gl.ActiveTexture(gl.TEXTURE0)
+    gl.BindTexture(gl.TEXTURE_2D, tex1)
+    gl.ActiveTexture(gl.TEXTURE1)
+    gl.BindTexture(gl.TEXTURE_2D, tex2)
+
+    view := la.MATRIX4F32_IDENTITY
+    projection := la.MATRIX4F32_IDENTITY
+    view *= la.matrix4_translate_f32(la.Vector3f32{0.0, 0.0, -4.0})
+    projection *= la.matrix4_perspective_f32(f32(la.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
+
+    shader.set_unfiromMat4(prog, "view", view)
+    shader.set_unfiromMat4(prog, "projection", projection)
+
+    gl.BindVertexArray(VAO)
+    for i in 0..< len(cube_positions) {
+      model := la.MATRIX4F32_IDENTITY
+      model *= la.matrix4_translate_f32(cube_positions[i])
+      model *= la.matrix4_rotate_f32(f32(glfw.GetTime()) * 0.125 * f32(i), la.Vector3f32{1.0, 0.3, 0.5})
+      shader.set_unfiromMat4(prog, "model", model)
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
+    }
+
+    glfw.SwapBuffers(window)
+    glfw.PollEvents()
+  }
+  log.info("Shutdown")
+}
+
+
+process_input :: proc(window: glfw.WindowHandle) {
+  if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
+    glfw.SetWindowShouldClose(window, true)
+  }
 }
 

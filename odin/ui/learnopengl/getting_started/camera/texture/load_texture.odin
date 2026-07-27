@@ -4,13 +4,19 @@ package texture
 import gl "vendor:OpenGL"
 import stbi "vendor:stb/image"
 import "core:log"
+import "core:strings"
 
 load_texture_error :: enum {
   NONE,
   LOAD_TEXTURE_ERR,
+  LOAD_JPG_NO_JPG_FORMAT_DETECTED,
+  LOAD_PNG_NO_PNG_FORAMT_DETECTED,
 }
 
 load_jpg :: proc(path: string) -> (u32, load_texture_error) {
+  if (!strings.ends_with(path, ".jpg")) {
+    return 0, .LOAD_JPG_NO_JPG_FORMAT_DETECTED
+  }
   tex: u32
   gl.GenTextures(1, &tex)
   gl.BindTexture(gl.TEXTURE_2D, tex)
@@ -38,6 +44,9 @@ load_jpg :: proc(path: string) -> (u32, load_texture_error) {
 }
 
 load_png :: proc(path: string) -> (u32, load_texture_error) {
+  if (!strings.ends_with(path, ".png")) {
+    return 0, .LOAD_PNG_NO_PNG_FORAMT_DETECTED 
+  }
   tex: u32
   gl.GenTextures(1, &tex)
   gl.BindTexture(gl.TEXTURE_2D, tex)
