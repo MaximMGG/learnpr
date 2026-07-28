@@ -8,6 +8,7 @@ import gl "vendor:OpenGL"
 import "vendor:glfw"
 import "shader"
 import "texture"
+import cam "camerapos"
 import la "core:math/linalg"
 
 WIDTH :: 1280
@@ -36,62 +37,33 @@ deinit_logger :: proc() {
   log.destroy_file_logger(context.logger)    
 }
 
-camera_pos := la.Vector3f32{0.0, 0.0, 3.0}
-camera_front := la.Vector3f32{0.0, 0.0, -1.0}
-camera_up := la.Vector3f32{0.0, 1.0, 0.0}
-delta_time: f32 = 0.0
-last_frame: f32 = 0.0
 first_mouse: bool = true
 lastX: f64 = f64(WIDTH) / 2.0
 lastY: f64 = f64(HEIGHT) / 2.0
-yaw: f32 = -90.0
-pitch: f32 = 0.0
-fov: f32 = 45.0
+delta_time: f32 = 0.0
+last_frame: f32 = 0.0
+camera: cam.Camera
 
 
 scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
-  fov -= f32(yoffset)
-  if fov < 1.0 {
-    fov = 1.0
-  }
-  if fov > 45.0 {
-    fov = 45.0
-  }
+  context = runtime.default_context()
+  cam.process_mouse_scroll(&camera, f32(yoffset))
 }
 
 mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+  context = runtime.default_context()
   if first_mouse {
-    lastX = xpos;
-    lastY = ypos;
-    first_mouse = false
+    lastX = xpos
+    lastY = ypos
   }
 
-  xoffset: f32 = f32(xpos - lastX)
-  yoffset: f32 = f32(lastY - ypos)
+  xoffset := f32(xpos - lastX)
+  yoffset := f32(lastY - ypos)
+
   lastX = xpos
   lastY = ypos
 
-  sensitivity: f32 = 0.1
-
-  xoffset *= sensitivity
-  yoffset *= sensitivity
-
-  yaw += xoffset
-  pitch += yoffset
-
-  if pitch > 89.0 {
-    pitch = 89.0
-  }
-  if pitch < -89.0 {
-    pitch = -89.0
-  }
-
-  front: la.Vector3f32
-
-  front.x = la.cos(la.to_radians(yaw)) * la.cos(la.to_radians(pitch))
-  front.y = la.sin(la.to_radians(pitch))
-  front.z = la.sin(la.to_radians(yaw)) * la.cos(la.to_radians(pitch))
-  camera_front = la.normalize(front)
+  cam.process_mouse_movement(&camera, xoffset, yoffset)
 }
 
 main :: proc() {
@@ -102,6 +74,8 @@ main :: proc() {
     log.error("glfwInit error")
     return
   }
+
+  camera = cam.create_camera(la.Vector3f32{0.0, 0.0, 3.0})
 
   log.info("initGlfw")
 
@@ -126,7 +100,6 @@ main :: proc() {
   if prog_err != nil {
     log.error("Load shader program error")
   }
-
 
   tex1, tex1_err := texture.load_jpg("container.jpg")
   if tex1_err != nil {
@@ -235,14 +208,14 @@ main :: proc() {
     gl.BindTexture(gl.TEXTURE_2D, tex2)
 
     projection := la.MATRIX4F32_IDENTITY
-    projection *= la.matrix4_perspective_f32(la.to_radians(fov), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
+    projection *= la.matrix4_perspective_f32(la.to_radians(camera.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     shader.set_unfiromMat4(prog, "projection", projection)
 
     view := la.MATRIX4F32_IDENTITY
     radius: f32 = 10.0
     camx := la.sin(f32(glfw.GetTime())) * radius
     camz := la.cos(f32(glfw.GetTime())) * radius
-    view *= la.matrix4_look_at_f32(camera_pos, camera_pos + camera_front, camera_up)
+    view *= cam.get_view_matrix(&camera)
     shader.set_unfiromMat4(prog, "view", view)
 
 
@@ -269,16 +242,16 @@ process_input :: proc(window: glfw.WindowHandle) {
   camera_speed: f32 = 2.5 * delta_time
 
   if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS {
-    camera_pos += camera_speed * camera_front
+    cam.process_keyboard(&camera, .FORWARD, f64(delta_time))
   }
   if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS {
-    camera_pos -= camera_speed * camera_front
+    cam.process_keyboard(&camera, .BACKWARD, f64(delta_time))
   }
   if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
-    camera_pos -= la.normalize(la.cross(camera_front, camera_up)) * camera_speed
+    cam.process_keyboard(&camera, .LEFT, f64(delta_time))
   }
   if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
-    camera_pos += la.normalize(la.cross(camera_front, camera_up)) * camera_speed
+    cam.process_keyboard(&camera, .RIGHT, f64(delta_time))
   }
 }
 
