@@ -18,6 +18,7 @@ framebuffer_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32)
   gl.Viewport(0, 0, width, height)
 }
 
+
 init_logger :: proc() -> runtime.Logger {
 
   f: ^os.File
@@ -35,6 +36,63 @@ deinit_logger :: proc() {
   log.destroy_file_logger(context.logger)    
 }
 
+camera_pos := la.Vector3f32{0.0, 0.0, 3.0}
+camera_front := la.Vector3f32{0.0, 0.0, -1.0}
+camera_up := la.Vector3f32{0.0, 1.0, 0.0}
+delta_time: f32 = 0.0
+last_frame: f32 = 0.0
+first_mouse: bool = true
+lastX: f64 = f64(WIDTH) / 2.0
+lastY: f64 = f64(HEIGHT) / 2.0
+yaw: f32 = -90.0
+pitch: f32 = 0.0
+fov: f32 = 45.0
+
+
+scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
+  fov -= f32(yoffset)
+  if fov < 1.0 {
+    fov = 1.0
+  }
+  if fov > 45.0 {
+    fov = 45.0
+  }
+}
+
+mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+  if first_mouse {
+    lastX = xpos;
+    lastY = ypos;
+    first_mouse = false
+  }
+
+  xoffset: f32 = f32(xpos - lastX)
+  yoffset: f32 = f32(lastY - ypos)
+  lastX = xpos
+  lastY = ypos
+
+  sensitivity: f32 = 0.1
+
+  xoffset *= sensitivity
+  yoffset *= sensitivity
+
+  yaw += xoffset
+  pitch += yoffset
+
+  if pitch > 89.0 {
+    pitch = 89.0
+  }
+  if pitch < -89.0 {
+    pitch = -89.0
+  }
+
+  front: la.Vector3f32
+
+  front.x = la.cos(la.to_radians(yaw)) * la.cos(la.to_radians(pitch))
+  front.y = la.sin(la.to_radians(pitch))
+  front.z = la.sin(la.to_radians(yaw)) * la.cos(la.to_radians(pitch))
+  camera_front = la.normalize(front)
+}
 
 main :: proc() {
   context.logger = init_logger()
@@ -51,15 +109,17 @@ main :: proc() {
   glfw.WindowHint(glfw.VERSION_MAJOR, 3)
   glfw.WindowHint(glfw.VERSION_MINOR, 3)
   glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-
   glfw.MakeContextCurrent(window)
+
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
+  glfw.SetCursorPosCallback(window, mouse_callback)
+  glfw.SetScrollCallback(window, scroll_callback)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
   gl.load_up_to(3, 3, glfw.gl_set_proc_address)
   gl.Enable(gl.DEPTH_TEST)
 
   log.info("setup window and load OpenGL library")
-
 
   prog, prog_err := shader.load_program("vertex.glsl", "fragment.glsl")
   defer gl.DeleteProgram(prog)
@@ -161,6 +221,10 @@ main :: proc() {
   log.info("Bind vertices and textures")
 
   for !glfw.WindowShouldClose(window) {
+    current_frame := f32(glfw.GetTime())
+    delta_time = current_frame - last_frame
+    last_frame = current_frame
+
     process_input(window)
     gl.ClearColor(0.2, 0.3, 0.3, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -170,13 +234,17 @@ main :: proc() {
     gl.ActiveTexture(gl.TEXTURE1)
     gl.BindTexture(gl.TEXTURE_2D, tex2)
 
-    view := la.MATRIX4F32_IDENTITY
     projection := la.MATRIX4F32_IDENTITY
-    view *= la.matrix4_translate_f32(la.Vector3f32{0.0, 0.0, -4.0})
-    projection *= la.matrix4_perspective_f32(f32(la.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
-
-    shader.set_unfiromMat4(prog, "view", view)
+    projection *= la.matrix4_perspective_f32(la.to_radians(fov), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     shader.set_unfiromMat4(prog, "projection", projection)
+
+    view := la.MATRIX4F32_IDENTITY
+    radius: f32 = 10.0
+    camx := la.sin(f32(glfw.GetTime())) * radius
+    camz := la.cos(f32(glfw.GetTime())) * radius
+    view *= la.matrix4_look_at_f32(camera_pos, camera_pos + camera_front, camera_up)
+    shader.set_unfiromMat4(prog, "view", view)
+
 
     gl.BindVertexArray(VAO)
     for i in 0..< len(cube_positions) {
@@ -197,6 +265,20 @@ main :: proc() {
 process_input :: proc(window: glfw.WindowHandle) {
   if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
     glfw.SetWindowShouldClose(window, true)
+  }
+  camera_speed: f32 = 2.5 * delta_time
+
+  if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS {
+    camera_pos += camera_speed * camera_front
+  }
+  if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS {
+    camera_pos -= camera_speed * camera_front
+  }
+  if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
+    camera_pos -= la.normalize(la.cross(camera_front, camera_up)) * camera_speed
+  }
+  if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
+    camera_pos += la.normalize(la.cross(camera_front, camera_up)) * camera_speed
   }
 }
 
