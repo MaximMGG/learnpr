@@ -10,6 +10,7 @@ import "shader"
 import "texture"
 import cam "camerapos"
 import la "core:math/linalg"
+import "core:c/libc"
 
 WIDTH :: 1280
 HEIGHT :: 720
@@ -51,6 +52,7 @@ scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
 }
 
 mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos, ypos: f64) {
+  libc.fprintf(libc.stderr, "X: %lf, Y: %lf\n", xpos, ypos)
   context = runtime.default_context()
   if first_mouse {
     lastX = xpos
@@ -88,7 +90,7 @@ main :: proc() {
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
   glfw.SetCursorPosCallback(window, mouse_callback)
   glfw.SetScrollCallback(window, scroll_callback)
-  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_NORMAL)
 
   gl.load_up_to(3, 3, glfw.gl_set_proc_address)
   gl.Enable(gl.DEPTH_TEST)
@@ -239,7 +241,6 @@ process_input :: proc(window: glfw.WindowHandle) {
   if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) {
     glfw.SetWindowShouldClose(window, true)
   }
-  camera_speed: f32 = 2.5 * delta_time
 
   if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS {
     cam.process_keyboard(&camera, .FORWARD, f64(delta_time))
