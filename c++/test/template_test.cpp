@@ -1,21 +1,45 @@
 #include <stdio.h>
 
 
-
-template <typename T, typename D>
-void assertEql(T a, D b, int line) {
-  if (a != b) {
-    printf("Not Eql %d line\n", line);
-  } else {
-    printf("Eql\n");
+template <typename T>
+struct DArr {
+  T *data;
+  int len = 0;
+  int cap = 8;
+  DArr() {
+    this->data = new T [this->cap];
   }
-}
+  ~DArr() {
+    delete [] this->data;
+  }
 
+  T& operator[](int index) {
+    if (index < 0 || index >= this->len) {
+      return this->data[0];
+    }
+    return this->data[index];
+  }
+  void append(T t) {
+    this->data[this->len++] = t;
+  }
+};
 
 int main() {
 
+  DArr<int> arr{};
 
-  assertEql(3, 3, __LINE__);
+  arr.append(3);
+  arr.append(7);
+  arr.append(89898);
+
+  arr[2] = 3;
+
+  for(int i = 0; i < arr.len; i++) {
+    printf("%d\n", arr[i]);
+  }
 
   return 0;
 }
+
+
+
