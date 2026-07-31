@@ -47,7 +47,6 @@ bool shaderCheckStatus(u32 element, u32 type) {
 }
 
 static u32 shaderCompileShader(str path, u32 gl_shader_type) {
-
   str shader_source = readEntyreFile(path);
   if (shader_source == null) {
     log(ERROR, "Read shader file %s errro", path);

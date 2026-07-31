@@ -1,7 +1,6 @@
+#include "../shader.h"
 #include <cstdext/core.h>
-#include "shader.h"
-#include "texture.h"
-#include "camera.h"
+#include "../texture.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cstdext/io/logger.h>
@@ -15,16 +14,7 @@ void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset);
 void processInput(GLFWwindow *window);
 
 
-f32 delta_time = 0.0;
-f32 last_frame = 0.0;
-bool first_mouse = true;
-f32 lastX = cast(f32, WIDTH) / 2.0;
-f32 lastY = cast(f32, HEIGHT) / 2.0;
-Camera *c;
-
 i32 main() {
-  Camera cam = cameraCreate((vec3){0.0f, 0.0f, 3.0f}, (vec3){0.0, 1.0, 0.0f}, -90.0f, 0.0f);
-  c = &cam;
   logSetOpt(DEF_OPTION, LOG_TYPE_FILE, "log_gl.log");
   glfwInit();
   log(INFO, "initGlfw");
@@ -42,11 +32,14 @@ i32 main() {
   glfwMakeContextCurrent(window);
 
   glfwSetFramebufferSizeCallback(window, framebufferCallback);
-  glfwSetCursorPosCallback(window, mouseposCallback);
-  glfwSetScrollCallback(window, scrollCallback);
+  // glfwSetCursorPosCallback(window, mouseposCallback);
+  // glfwSetScrollCallback(window, scrollCallback);
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    log(ERROR, "gladLoadGLLoader error");
+    return 1;
+  }
   glEnable(GL_DEPTH_TEST);
 
   Shader program = shaderCreateProgram("vertex.glsl", "fragment.glsl");
@@ -120,18 +113,18 @@ i32 main() {
      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
   };
 
-  vec3 cubePositions[] = {
-        { 0.0f,  0.0f,  0.0f},
-        { 2.0f,  5.0f, -15.0f},
-        {-1.5f, -2.2f, -2.5f},
-        {-3.8f, -2.0f, -12.3f},
-        { 2.4f, -0.4f, -3.5f},
-        {-1.7f,  3.0f, -7.5f},
-        { 1.3f, -2.0f, -2.5f},
-        { 1.5f,  2.0f, -2.5f},
-        { 1.5f,  0.2f, -1.5f},
-        {-1.3f,  1.0f, -1.5}
-  };
+  // vec3 cubePositions[] = {
+  //       { 0.0f,  0.0f,  0.0f},
+  //       { 2.0f,  5.0f, -15.0f},
+  //       {-1.5f, -2.2f, -2.5f},
+  //       {-3.8f, -2.0f, -12.3f},
+  //       { 2.4f, -0.4f, -3.5f},
+  //       {-1.7f,  3.0f, -7.5f},
+  //       { 1.3f, -2.0f, -2.5f},
+  //       { 1.5f,  2.0f, -2.5f},
+  //       { 1.5f,  0.2f, -1.5f},
+  //       {-1.3f,  1.0f, -1.5}
+  // };
 
   u32 VAO, VBO;
   glGenVertexArrays(1, &VAO);
@@ -153,11 +146,6 @@ i32 main() {
   log(INFO, "Start main loop");
   while(!glfwWindowShouldClose(window)) {
 
-    f32 current_frame = cast(f32, glfwGetTime());
-    delta_time = current_frame - last_frame;
-    last_frame = current_frame;
-
-
     processInput(window);
     glClearColor(0.2, 0.3, 0.3, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -169,27 +157,19 @@ i32 main() {
 
     shaderUse(program);
 
-    mat4 projection;
-    memcpy(projection, GLM_MAT4_IDENTITY, sizeof(mat4));
-    glm_perspective(glm_rad(c->zoom), cast(f32, WIDTH) / cast(f32, HEIGHT), 0.1f, 100.0f, projection);
+    mat4 model = GLM_MAT4_IDENTITY_INIT;
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+
+    glm_rotate(model, cast(f32, glfwGetTime()), (vec3){0.5f, 1.0f, 0.0f});
+    glm_translate(view, (vec3){0.0f, 0.0f, -3.0f});
+    glm_perspective(glm_rad(45.0f), cast(f32, WIDTH) / cast(f32, HEIGHT), 0.1f, 100.f, projection);
+    shaderUniformMat4(program, "model", model);
+    shaderUniformMat4(program, "view", view);
     shaderUniformMat4(program, "projection", projection);
 
-    mat4 view;
-    memcpy(view, GLM_MAT4_IDENTITY, sizeof(mat4));
-    cameraGetViewMatrix(c, &view);
-    shaderUniformMat4(program, "view", view);
-
     glBindVertexArray(VAO);
-
-    for(i32 i = 0; i < 10; i++) {
-      mat4 model;
-      memcpy(model, GLM_MAT4_IDENTITY, sizeof(mat4));
-      glm_translate(model, cubePositions[i]);
-      glm_rotate(model, glm_rad(glfwGetTime()), (vec3){1.0f, 0.3f, 0.5f});
-      shaderUniformMat4(program, "model", model);
-
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -212,43 +192,8 @@ void framebufferCallback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
 }
 
-void mouseposCallback(GLFWwindow *window, f64 xpos_in, f64 ypos_in) {
-  f32 xpos = cast(f32, xpos_in);
-  f32 ypos = cast(f32, ypos_in);
-
-  if (first_mouse) {
-    lastX = xpos;
-    lastY = ypos;
-    first_mouse = false;
-  }
-
-  f32 xoffset = xpos - lastX;
-  f32 yoffset = lastY - ypos;
-
-  lastX = xpos;
-  lastY = ypos;
-
-  cameraProcessMouseMovement(c, xoffset, yoffset, true);
-}
-void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
-  cameraProcessMouseScroll(c, cast(f32, yoffset));
-}
-
 void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, FORWARD, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, BACKWARD, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, LEFT, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, RIGHT, delta_time);
   }
 }

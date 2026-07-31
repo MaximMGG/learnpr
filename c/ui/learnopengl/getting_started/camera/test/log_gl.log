@@ -1,0 +1,10 @@
+2026-07-31 20:18:10 [INFO] main.c:20 main initGlfw
+2026-07-31 20:18:10 [INFO] main.c:50 main Create and compile shaders
+2026-07-31 20:18:10 [INFO] main.c:67 main Create textures
+2026-07-31 20:18:10 [INFO] main.c:143 main Start main loop
+2026-07-31 20:18:27 [INFO] main.c:184 main End
+2026-07-31 20:19:31 [INFO] main.c:20 main initGlfw
+2026-07-31 20:19:31 [INFO] main.c:53 main Create and compile shaders
+2026-07-31 20:19:32 [INFO] main.c:70 main Create textures
+2026-07-31 20:19:32 [INFO] main.c:146 main Start main loop
+2026-07-31 20:19:32 [INFO] main.c:187 main End
