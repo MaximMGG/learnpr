@@ -1,0 +1,1 @@
+2026-08-01 12:08:37 [ERROR] main.c:29 compileShader Compile VERTEX shader error: 0:1(10): error: GLSL 33.30 is not supported. Supported versions are: 1.10, 1.20, 1.30, 1.40, 1.50, 2026-08-01 12:08:37 [ERROR] main.c:29 compileShader 
