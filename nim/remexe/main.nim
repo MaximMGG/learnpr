@@ -1,35 +1,46 @@
-import std/[dirs, paths, os]
+import std/[dirs, paths, os, strutils]
 
+type Writer = ref object
+  fd: File
+  buf: array[4096, char]
+  index: int
 
+proc flush(w: var Writer) =
+  discard w.fd.writeChars(w.buf, 0, w.index)
 
-proc printDip(dip_level: int) =
+proc append(w: var Writer, s: string) =
+  if w.index + s.len >= 4096:
+    w.flush()
+    zeroMem(addr w.buf[0], 4096)
+    w.index = 0
+    
+  w.buf[w.index..(w.index + s.len - 1)] = s[0..^1]
+  w.index += s.len
+
+proc printDip(w: var Writer, dip_level: int) =
   for i in 0 ..< dip_level:
-    stdout.write("  ")
+    w.append("  ")
 
-
-proc remExe(path: Path, dip_level: int) =
-  printDip(dip_level)
-  echo "Entering ", path, "dir..."
+proc remExe(w: var Writer, path: Path, dip_level: int) =
+  printDip(w, dip_level)
+  w.append("Entering '" & path.string & "' -> \n")
 
   for i in walkDir(path):
     case i.kind:
     of PathComponent.pcFile:
-      echo "This is file: ", i.path
+
       let fi = getFileInfo(i.path.string)
       if fpUserExec in fi.permissions:
-        printDip(dip_level)
-        echo "Delete exe: ", i.path
-        removeFile(i.path.string)
-        printDip(dip_level)
-    of PathComponent.pcLinkToFile:
-      echo "link: ", i.path
+        if not i.path.string.endsWith(".sh"):
+          printDip(w, dip_level)
+          w.append("\x1b[31mDelete exe: " & i.path.string & "\x1b[0m\n")
+          removeFile(i.path.string)
+          printDip(w, dip_level)
     of pcDir:
-      echo "Dir: ", i.path
-      let new_path = path / i.path
-      remExe(new_path, dip_level + 1)
-    of pcLinkToDir:
-      echo "Link to dir: ", i.path
+      remExe(w, i.path, dip_level + 1)
+    else:
+      echo ""
 
-
-
-remExe(Path("."), 0)
+var w = Writer(fd: stdout)
+remExe(w, Path("."), 0)
+w.flush
