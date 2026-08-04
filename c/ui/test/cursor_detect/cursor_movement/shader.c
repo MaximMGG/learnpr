@@ -10,7 +10,7 @@ bool programCheckStatus(u32 element, u32 type) {
     if (status == GL_FALSE) {
       byte err_msg[512];
       glGetShaderInfoLog(element, 512, null, err_msg);
-      log(ERROR, "Compile vertex shader error: ", err_msg);
+      LOG(ERROR, "Compile vertex shader error: ", err_msg);
       return false;
     }
   } break;
@@ -20,7 +20,7 @@ bool programCheckStatus(u32 element, u32 type) {
     if (status == GL_FALSE) {
       byte err_msg[512];
       glGetShaderInfoLog(element, 512, null, err_msg);
-      log(ERROR, "Compile fragment shader error: ", err_msg);
+      LOG(ERROR, "Compile fragment shader error: ", err_msg);
       return false;
     }
   } break;
@@ -30,7 +30,7 @@ bool programCheckStatus(u32 element, u32 type) {
     if (status == GL_FALSE) {
       byte err_msg[512];
       glGetProgramInfoLog(element, 512, null, err_msg);
-      log(ERROR, "Link program error: ", err_msg);
+      LOG(ERROR, "Link program error: ", err_msg);
       return false;
     }
   } break;
@@ -42,12 +42,12 @@ bool programCheckStatus(u32 element, u32 type) {
 Program programLoad(str vertex_path, str frag_path) {
   u32 v_shader = programLoadShader(vertex_path, GL_VERTEX_SHADER);
   if (v_shader == 0) {
-    log(ERROR, "programLoad vertex shader error");
+    LOG(ERROR, "programLoad vertex shader error");
     return 0;
   }
   u32 f_shader = programLoadShader(frag_path, GL_FRAGMENT_SHADER);
   if (f_shader == 0) {
-    log(ERROR, "programLoad fragment shader error");
+    LOG(ERROR, "programLoad fragment shader error");
   }
 
   u32 prog = glCreateProgram();
@@ -57,7 +57,7 @@ Program programLoad(str vertex_path, str frag_path) {
   glDeleteShader(v_shader);
   glDeleteShader(f_shader);
   if (!programCheckStatus(prog, 0)) {
-    log(ERROR, "programLoad link program error");
+    LOG(ERROR, "programLoad link program error");
     return 0;
   }
 
@@ -66,14 +66,14 @@ Program programLoad(str vertex_path, str frag_path) {
 Shader programLoadShader(str path, u32 type) {
   byte *source = readEntyreFile(path);
   if (source == null) {
-    log(ERROR, "Read shader source error");
+    LOG(ERROR, "Read shader source error");
     return 0;
   }
   u32 shader = glCreateShader(type);
   glShaderSource(shader, 1, (const char **)&source, null);
   glCompileShader(shader);
   if (!programCheckStatus(shader, type)) {
-    log(ERROR, "programLoadShader error");
+    LOG(ERROR, "programLoadShader error");
     return 0;
   }
   return shader;
@@ -90,7 +90,7 @@ void programDestroy(Program p) {
 i32 programGetLocation(Program p, str name) {
   i32 loc = glGetUniformLocation(p, name);
   if (loc == -1) {
-    log(ERROR, "Didn't find location of uniform %s", name);
+    LOG(ERROR, "Didn't find location of uniform %s", name);
     return -1;
   }
   return loc;

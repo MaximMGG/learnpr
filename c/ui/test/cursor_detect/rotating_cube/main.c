@@ -14,7 +14,7 @@
 
 
 void init_logger() {
-  logSetOpt(DEF_OPTION, LOG_TYPE_FILE, "gl_log.log");
+  logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
 }
 
 void deinit_logger() {
@@ -34,7 +34,7 @@ void process_input(GLFWwindow *window) {
 
 i32 main() {
   if (!glfwInit()) {
-    log(ERROR, "glfwInit error");
+    LOG(ERROR, "glfwInit error");
     return 1;
   }
 
@@ -50,15 +50,15 @@ i32 main() {
 
   Program p = programLoad("vertex.glsl", "fragment.glsl");
   if (p == 0) {
-    log(ERROR, "programLoad error");
+    LOG(ERROR, "programLoad error");
   }
   Texture t1 = textureLoadJpg("container.jpg");
   if (t1 == 0) {
-    log(ERROR, "textureLoadJpg error");
+    LOG(ERROR, "textureLoadJpg error");
   }
   Texture t2 = textureLoadPng("awesomeface.png");
   if (t2 == 0) {
-    log(ERROR, "textureLoadPng error");
+    LOG(ERROR, "textureLoadPng error");
   }
 
   f32 vertices[] = {
@@ -128,6 +128,12 @@ i32 main() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, t1);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, t2);
+
     mat4 model = GLM_MAT4_IDENTITY_INIT;
     mat4 view = GLM_MAT4_IDENTITY_INIT;
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
@@ -153,7 +159,7 @@ i32 main() {
   textureDestroy(t2);
   glfwDestroyWindow(window);
   glfwTerminate();
-  log(INFO, "End of OpenGL");
+  LOG(INFO, "End of OpenGL");
   logCleanup();
 
   return 0;

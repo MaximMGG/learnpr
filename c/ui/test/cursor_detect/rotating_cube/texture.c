@@ -2,8 +2,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-
 Texture textureLoadPng(str path) {
+
+  if (!strEndsWith(path, ".png")) {
+    LOG(ERROR, "textureLoadPng has no .png file: %s", path);
+    return 0;
+  }
 
   Texture t;
   glGenTextures(1, &t);
@@ -17,9 +21,9 @@ Texture textureLoadPng(str path) {
 
   i32 width, height, nrChannels;
   stbi_set_flip_vertically_on_load(true);
-  u8 *data = stbi_load(path, &width, &height, &nrChannels, null);
+  u8 *data = stbi_load(path, &width, &height, &nrChannels, 0);
   if (!data) {
-    log(ERROR, "stbi_load return null");
+    LOG(ERROR, "stbi_load return null");
     glDeleteTextures(1, &t);
     return 0;
   } else {
@@ -31,6 +35,10 @@ Texture textureLoadPng(str path) {
 }
 
 Texture textureLoadJpg(str path) {
+  if (!strEndsWith(path, ".jpg")) {
+    LOG(ERROR, "textureLoadPng has no .jpg file: %s", path);
+    return 0;
+  }
   Texture t;
   glGenTextures(1, &t);
   glBindTexture(GL_TEXTURE_2D, t);
@@ -43,9 +51,9 @@ Texture textureLoadJpg(str path) {
 
   i32 width, height, nrChannels;
   stbi_set_flip_vertically_on_load(true);
-  u8 *data = stbi_load(path, &width, &height, &nrChannels, null);
+  u8 *data = stbi_load(path, &width, &height, &nrChannels, 0);
   if (!data) {
-    log(ERROR, "stbi_load return null");
+    LOG(ERROR, "stbi_load return null");
     glDeleteTextures(1, &t);
     return 0;
   } else {
@@ -54,6 +62,8 @@ Texture textureLoadJpg(str path) {
   }
 
   return t;
-
 }
-void textureDestroy(Texture t);
+
+void textureDestroy(Texture t) {
+  glDeleteTextures(1, &t);
+}
