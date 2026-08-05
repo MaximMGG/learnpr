@@ -1,0 +1,34 @@
+2026-08-05 19:59:45 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 19:59:45 [INFO] main.c:40 main Init OpenGL
+2026-08-05 19:59:45 [ERROR] shader.c:13 programCheckStatus Compile vertex shader error: 
+2026-08-05 19:59:45 [ERROR] shader.c:76 programLoadShader programLoadShader error
+2026-08-05 19:59:45 [ERROR] shader.c:45 programLoad programLoad vertex shader error
+2026-08-05 19:59:45 [ERROR] main.c:44 main programLoad error
+2026-08-05 20:00:17 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:00:19 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:00:20 [ERROR] shader.c:13 programCheckStatus Compile vertex shader error: 
+2026-08-05 20:00:20 [ERROR] shader.c:76 programLoadShader programLoadShader error
+2026-08-05 20:00:20 [ERROR] shader.c:45 programLoad programLoad vertex shader error
+2026-08-05 20:00:21 [ERROR] main.c:44 main programLoad error
+2026-08-05 20:00:44 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:00:44 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:00:49 [INFO] main.c:80 main End of OpenGL
+2026-08-05 20:04:52 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:04:52 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:04:56 [INFO] main.c:104 main End of OpenGL
+2026-08-05 20:05:17 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:05:17 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:05:17 [ERROR] shader.c:93 programGetLocation Didn't find location of uniform ortho
+2026-08-05 20:05:20 [INFO] main.c:104 main End of OpenGL
+2026-08-05 20:05:49 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:05:49 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:05:52 [INFO] main.c:104 main End of OpenGL
+2026-08-05 20:07:37 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:07:37 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:07:41 [INFO] main.c:104 main End of OpenGL
+2026-08-05 20:08:05 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:08:05 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:08:08 [INFO] main.c:104 main End of OpenGL
+2026-08-05 20:08:56 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:08:56 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:08:59 [INFO] main.c:110 main End of OpenGL

@@ -21,7 +21,7 @@ i32 main() {
 
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Test window", null, null);
   if (window == null) {
-    log(ERROR, "glfwCreateWindwo error");
+    LOG(ERROR, "glfwCreateWindwo error");
     glfwTerminate();
     return 1;
   }
