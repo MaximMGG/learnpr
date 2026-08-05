@@ -32,3 +32,6 @@
 2026-08-05 20:08:56 [INFO] main.c:31 main init glfw and Craete Window
 2026-08-05 20:08:56 [INFO] main.c:40 main Init OpenGL
 2026-08-05 20:08:59 [INFO] main.c:110 main End of OpenGL
+2026-08-05 20:16:15 [INFO] main.c:31 main init glfw and Craete Window
+2026-08-05 20:16:15 [INFO] main.c:40 main Init OpenGL
+2026-08-05 20:16:22 [INFO] main.c:110 main End of OpenGL

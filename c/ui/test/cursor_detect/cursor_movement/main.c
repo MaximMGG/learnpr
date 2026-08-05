@@ -82,7 +82,7 @@ i32 main() {
   glEnableVertexAttribArray(0);
 
   mat4 ortho;
-  glm_ortho(0, F32(WIDTH), 0, F32(HEIGHT), 0.1, 100.0, ortho);
+  glm_ortho(0, F32(WIDTH), F32(HEIGHT), 0, -1.0, 1.0, ortho);
   
   programUse(prog);
   programSetMat4(prog, "ortho", ortho);
