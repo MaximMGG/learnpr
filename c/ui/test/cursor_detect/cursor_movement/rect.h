@@ -10,6 +10,7 @@ typedef struct {
   i32 y;
   i32 width;
   i32 height;
+  u32 vao_id;
   u32 id;
   u32 element_id;
   f32 rect_data[8];
