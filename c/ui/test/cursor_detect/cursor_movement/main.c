@@ -12,6 +12,7 @@
 f64 x = 0.0;
 f64 y = 0.0;
 bool new_rect = false;
+bool reset = false;
 
 void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
@@ -19,7 +20,15 @@ void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
 
 
 void process_input(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+    reset = true;
+  }
+
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
     glfwGetCursorPos(window, &x, &y);
     new_rect = true;
   }
@@ -97,9 +106,16 @@ i32 main() {
 
     if (new_rect) {
       if (x > 0.0 && y > 0.0) {
-        daAppend(dr, rectCreate(I32(x), I32(y), 50, 50));
+        daAppend(dr, rectCreate(I32(x), I32(y), 20, 20));
         new_rect = false;
       }
+    }
+
+    if (reset) {
+      for(i32 i = 0; i < DA_LEN(dr); i++) {
+        daRemoveUnordered(dr, i);
+      }
+      reset = false;
     }
 
     for(i32 i = 0; i < DA_LEN(dr); i++) {
