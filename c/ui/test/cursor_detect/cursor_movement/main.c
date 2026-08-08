@@ -129,7 +129,7 @@ i32 main() {
     }
     if (new_circle) {
       if (x > 0.0 && y > 0.0) {
-        daAppend(dc, circleCreate(F32(x), F32(y), F32(50), circle_prog));
+        daAppend(dc, circleCreate(F32(x), F32(y), F32(10), circle_prog));
         new_circle = false;
       }
     }

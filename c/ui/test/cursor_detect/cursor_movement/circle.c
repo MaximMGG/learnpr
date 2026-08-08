@@ -16,6 +16,7 @@ Circle circleCreate(f32 x, f32 y, f32 r, u32 prog) {
   c.circle_data[6] = x - r;
   c.circle_data[7] = y + r;
 
+
   c.circle_elements[0] = 0;
   c.circle_elements[1] = 1;
   c.circle_elements[2] = 2;
