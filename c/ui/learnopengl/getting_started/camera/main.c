@@ -3,9 +3,29 @@
 #include <cstdext/core.h>
 #include "shader.h"
 #include "texture.h"
+#include <cglm/cglm.h>
 
 #define WIDTH 1280
 #define HEIGHT 720
+
+void framebufferCallback(GLFWwindow *window, i32 width, i32 height);
+void mouseCallback(GLFWwindow *window, f64 xpos, f64 ypos);
+void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset);
+void processInput(GLFWwindow *window);
+
+vec3 camera_pos = {0.0f, 0.0f, 3.0f};
+vec3 camera_front = {0.0f, 0.0f, -1.0f};
+vec3 camera_up = {0.0f, 1.0f, 0.0f};
+
+bool first_mouse = true;
+f32 yaw = -90.0f;
+f32 pitch = 0.0f;
+f32 lastX = F32(WIDTH) / 2.0f;
+f32 lastY = F32(HEIGHT) / 2.0f;
+f32 fov = 45.0;
+
+f32 delta_time = 0.0;
+f32 last_frame = 0.0;
 
 
 i32 main() {
@@ -17,8 +37,163 @@ i32 main() {
     glfwTerminate();
     return 1;
   }
+  LOG(INFO, "Init glfw and create WINDOW");
+
+  glfwWindowHint(GL_MAJOR_VERSION, 3);
+  glfwWindowHint(GL_MINOR_VERSION, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwMakeContextCurrent(window);
+
+  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+  glEnable(GL_DEPTH_TEST);
+
+  Program prog = programCreate("vertex.glsl", "fragment.glsl");
+
+  f32 vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+ 
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+  };
+
+  vec3 cube_positions[] = {
+   { 0.0f,  0.0f,  0.0f},
+   { 2.0f,  5.0f, -15.0f},
+   {-1.5f, -2.2f, -2.5f},
+   {-3.8f, -2.0f, -12.3f},
+   { 2.4f, -0.4f, -3.5f},
+   {-1.7f,  3.0f, -7.5f},
+   { 1.3f, -2.0f, -2.5f},
+   { 1.5f,  2.0f, -2.5f},
+   { 1.5f,  0.2f, -1.5f},
+   {-1.3f,  1.0f, -1.5f}
+  };
+
+  u32 VBO, VAO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glBindVertexArray(VAO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void *)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void *)(3 * sizeof(f32)));
+  glEnableVertexAttribArray(1);
+
+  Texture t1 = textureLoadJpg("container.jpg");
+  if (t1.id == 0) {
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    programDestroy(prog);
+    return 1;
+  }
+  Texture t2 = textureLoadPng("awesomeface.png");
+  if (t2.id == 0) {
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    textureDestroy(t1);
+    programDestroy(prog);
+    return 1;
+  }
+  LOG(INFO, "Load textures");
+
+  programUse(prog);
+  programSetUniformInt(prog, "texture1", 0);
+  programSetUniformInt(prog, "texture2", 1);
+
+  LOG(INFO, "Enter main loop");
+
+  while(!glfwWindowShouldClose(window)) {
+    processInput(window);
+    glClearColor(0.2, 0.3, 0.3, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    f32 current_frame = F32(glfwGetTime());
+    delta_time = current_frame - last_frame;
+    last_frame = current_frame;
+
+    glActiveTexture(GL_TEXTURE0);
+    textureBind(t1);
+    glActiveTexture(GL_TEXTURE1);
+    textureBind(t2);
+
+    programUse(prog);
+
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+    glm_perspective(glm_rad(fov), F32(WIDTH) / F32(HEIGHT), 0.1f, 100.0f, projection);
+    programSetUniformMat4(prog, "projection", projection);
+
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
+    vec3 pos_front;
+    glm_vec3_add(camera_pos, camera_front, pos_front);
+    glm_lookat(camera_pos, pos_front, camera_up, view);
+    programSetUniformMat4(prog, "view", view);
+
+    glBindVertexArray(VAO);
+
+    for(i32 i = 0; i < 10; i++) {
+      mat4 model = GLM_MAT4_IDENTITY_INIT;
+      glm_translate(model, cube_positions[i]);
+      glm_rotate(model, F32(glfwGetTime()), (vec3){1.0f, 0.3f, 0.5f});
+      programSetUniformMat4(prog, "model", model);
+
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
 
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  }
+
+  programDestroy(prog);
+  textureDestroy(t1);
+  textureDestroy(t2);
+  glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(1, &VBO);
+  glfwDestroyWindow(window);
+  glfwTerminate();
+
+  LOG(INFO, "Cleanup and end of OpenGL");
   logCleanup();
   return 0;
 }

@@ -29,7 +29,7 @@ Texture textureLoadPng(str path) {
   return (Texture){.id = t};
 }
 
-Texture textrueLoadJpg(str path) {
+Texture textureLoadJpg(str path) {
   if (!strEndsWith(path, ".jpg")) {
     LOG(ERROR, "textureLoadJpg, but get not .jpg file as input: %s", path);
     return (Texture){.id = 0};
@@ -61,4 +61,8 @@ Texture textrueLoadJpg(str path) {
 
 void textureDestroy(Texture t) {
   glDeleteTextures(1, &t.id);
+}
+
+void textureBind(Texture t) {
+  glBindTexture(GL_TEXTURE_2D, t.id);
 }

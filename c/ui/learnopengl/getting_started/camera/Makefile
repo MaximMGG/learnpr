@@ -1,12 +1,9 @@
 APP = app
 
-
 SRC = $(wildcard *.c)
 OBJ = $(SRC:%.o=%.c)
 
-
 .PHONY: default build run clean
-
 
 default: build run
 
