@@ -1,124 +1,146 @@
 #include "shader.h"
-#include <cstdext/io/logger.h>
 #include <cstdext/io/reader.h>
 
-typedef enum {
-
-  VERTEX_SHADER_TYPE,
-  FRAGMENT_SHADER_TYPE,
-  PROGRAM_TYPE
-} ShaderType;
-
-bool shaderCheckStatus(u32 element, u32 type) {
-  switch (type) {
-  case GL_VERTEX_SHADER: {
-    i32 status;
-    glGetShaderiv(element, GL_COMPILE_STATUS, &status);
-    if (status == GL_FALSE) {
-      i8 err_buf[512] = {0};
-      glGetShaderInfoLog(element, 512, null, err_buf);
-      log(ERROR, "COMPILE VERTEX shader error: %s", err_buf);
-      return false;
-    }
-  } break;
-  case GL_FRAGMENT_SHADER: {
-    i32 status;
-    glGetShaderiv(element, GL_COMPILE_STATUS, &status);
-    if (status == GL_FALSE) {
-      i8 err_buf[512] = {0};
-      glGetShaderInfoLog(element, 512, null, err_buf);
-      log(ERROR, "COMPILE FRAGMENT shader error: %s", err_buf);
-      return false;
-    }
-  } break;
-  case 0: {
-    i32 status;
-    glGetProgramiv(element, GL_LINK_STATUS, &status);
-    if (status == GL_FALSE) {
-      i8 err_buf[512] = {0};
-      glGetProgramInfoLog(element, 512, null, err_buf);
-      log(ERROR, "Link program error: %s", err_buf);
-      return false;
-    }
-  } break;
+static bool programCheckStatus(u32 element, u32 type) {
+  switch(type) {
+    case GL_VERTEX_SHADER: {
+      i32 status;
+      glGetShaderiv(element, GL_COMPILE_STATUS, &status);
+      if (status == GL_FALSE) {
+        i8 buf[512] = {0};
+        glGetShaderInfoLog(element, 512, null, buf);
+        LOG(ERROR, "Compile VERTEX shader error: %s", buf);
+        return false;
+      }
+    } break;
+    case GL_FRAGMENT_SHADER: {
+      i32 status;
+      glGetShaderiv(element, GL_COMPILE_STATUS, &status);
+      if (status == GL_FALSE) {
+        i8 buf[512] = {0};
+        glGetShaderInfoLog(element, 512, null, buf);
+        LOG(ERROR, "Compile FRAGMENT shader error: %s", buf);
+        return false;
+      }
+    } break;
+    case 0: {
+      i32 status;
+      glGetProgramiv(element, GL_LINK_STATUS, &status);
+      if (status == GL_FALSE) {
+        i8 buf[512] = {0};
+        glGetProgramInfoLog(element, 512, null, buf);
+        LOG(ERROR, "Link program error: %s", buf);
+        return false;
+      }
+    } break;
   }
 
   return true;
 }
 
-static u32 shaderCompileShader(str path, u32 gl_shader_type) {
+u32 programCompileShader(str path, u32 type) {
   str shader_source = readEntyreFile(path);
   if (shader_source == null) {
-    log(ERROR, "Read shader file %s errro", path);
+    LOG(ERROR, "Read shader file %s error", path);
     return 0;
   }
-  u32 shader = glCreateShader(gl_shader_type);
-  glShaderSource(shader, 1, (const char **)&shader_source, null);
-  glCompileShader(shader);
-  if (!shaderCheckStatus(shader, gl_shader_type)) {
-    log(ERROR, "Compile shader errror");
+  u32 shader = glCreateShader(type);
+  glShaderSource(shader, 1, (const i8 **)&shader_source, null);
+  DEALLOC(shader_source);
+  if (!programCheckStatus(shader, type)) {
     return 0;
   }
-
   return shader;
 }
 
-Shader shaderCreateProgram(str vertex_path, str fragment_path) {
-  u32 v_shader = shaderCompileShader(vertex_path, GL_VERTEX_SHADER);
+
+Program programCreate(str vertex_path, str fragment_path) {
+  u32 v_shader = programCompileShader(vertex_path, GL_VERTEX_SHADER);
   if (v_shader == 0) {
-    return 0;
+    LOG(ERROR, "programCreate failed");
+    return (Program){.id = 0};
   }
-  u32 f_shader = shaderCompileShader(fragment_path, GL_FRAGMENT_SHADER);
+  u32 f_shader = programCompileShader(fragment_path, GL_FRAGMENT_SHADER);
   if (f_shader == 0) {
-    return 0;
+    LOG(ERROR, "programCreate failed");
+    return (Program){.id = 0};
   }
-  u32 program = glCreateProgram();
-  glAttachShader(program, v_shader);
-  glAttachShader(program, f_shader);
-  glLinkProgram(program);
-  if (!shaderCheckStatus(program, 0)) {
-    return 0;
-  }
+  Program p;
+  p.id = glCreateProgram();
+  glAttachShader(p.id, v_shader);
+  glAttachShader(p.id, f_shader);
+  glLinkProgram(p.id);
   glDeleteShader(v_shader);
   glDeleteShader(f_shader);
-  return program;
+  if(!programCheckStatus(p.id, 0)) {
+    LOG(ERROR, "programCreate failed");
+    return (Program){.id = 0};
+  }
+  p.uniforms = mapCreate(POINTER(str), NUMERIC(i32), null, MAP_EQL_STR_FUNC);
+  return p;
 }
 
-void shaderUse(Shader s) { glUseProgram(s); }
+void programUse(Program p) {
+  glUseProgram(p.id);
+}
 
-void shaderDestroy(Shader s) { glDeleteProgram(s); }
+void programDestroy(Program p) {
+  Iter *it = mapIter(p.uniforms);
+  while(it->ok) {
+    DEALLOC(it->key);
+    iterNext(it);
+  }
+  iterDestroy(it);
+  mapDestroy(p.uniforms);
+  glDeleteProgram(p.id);
+}
 
-i32 shaderGetUniformLocation(Shader s, str name) {
-  i32 location = glGetUniformLocation(s, name);
-  if (location == -1) {
-    log(ERROR, "Can't find location of uniform %s", name);
+static i32 programGetUniformLocation(Program p, str uniform_name) {
+  KV kv = mapGet(p.uniforms, uniform_name);
+  if (kv.key != null) {
+    return *((i32 *)(kv.val));
+  }
+  i32 loc = glGetUniformLocation(p.id, uniform_name);
+  if (loc == -1) {
+    LOG(ERROR, "Can't find uniform location: %s", uniform_name);
     return -1;
   }
-  return location;
+  mapInsert(p.uniforms, strCopy(uniform_name), &loc);
+  return loc;
 }
 
-void shaderUniformInt(Shader s, str uniform_name, i32 val) {
-  i32 location = shaderGetUniformLocation(s, uniform_name);
-  if (location == -1)
+void programSetUniformInt(Program p, str uniform_name, i32 val) {
+  i32 loc = programGetUniformLocation(p, uniform_name);
+  if (loc == -1) {
     return;
-  glUniform1i(s, val);
+  }
+  glUniform1i(loc, val);
 }
-
-void shaderUniformFloat(Shader s, str uniform_name, f32 val) {
-  i32 location = shaderGetUniformLocation(s, uniform_name);
-  if (location == -1)
+void programSetUniformFloat(Program p, str uniform_name, f32 val) {
+  i32 loc = programGetUniformLocation(p, uniform_name);
+  if (loc == -1) {
     return;
-  glUniform1f(s, val);
+  }
+  glUniform1f(loc, val);
 }
-void shaderUniformMat4(Shader s, str uniform_name, mat4 val) {
-  i32 location = shaderGetUniformLocation(s, uniform_name);
-  if (location == -1)
+void programSetUniformVec2(Program p, str uniform_name, vec2 val) {
+  i32 loc = programGetUniformLocation(p, uniform_name);
+  if (loc == -1) {
     return;
-  glUniformMatrix4fv(s, 1, GL_FALSE, &val[0][0]);
+  }
+  glUniform2fv(loc, 1, val);
 }
-void shaderUniformVec4(Shader s, str uniform_name, vec4 val) {
-  i32 location = shaderGetUniformLocation(s, uniform_name);
-  if (location == -1)
+void programSetUniformVec4(Program p, str uniform_name, vec4 val) {
+  i32 loc = programGetUniformLocation(p, uniform_name);
+  if (loc == -1) {
     return;
-  glUniform4fv(s, 1, &val[0]);
-}
+  }
+  glUniform4fv(loc, 1, val);
+}  
+void programSetUniformMat4(Program p, str uniform_name, mat4 val) {
+  i32 loc = programGetUniformLocation(p, uniform_name);
+  if (loc == -1) {
+    return;
+  }
+  glUniformMatrix4fv(loc, 1, GL_FALSE, &val[0][0]);
+}  

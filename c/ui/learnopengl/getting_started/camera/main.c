@@ -1,254 +1,27 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <cstdext/core.h>
 #include "shader.h"
 #include "texture.h"
-#include "camera.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <cstdext/io/logger.h>
 
 #define WIDTH 1280
 #define HEIGHT 720
 
-void framebufferCallback(GLFWwindow *window, i32 width, i32 height);
-void mouseposCallback(GLFWwindow *window, f64 xpos, f64 ypos);
-void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset);
-void processInput(GLFWwindow *window);
-
-
-f32 delta_time = 0.0;
-f32 last_frame = 0.0;
-bool first_mouse = true;
-f32 lastX = cast(f32, WIDTH) / 2.0;
-f32 lastY = cast(f32, HEIGHT) / 2.0;
-Camera *c;
 
 i32 main() {
-  Camera cam = cameraCreate((vec3){0.0f, 0.0f, 3.0f}, (vec3){0.0, 1.0, 0.0f}, -90.0f, 0.0f);
-  c = &cam;
-  logSetOpt(DEF_OPTION, LOG_TYPE_FILE, "log_gl.log");
   glfwInit();
-  log(INFO, "initGlfw");
-
-  GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Camera", null, null);
+  logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
+  GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Camera example", null, null);
   if (window == null) {
-    log(ERROR, "glfwCreateWindow error");
+    LOG(ERROR, "glfwCreateWindow error");
     glfwTerminate();
     return 1;
   }
 
-  glfwWindowHint(GLFW_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwMakeContextCurrent(window);
 
-  glfwSetFramebufferSizeCallback(window, framebufferCallback);
-  glfwSetCursorPosCallback(window, mouseposCallback);
-  glfwSetScrollCallback(window, scrollCallback);
-  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-  gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-  glEnable(GL_DEPTH_TEST);
-
-  Shader program = shaderCreateProgram("vertex.glsl", "fragment.glsl");
-  if (program == 0) {
-    log(ERROR, "shaderCreateProgram error");
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return 1;
-  }
-
-  log(INFO, "Create and compile shaders");
-
-  Texture t1 = textureCreateJpg("container.jpg");
-  if (t1 == 0) {
-    log(ERROR, "textureCreateJpg error");
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return 1;
-  }
-  Texture t2 = textureCreatePng("awesomeface.png");
-  if (t2 == 0) {
-    log(ERROR, "textureCreatePng error");
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return 1;
-  }
-
-  log(INFO, "Create textures");
-
-  f32 vertices[] = {
-     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-      0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-  };
-
-  vec3 cubePositions[] = {
-        { 0.0f,  0.0f,  0.0f},
-        { 2.0f,  5.0f, -15.0f},
-        {-1.5f, -2.2f, -2.5f},
-        {-3.8f, -2.0f, -12.3f},
-        { 2.4f, -0.4f, -3.5f},
-        {-1.7f,  3.0f, -7.5f},
-        { 1.3f, -2.0f, -2.5f},
-        { 1.5f,  2.0f, -2.5f},
-        { 1.5f,  0.2f, -1.5f},
-        {-1.3f,  1.0f, -1.5}
-  };
-
-  u32 VAO, VBO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void *)0);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(f32), (void *)(3 * sizeof(f32)));
-  glEnableVertexAttribArray(1);
-
-  shaderUse(program);
-  shaderUniformInt(program, "texture1", 0);
-  shaderUniformInt(program, "texture2", 1);
-
-  log(INFO, "Start main loop");
-  while(!glfwWindowShouldClose(window)) {
-
-    f32 current_frame = cast(f32, glfwGetTime());
-    delta_time = current_frame - last_frame;
-    last_frame = current_frame;
-
-
-    processInput(window);
-    glClearColor(0.2, 0.3, 0.3, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, t1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, t2);
-
-    shaderUse(program);
-
-    mat4 projection;
-    memcpy(projection, GLM_MAT4_IDENTITY, sizeof(mat4));
-    glm_perspective(glm_rad(c->zoom), cast(f32, WIDTH) / cast(f32, HEIGHT), 0.1f, 100.0f, projection);
-    shaderUniformMat4(program, "projection", projection);
-
-    mat4 view;
-    memcpy(view, GLM_MAT4_IDENTITY, sizeof(mat4));
-    cameraGetViewMatrix(c, &view);
-    shaderUniformMat4(program, "view", view);
-
-    glBindVertexArray(VAO);
-
-    for(i32 i = 0; i < 10; i++) {
-      mat4 model;
-      memcpy(model, GLM_MAT4_IDENTITY, sizeof(mat4));
-      glm_translate(model, cubePositions[i]);
-      glm_rotate(model, glm_rad(glfwGetTime()), (vec3){1.0f, 0.3f, 0.5f});
-      shaderUniformMat4(program, "model", model);
-
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
-
-  shaderDestroy(program);
-  textureDestroy(t1);
-  textureDestroy(t2);
-  glDeleteBuffers(1, &VBO);
-  glDeleteVertexArrays(1, &VAO);
-
-  glfwDestroyWindow(window);
-  glfwTerminate();
-
-  log(INFO, "End");
+  logCleanup();
   return 0;
 }
 
-void framebufferCallback(GLFWwindow *window, i32 width, i32 height) {
-  glViewport(0, 0, width, height);
-}
 
-void mouseposCallback(GLFWwindow *window, f64 xpos_in, f64 ypos_in) {
-  f32 xpos = cast(f32, xpos_in);
-  f32 ypos = cast(f32, ypos_in);
 
-  if (first_mouse) {
-    lastX = xpos;
-    lastY = ypos;
-    first_mouse = false;
-  }
-
-  f32 xoffset = xpos - lastX;
-  f32 yoffset = lastY - ypos;
-
-  lastX = xpos;
-  lastY = ypos;
-
-  cameraProcessMouseMovement(c, xoffset, yoffset, true);
-}
-void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
-  cameraProcessMouseScroll(c, cast(f32, yoffset));
-}
-
-void processInput(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-    glfwSetWindowShouldClose(window, true);
-  }
-
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, FORWARD, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, BACKWARD, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, LEFT, delta_time);
-  }
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    cameraProcessKeyboard(c, RIGHT, delta_time);
-  }
-}
