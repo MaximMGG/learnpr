@@ -15,8 +15,10 @@ Shader programLoadShader(str path, u32 type);
 void programUse(Program p);
 void programDestroy(Program p);
 void programSetInt(Program p, str uniform_name, i32 val);
+void programSetFloat(Program p, str uniform_name, f32 val);
 void programSetMat4(Program p, str uniform_name, mat4 val);
 void programSetVec4(Program p, str uniform_name, vec4 val);
+void programSetVec2(Program p, str uniform_name, vec2 val);
 
 
 #endif //SHADER_H

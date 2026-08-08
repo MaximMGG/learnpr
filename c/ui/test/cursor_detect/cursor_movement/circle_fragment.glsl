@@ -1,20 +1,15 @@
 #version 330 core
-
 out vec4 FragColor;
 
-uniform float WIDTH;
-uniform float HEIGHT;
-
-//uniform vec3 Color;
+uniform vec2 circle_position;
+uniform float r;
 
 void main() {
-  vec2 resolution = vec2(WIDTH, HEIGHT);
-  vec2 uv = gl.FragCoord.xy / resolution * 2.0 - 1.0;
-  float aspect = resolution.x / resolution.y;
-  uv.x * aspect;
+  vec2 pixel = gl_FragCoord.xy;
+  float distance = length(pixel - circle_position);
+  if (distance > r) {
+    discard;
+  }
 
-  float distance = 1.0 - length(uv);
-  distance = step(0.0, distance);
-  FragColor.rgb = vec3(distance);
-  //FragColor.rgb *= color;
+  FragColor = vec4(1.0, 0.5, 0.5, 1.0);
 }

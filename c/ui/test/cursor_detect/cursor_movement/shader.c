@@ -107,3 +107,11 @@ void programSetMat4(Program p, str uniform_name, mat4 val) {
 void programSetVec4(Program p, str uniform_name, vec4 val) {
   glUniform3fv(programGetLocation(p, uniform_name), 1, &val[0]);
 }
+
+void programSetFloat(Program p, str uniform_name, f32 val) {
+  glUniform1f(programGetLocation(p, uniform_name), val);
+}
+
+void programSetVec2(Program p, str uniform_name, vec2 val) {
+  glUniform2fv(programGetLocation(p, uniform_name), 1, val);
+}

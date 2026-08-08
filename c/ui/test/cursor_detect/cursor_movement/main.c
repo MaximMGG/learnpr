@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "rect.h"
+#include "circle.h"
 #include "shader.h"
 #include <cglm/cglm.h>
 
@@ -13,6 +14,7 @@ f64 x = 0.0;
 f64 y = 0.0;
 bool new_rect = false;
 bool reset = false;
+bool new_circle = false;
 
 void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
@@ -31,6 +33,10 @@ void process_input(GLFWwindow *window) {
   if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
     glfwGetCursorPos(window, &x, &y);
     new_rect = true;
+  }
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+    glfwGetCursorPos(window, &x, &y);
+    new_circle = true;
   }
 }
 
@@ -69,6 +75,14 @@ i32 main() {
     return 1;
   }
 
+  Program circle_prog = programLoad("circle_vertex.glsl", "circle_fragment.glsl");
+  if (circle_prog == 0) {
+    LOG(ERROR, "cirlce programLoad error");
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 1;
+  }
+
   // f32 vertices[] = {
   //   -0.5, 0.5,
   //   0.5, 0.5,
@@ -89,20 +103,23 @@ i32 main() {
 
 
   Rect *dr = daCreate(Rect);
-
+  Circle *dc = daCreate(Circle);
 
   mat4 ortho;
   glm_ortho(0, F32(WIDTH), F32(HEIGHT), 0, -1.0, 1.0, ortho);
   
   programUse(prog);
   programSetMat4(prog, "ortho", ortho);
-  
+
+  programUse(circle_prog);
+  programSetMat4(circle_prog, "ortho", ortho);
+  // programSetFloat(circle_prog, "width", F32(WIDTH));
+  // programSetFloat(circle_prog, "height", F32(HEIGHT));
+
   while(!glfwWindowShouldClose(window)) {
     process_input(window);
     glClearColor(0.2, 0.3, 0.3, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    programUse(prog);
 
     if (new_rect) {
       if (x > 0.0 && y > 0.0) {
@@ -110,16 +127,30 @@ i32 main() {
         new_rect = false;
       }
     }
+    if (new_circle) {
+      if (x > 0.0 && y > 0.0) {
+        daAppend(dc, circleCreate(F32(x), F32(y), F32(50), circle_prog));
+        new_circle = false;
+      }
+    }
 
     if (reset) {
       for(i32 i = 0; i < DA_LEN(dr); i++) {
         daRemoveUnordered(dr, i);
       }
+      for(i32 i = 0; i < DA_LEN(dc); i++) {
+        daRemoveUnordered(dc, i);
+      }
       reset = false;
     }
 
+    programUse(prog);
     for(i32 i = 0; i < DA_LEN(dr); i++) {
       rectDraw(&dr[i]);
+    }
+    programUse(circle_prog);
+    for(i32 i = 0; i < DA_LEN(dc); i++) {
+      circleDraw(&dc[i]);
     }
     
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

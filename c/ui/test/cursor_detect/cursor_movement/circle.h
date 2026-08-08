@@ -14,11 +14,11 @@ typedef struct {
 
   f32 circle_data[8]; 
   u32 circle_elements[6];
-
+  u32 program;
 } Circle;
 
 
-Circle circleCreate(f32 x, f32 y, f32 r);
+Circle circleCreate(f32 x, f32 y, f32 r, u32 prog);
 void circleDraw(Circle *c);
 void circleDestroy(Circle c);
 
