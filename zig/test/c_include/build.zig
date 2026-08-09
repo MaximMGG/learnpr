@@ -10,6 +10,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     translate_c.linkSystemLibrary("glfw", .{});
+    translate_c.linkSystemLibrary("glad", .{});
 
     const exe = b.addExecutable(.{
         .name = "app",
@@ -22,6 +23,9 @@ pub fn build(b: *std.Build) void {
 
     exe.root_module.addImport("c", translate_c.createModule());
 
-    b.installArtifact(exe);
+    const run_step = b.step("run", "Run application");
+    const run_exe = b.addRunArtifact(exe);
+    run_step.dependOn(&run_exe.step);
 
+    b.installArtifact(exe);
 }

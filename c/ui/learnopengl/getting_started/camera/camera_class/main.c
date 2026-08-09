@@ -4,6 +4,7 @@
 #include <cstdext/core.h>
 #include "shader.h"
 #include "texture.h"
+#include "camera.h"
 #include <cglm/cglm.h>
 
 #define WIDTH 1280
@@ -14,24 +15,23 @@ void mouseCallback(GLFWwindow *window, f64 xpos, f64 ypos);
 void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset);
 void processInput(GLFWwindow *window);
 
-vec3 camera_pos = {0.0f, 0.0f, 3.0f};
-vec3 camera_front = {0.0f, 0.0f, -1.0f};
-vec3 camera_up = {0.0f, 1.0f, 0.0f};
+Camera *c;
 
 bool first_mouse = true;
-f32 yaw = -90.0f;
-f32 pitch = 0.0f;
-f32 lastX = F32(WIDTH) / 2.0f;
-f32 lastY = F32(HEIGHT) / 2.0f;
-f32 fov = 45.0;
 
 f32 delta_time = 0.0;
 f32 last_frame = 0.0;
+f32 lastX = F32(WIDTH) / 2.0f;
+f32 lastY = F32(HEIGHT) / 2.0f;
 
 
 i32 main() {
   glfwInit();
   logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
+
+  Camera tmp = cameraCreateVec((vec3){0.0f, 0.0f, 3.0f});
+  c = &tmp;
+  
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Camera example", null, null);
   if (window == null) {
     LOG(ERROR, "glfwCreateWindow error");
@@ -167,13 +167,11 @@ i32 main() {
     programUse(prog);
 
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
-    glm_perspective(glm_rad(fov), F32(WIDTH) / F32(HEIGHT), 0.1f, 100.0f, projection);
+    glm_perspective(glm_rad(c->zoom), F32(WIDTH) / F32(HEIGHT), 0.1f, 100.0f, projection);
     programSetUniformMat4(prog, "projection", projection);
 
     mat4 view = GLM_MAT4_IDENTITY_INIT;
-    vec3 pos_front;
-    glm_vec3_add(camera_pos, camera_front, pos_front);
-    glm_lookat(camera_pos, pos_front, camera_up, view);
+    cameraGetViewMatrix(c, view);
     programSetUniformMat4(prog, "view", view);
 
     glBindVertexArray(VAO);
@@ -211,22 +209,16 @@ void processInput(GLFWwindow *window) {
   }
   float camera_speed = 2.5 * delta_time;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    glm_vec3_muladds(camera_front, camera_speed, camera_pos);
+    cameraProcessKeyboard(c, FORWARD, delta_time);
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    glm_vec3_mulsubs(camera_front, camera_speed, camera_pos);
+    cameraProcessKeyboard(c, BACKWARD, delta_time);    
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    vec3 after_cross;
-    glm_cross(camera_front, camera_up, after_cross);
-    glm_normalize(after_cross);
-    glm_vec3_mulsubs(after_cross, camera_speed, camera_pos);
+    cameraProcessKeyboard(c, LEFT, delta_time);
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    vec3 after_cross;
-    glm_cross(camera_front, camera_up, after_cross);
-    glm_normalize(after_cross);
-    glm_vec3_muladds(after_cross, camera_speed, camera_pos);
+    cameraProcessKeyboard(c, RIGHT, delta_time);
   }
 }
 
@@ -235,7 +227,6 @@ void framebufferCallback(GLFWwindow *window, i32 width, i32 height) {
 }
 
 void mouseCallback(GLFWwindow *window, f64 xposin, f64 yposin) {
-  printf("Mouse pos: X: %lf, Y:%lf\n", xposin, yposin);
   f32 xpos = F32(xposin);
   f32 ypos = F32(yposin);
 
@@ -250,35 +241,9 @@ void mouseCallback(GLFWwindow *window, f64 xposin, f64 yposin) {
 
   lastX = xpos;
   lastY = ypos;
-  f32 sensitivity = 0.1f;
-  xoffset *= sensitivity;
-  yoffset *= sensitivity;
-
-  yaw += xoffset;
-  pitch += yoffset;
-
-  if (pitch > 89.0f) {
-    pitch = 89.0f;
-  }
-  if (pitch < -89.0f) {
-    pitch = -89.0f;
-  }
-
-  vec3 front;
-
-  front[0] = cos(glm_rad(yaw)) * cos(glm_rad(pitch));
-  front[1] = sin(glm_rad(pitch));
-  front[2] = sin(glm_rad(yaw)) * cos(glm_rad(pitch));
-  glm_normalize(front);
-  memcpy(camera_front, front, sizeof(vec3));
+  cameraProcessMouseMovement(c, xoffset, yoffset, true);
 }
 
 void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
-  fov -= F32(yoffset);
-  if (fov < 1.0) {
-    fov = 1.0;
-  }
-  if (fov > 45.0) {
-    fov = 45.0;
-  }
+  cameraProcessMouseScroll(c, F32(yoffset));
 }
