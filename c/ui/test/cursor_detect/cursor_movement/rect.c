@@ -1,5 +1,6 @@
 #include "rect.h"
 #include <string.h>
+#include "shape_type.h"
 
 f32 vertices[] = {
   0.0f, 0.0f,
@@ -13,6 +14,7 @@ f32 vertices[] = {
 
 Rect rectCreate(i32 x, i32 y, i32 width, i32 height) {
   Rect r = {.x = x, .y = y, .width = width, .height = height};
+  r.type = RECT;
 
   r.rect_data[0] = F32(x); //100
   r.rect_data[1] = F32(y); //100

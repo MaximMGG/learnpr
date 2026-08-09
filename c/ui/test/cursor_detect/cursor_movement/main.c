@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "rect.h"
+#include "renderer.h"
 #include "circle.h"
 #include "shader.h"
 #include <cglm/cglm.h>
@@ -15,31 +16,67 @@ f64 y = 0.0;
 bool new_rect = false;
 bool reset = false;
 bool new_circle = false;
+f32 size = 10.0;
 
-void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
-  glViewport(0, 0, width, height);
+void scrollCallback(GLFWwindow* window, f64 xoffset, f64 yoffset) {
+  if (yoffset > 0.0) {
+    if (size >= 100.0) {
+      size = 100.0;
+    } else {
+      size += 1.0;
+    }
+  }
+  if (yoffset < 0.0) {
+    if (size <= 1.0) {
+      size = 1.0;
+    } else  {
+      size -= 1.0;
+    }
+  }
 }
 
+void mouseKeyCallback(GLFWwindow* window, int button, int action, int mods) {
+  printf("Action == %d\n", action);
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    new_rect = true;
+  }
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+    new_rect = false;
+  }
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+    new_circle = true;
+  }
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+    new_circle = false;
+  }
+}
 
-void process_input(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+void keyCallback(GLFWwindow* window, i32 key, i32 scancode, i32 action, i32 mods) {
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-
-  if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+  if (key == GLFW_KEY_R && action == GLFW_PRESS) {
     reset = true;
   }
 
-  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-    glfwGetCursorPos(window, &x, &y);
-    new_rect = true;
+  if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+    if (size >= 100.0) {
+      size = 100.0;
+    }
+    size += 1.0;
   }
-  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-    glfwGetCursorPos(window, &x, &y);
-    new_circle = true;
+  if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+    if (size <= 1.0) {
+      size = 1.0;
+    }
+    size -= 1.0;
   }
 }
 
+void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
+  glViewport(0, 0, width, height);
+
+}
 
 i32 main() {
   logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
@@ -61,6 +98,9 @@ i32 main() {
   glfwWindowHint(GLFW_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwSetKeyCallback(window, keyCallback);
+  glfwSetMouseButtonCallback(window, mouseKeyCallback);
+  glfwSetScrollCallback(window, scrollCallback);
 
   glfwMakeContextCurrent(window);
   gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -83,27 +123,9 @@ i32 main() {
     return 1;
   }
 
-  // f32 vertices[] = {
-  //   -0.5, 0.5,
-  //   0.5, 0.5,
-  //   0.5, -0.5,
-  //   -0.5, -0.5
-  // };
-  // f32 vertices[] = {
-  //   100, 200,
-  //   200, 200,
-  //   200, 100,
-  //   100, 100 
-  // };
-
-  // u32 indeces[] = {
-  //   0, 1, 2,
-  //   0, 3, 2
-  // };
-
-
-  Rect *dr = daCreate(Rect);
-  Circle *dc = daCreate(Circle);
+  Renderer r = rendererCreate();
+  r.rect_program = prog;
+  r.circle_program = circle_prog;
 
   mat4 ortho;
   glm_ortho(0, F32(WIDTH), F32(HEIGHT), 0, -1.0, 1.0, ortho);
@@ -113,68 +135,43 @@ i32 main() {
 
   programUse(circle_prog);
   programSetMat4(circle_prog, "ortho", ortho);
-  // programSetFloat(circle_prog, "width", F32(WIDTH));
-  // programSetFloat(circle_prog, "height", F32(HEIGHT));
 
   while(!glfwWindowShouldClose(window)) {
-    process_input(window);
+    glfwGetCursorPos(window, &x, &y);
     glClearColor(0.2, 0.3, 0.3, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (new_rect) {
       if (x > 0.0 && y > 0.0) {
-        daAppend(dr, rectCreate(I32(x), I32(y), 20, 20));
-        new_rect = false;
+        Rect *rect = make(Rect);
+        *rect  = rectCreate(I32(x - size), I32(y - size), I32(size) * 2.0, I32(size) * 2.0);
+        rendererAddObject(&r, rect);
       }
     }
     if (new_circle) {
       if (x > 0.0 && y > 0.0) {
-        daAppend(dc, circleCreate(F32(x), F32(y), F32(10), circle_prog));
-        new_circle = false;
+        Circle *c = make(Circle);
+        *c = circleCreate(F32(x), F32(y), F32(size), circle_prog);
+        rendererAddObject(&r, c);
       }
     }
-
     if (reset) {
-      for(i32 i = 0; i < DA_LEN(dr); i++) {
-        daRemoveUnordered(dr, i);
-      }
-      for(i32 i = 0; i < DA_LEN(dc); i++) {
-        daRemoveUnordered(dc, i);
-      }
+      rendererClear(&r);
       reset = false;
     }
 
-    programUse(prog);
-    for(i32 i = 0; i < DA_LEN(dr); i++) {
-      rectDraw(&dr[i]);
-    }
-    programUse(circle_prog);
-    for(i32 i = 0; i < DA_LEN(dc); i++) {
-      circleDraw(&dc[i]);
-    }
-    
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-    //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
+    rendererDraw(&r);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
-
-  for(i32 i = 0; i < DA_LEN(dr); i++) {
-    rectDestroy(dr[i]);
-  }
-
+  rendererDestroy(&r);
 
   glfwDestroyWindow(window);
   glfwTerminate();
 
-  daDestroy(dr);
 
   LOG(INFO, "End of OpenGL");
   logCleanup();
   return 0;
 }
-
-
-

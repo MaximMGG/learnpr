@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 
 typedef struct {
+  u32 type;
   u32 vao_id;
   u32 id;
   u32 element_id;

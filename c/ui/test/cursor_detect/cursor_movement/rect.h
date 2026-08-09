@@ -6,6 +6,7 @@
 
 
 typedef struct {
+  u32 type;
   i32 x;
   i32 y;
   i32 width;

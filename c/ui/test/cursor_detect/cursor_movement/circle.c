@@ -1,8 +1,10 @@
 #include "circle.h"
 #include "shader.h"
+#include "shape_type.h"
 
 Circle circleCreate(f32 x, f32 y, f32 r, u32 prog) {
   Circle c = {.x = x, .y = y, .r = r};
+  c.type = CIRCLE;
 
   c.circle_data[0] = x - r;
   c.circle_data[1] = y - r;
@@ -45,8 +47,8 @@ void circleDraw(Circle *c) {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, c->element_id);
 
   programUse(c->program);
-  vec2 pos = {c->x, c->y};
-  programSetVec2(c->program, "circle_position", pos);
+  vec2 pos = {c->x, 720.0 - c->y};
+  programSetVec2(c->program, "center", pos);
   programSetFloat(c->program, "r", c->r);
 
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, null);
