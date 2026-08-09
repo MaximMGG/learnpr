@@ -36,7 +36,6 @@ void scrollCallback(GLFWwindow* window, f64 xoffset, f64 yoffset) {
 }
 
 void mouseKeyCallback(GLFWwindow* window, int button, int action, int mods) {
-  printf("Action == %d\n", action);
   if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
     new_rect = true;
   }
@@ -79,6 +78,7 @@ void frameBufferCallback(GLFWwindow *window, i32 width, i32 height) {
 }
 
 i32 main() {
+  trackingAllocationInit();
   logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
 
   if (!glfwInit()) {
@@ -173,5 +173,6 @@ i32 main() {
 
   LOG(INFO, "End of OpenGL");
   logCleanup();
+  trackingAllocationDeinit();
   return 0;
 }

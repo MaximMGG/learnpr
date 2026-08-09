@@ -72,6 +72,7 @@ Shader programLoadShader(str path, u32 type) {
   u32 shader = glCreateShader(type);
   glShaderSource(shader, 1, (const char **)&source, null);
   glCompileShader(shader);
+  DEALLOC(source);
   if (!programCheckStatus(shader, type)) {
     LOG(ERROR, "programLoadShader error");
     return 0;

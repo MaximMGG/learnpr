@@ -38,6 +38,7 @@ void rendererDestroy(Renderer *r) {
         circleDestroy(*(Circle *)(r->objects[i]));
       } break;
     }
+    DEALLOC(r->objects[i]);
   }
   daDestroy(r->objects);
 }
