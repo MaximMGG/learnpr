@@ -6,6 +6,7 @@ pub fn build(b: *Build) void {
 
     const exe = b.addExecutable(.{
         .name = "app",
+        .use_llvm = true,
         .root_module = b.createModule(.{
             .root_source_file = b.path("main.zig"),
             .optimize = optimize,
