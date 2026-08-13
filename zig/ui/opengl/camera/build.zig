@@ -17,6 +17,7 @@ pub fn build(b: *Build) void {
 
     exe.root_module.linkSystemLibrary("glfw", .{});
     exe.root_module.linkSystemLibrary("glad", .{});
+    exe.root_module.linkSystemLibrary("m", .{});
 
     const run_exe = b.addRunArtifact(exe);
     const run_step = b.step("run", "Run application");

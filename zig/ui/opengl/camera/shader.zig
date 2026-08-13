@@ -1,6 +1,9 @@
 const std = @import("std");
 const gl = @import("glad.zig");
 
+const glm = @cImport({
+    @cInclude("cglm/cglm.h");
+});
 
 
 const ShaderType = enum {
@@ -100,11 +103,54 @@ pub fn Shader(allocator: std.mem.Allocator) type {
                 }
             return true;
         }
+
+        fn uniformLocation(self: *Self, uniform_name: []const u8) i32 {
+            const loc = gl.glGetUniformLocation(self.id, @ptrCast(uniform_name));
+            if (loc == -1) {
+                std.debug.print("Can't find location of uniform {s}\n", .{uniform_name});
+                return -1;
+            }
+            return loc;
+        }
+
         pub fn use(self: *Self) void {
             gl.glad_glUseProgram.?(self.id);
         }
         pub fn destroy(self: *Self) void {
             gl.glad_glDeleteProgram.?(self.id);
+        }
+
+        pub fn setFloat(self: *Self, uniform_name: []const u8, val: f32) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniform1f(loc, val);
+        }
+
+        pub fn setInt(self: *Self, uniform_name: []const u8, val: i32) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniform1i(loc, val);
+        }
+
+        pub fn setVec2(self: *Self, uniform_name: []const u8, val: glm.vec2) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniform2fv(loc, 1, val);
+        }
+        pub fn setVec3(self: *Self, uniform_name: []const u8, val: glm.vec3) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniform3fv(loc, 1, val);
+        }
+        pub fn setVec4(self: *Self, uniform_name: []const u8, val: glm.vec4) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniform4fv(loc, 1, val);
+        }
+        pub fn setMat4(self: *Self, uniform_name: []const u8, val: glm.mat4) void {
+            const loc = self.uniformLocation(uniform_name);
+            if (loc == -1) return;
+            gl.glUniformMatrix4fv(loc, 1, gl.GL_FALSE, val);
         }
 
     };
