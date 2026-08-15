@@ -20,14 +20,13 @@ bool first_mouse = true;
 
 vec3 light_pos = {1.2, 1.0, 2.0};
 
-
 void procesInput(GLFWwindow *window);
 void framebufferCallback(GLFWwindow *window, i32 width, i32 height);
 void mouseposCallback(GLFWwindow *window, f64 xpos_in, f64 ypos_in);
 void scrollCallback(GLFWwindow *window, f64 xoffset, f64 yoffset);
 
-
 i32 main() {
+
   logSetOpt(LOG_OPTION_DEF, LOG_TYPE_FILE, "gl_log.log");
   Camera cam = cameraCreateVec((vec3){0.0, 0.0, 3.0});
   c = &cam;
@@ -68,6 +67,7 @@ i32 main() {
   }
 
   LOG(INFO, "Load shaders");
+
 
   f32 vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -140,6 +140,7 @@ i32 main() {
   programSetUniformVec3(cube_shader, "lightColor", (vec3){1.0, 1.0, 1.0});
   programSetUniformVec3(cube_shader, "lightPos", light_pos);
 
+
   while(!glfwWindowShouldClose(window)) {
 
     f32 current_frame = F32(glfwGetTime());
@@ -187,7 +188,6 @@ i32 main() {
     glfwPollEvents();
   }
 
-
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteVertexArrays(1, &lightVAO);
   glDeleteBuffers(1, &VBO);
@@ -198,6 +198,8 @@ i32 main() {
   glfwDestroyWindow(window);
   glfwTerminate();
   logCleanup();
+
+
   return 0;
 }
 
