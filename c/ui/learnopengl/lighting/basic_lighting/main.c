@@ -43,7 +43,7 @@ i32 main() {
   glfwWindowHint(GLFW_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 
   glfwMakeContextCurrent(window);
 
@@ -162,6 +162,7 @@ i32 main() {
     programSetUniformMat4(cube_shader, "projection", projection);
     programSetUniformMat4(cube_shader, "view", view);
     programSetUniformMat4(cube_shader, "model", model);
+    programSetUniformVec3(cube_shader, "viewPos", c->position);
 
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
