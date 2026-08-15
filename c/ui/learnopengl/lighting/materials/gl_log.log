@@ -1,0 +1,20 @@
+2026-08-15 15:02:41 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:02:41 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:29(33): error: `materials' undeclared
+0:29(33): error: type mismatch
+0:29(17): error: operands 2026-08-15 15:02:41 [ERROR] shader.c:22 programCheckStatus 
+2026-08-15 15:02:41 [ERROR] shader.c:66 programCreate programCreate failed
+2026-08-15 15:02:41 [ERROR] main.c:59 main Load cube shader faelid
+2026-08-15 15:03:24 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:03:24 [INFO] main.c:69 main Load shaders
+2026-08-15 15:05:45 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:05:45 [INFO] main.c:69 main Load shaders
+2026-08-15 15:05:54 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:05:54 [INFO] main.c:69 main Load shaders
+2026-08-15 15:07:03 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:07:03 [INFO] main.c:69 main Load shaders
+2026-08-15 15:11:11 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:11:11 [INFO] main.c:69 main Load shaders
+2026-08-15 15:12:26 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:12:26 [INFO] main.c:69 main Load shaders
+2026-08-15 15:12:36 [INFO] main.c:55 main Init glfw and OpenGL
+2026-08-15 15:12:36 [INFO] main.c:69 main Load shaders

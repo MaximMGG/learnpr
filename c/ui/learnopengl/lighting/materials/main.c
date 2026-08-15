@@ -134,27 +134,38 @@ i32 main() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(f32), (void *)0);
   glEnableVertexAttribArray(0);
 
-
-  programUse(cube_shader);
-  programSetUniformVec3(cube_shader, "objectColor", (vec3){1.0, 0.5, 0.31});
-  programSetUniformVec3(cube_shader, "lightColor", (vec3){1.0, 1.0, 1.0});
-  programSetUniformVec3(cube_shader, "lightPos", light_pos);
-
-
   while(!glfwWindowShouldClose(window)) {
-
     f32 current_frame = F32(glfwGetTime());
     delta_time = current_frame - last_frame;
     last_frame = current_frame;
     
-
-
     procesInput(window);
     glClearColor(0.1, 0.1, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
     programUse(cube_shader);
+
+    programSetUniformVec3(cube_shader, "light.position", light_pos);
+    programSetUniformVec3(cube_shader, "viewPos", c->position);
+
+    vec3 light_color;
+    light_color[0] = F32(sin(glfwGetTime() * 2.0));
+    light_color[1] = F32(sin(glfwGetTime() * 0.7));
+    light_color[2] = F32(sin(glfwGetTime() * 1.3));
+    vec3 diffuse_color;
+    glm_vec3_mul(light_color, (vec3){0.5, 0.5, 0.5}, diffuse_color);
+    vec3 ambient_color;
+    glm_vec3_mul(diffuse_color, (vec3){0.2, 0.2, 0.2}, ambient_color);
+    programSetUniformVec3(cube_shader, "light.ambient", ambient_color);
+    programSetUniformVec3(cube_shader, "light.diffuse", diffuse_color);
+    programSetUniformVec3(cube_shader, "light.specular", (vec3){1.0, 1.0, 1.0});
+
+    programSetUniformVec3(cube_shader, "material.ambient", (vec3){1.0, 0.5, 0.31});
+    programSetUniformVec3(cube_shader, "material.diffuse", (vec3){1.0, 0.5, 0.31});
+    programSetUniformVec3(cube_shader, "material.specular", (vec3){0.5, 0.5, 0.5});
+    programSetUniformFloat(cube_shader, "material.shininess", 32.0);
+
     mat4 projection = GLM_MAT4_IDENTITY_INIT;
     glm_perspective(glm_rad(c->zoom), F32(WIDTH) / F32(HEIGHT), 0.1, 100.0, projection);
     mat4 view = GLM_MAT4_IDENTITY_INIT;
@@ -163,8 +174,6 @@ i32 main() {
     programSetUniformMat4(cube_shader, "projection", projection);
     programSetUniformMat4(cube_shader, "view", view);
     programSetUniformMat4(cube_shader, "model", model);
-    programSetUniformVec3(cube_shader, "viewPos", c->position);
-    programSetUniformVec3(cube_shader, "lightPos", light_pos);
 
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -173,9 +182,9 @@ i32 main() {
     programSetUniformMat4(light_shader, "projection", projection);
     programSetUniformMat4(light_shader, "view", view);
     mat4 light_model = GLM_MAT4_IDENTITY_INIT;
-    light_pos[0] = sin(F32(glfwGetTime()));
-    light_pos[1] = cos(F32(glfwGetTime()));
-    light_pos[2] = cos(F32(glfwGetTime()));
+    // light_pos[0] = sin(F32(glfwGetTime()));
+    // light_pos[1] = cos(F32(glfwGetTime()));
+    // light_pos[2] = cos(F32(glfwGetTime()));
     glm_translate(light_model, light_pos);
     glm_scale(light_model, (vec3){0.2, 0.2, 0.2});
     programSetUniformMat4(light_shader, "model", light_model);
