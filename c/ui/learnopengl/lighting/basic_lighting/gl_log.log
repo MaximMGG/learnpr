@@ -1,0 +1,16 @@
+2026-08-15 08:54:46 [INFO] main.c:56 main Init glfw and OpenGL
+2026-08-15 08:54:46 [ERROR] shader.c:12 programCheckStatus Compile VERTEX shader error: 0:1(1): error: syntax error, unexpected end of file
+
+2026-08-15 08:54:46 [ERROR] shader.c:61 programCreate programCreate failed
+2026-08-15 08:54:46 [ERROR] main.c:66 main Load light shader failed
+2026-08-15 08:56:08 [INFO] main.c:56 main Init glfw and OpenGL
+2026-08-15 08:56:08 [ERROR] shader.c:12 programCheckStatus Compile VERTEX shader error: 0:1(1): error: syntax error, unexpected end of file
+
+2026-08-15 08:56:08 [ERROR] shader.c:61 programCreate programCreate failed
+2026-08-15 08:56:08 [ERROR] main.c:66 main Load light shader failed
+2026-08-15 08:58:22 [INFO] main.c:56 main Init glfw and OpenGL
+2026-08-15 08:58:55 [ERROR] shader.c:12 programCheckStatus Compile VERTEX shader error: 0:1(1): error: syntax error, unexpected end of file
+
+2026-08-15 08:59:10 [INFO] main.c:56 main Init glfw and OpenGL
+2026-08-15 09:00:58 [INFO] main.c:56 main Init glfw and OpenGL
+2026-08-15 09:00:58 [INFO] main.c:70 main Load shaders
