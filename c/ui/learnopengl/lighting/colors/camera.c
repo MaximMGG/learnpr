@@ -45,6 +45,7 @@ Camera cameraCreateVec(vec3 position) {
   cameraUpdateVectors(&c);
   return c;
 }
+
 void cameraProcessKeyboard(Camera *c, CameraMovement direction, f32 delta_time) {
   f32 velocity = c->movement_speed * delta_time;
   if (direction == FORWARD) {
