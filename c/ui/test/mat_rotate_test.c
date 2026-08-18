@@ -27,13 +27,13 @@ int main() {
 
   glm_rotate(s, glm_rad(45.0), (vec3){1.0, 0.5, 0.8});
 
-  mat4 res;
-  glm_mat4_mul(s, a, res);
+  // mat4 res;
+  // glm_mat4_mul(s, a, res);
 
 
   for(int i = 0; i < 4; i++) {
     for(int j = 0; j < 4; j++) {
-      printf("%f\n", res[i][j]);
+      printf("%f\n", s[i][j]);
     }
   }
 
