@@ -4,6 +4,8 @@ import "core:fmt"
 import "core:io"
 import "core:os"
 
+import "core:math/linalg"
+
 
 
 main :: proc() {
