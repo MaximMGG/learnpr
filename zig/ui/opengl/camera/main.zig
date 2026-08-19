@@ -1,19 +1,12 @@
 const std = @import("std");
 const gl = @cImport(@cInclude("glad/glad.h"));
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
-const glm = @cImport(@cInclude("cglm/cglm.h"));
+const zglm = @import("zglm.zig");
 
 const shader = @import("shader.zig");
 
 const WIDTH = 1280;
 const HEIGHT = 720;
-
-const MAT4_IDENTITY = glm.mat4{
-    glm.vec4{ 1.0, 0.0, 0.0, 0.0 },
-    glm.vec4{ 0.0, 1.0, 0.0, 0.0 },
-    glm.vec4{ 0.0, 0.0, 1.0, 0.0 },
-    glm.vec4{ 0.0, 0.0, 0.0, 1.0 },
-};
 
 pub fn main(init: std.process.Init) !void {
     _ = glfw.glfwInit();
@@ -35,11 +28,65 @@ pub fn main(init: std.process.Init) !void {
     var s = try shader.Shader(allocator).createProgram("vertex.glsl", "fragment.glsl", init.io);
     defer s.destroy();
 
-    const vertices = [_]f32{ -0.5, -0.5, -0.5, 0.0, 0.0, 0.5, -0.5, -0.5, 1.0, 0.0, 0.5, 0.5, -0.5, 1.0, 1.0, 0.5, 0.5, -0.5, 1.0, 1.0, -0.5, 0.5, -0.5, 0.0, 1.0, -0.5, -0.5, -0.5, 0.0, 0.0, -0.5, -0.5, 0.5, 0.0, 0.0, 0.5, -0.5, 0.5, 1.0, 0.0, 0.5, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, 0.5, 1.0, 1.0, -0.5, 0.5, 0.5, 0.0, 1.0, -0.5, -0.5, 0.5, 0.0, 0.0, -0.5, 0.5, 0.5, 1.0, 0.0, -0.5, 0.5, -0.5, 1.0, 1.0, -0.5, -0.5, -0.5, 0.0, 1.0, -0.5, -0.5, -0.5, 0.0, 1.0, -0.5, -0.5, 0.5, 0.0, 0.0, -0.5, 0.5, 0.5, 1.0, 0.0, 0.5, 0.5, 0.5, 1.0, 0.0, 0.5, 0.5, -0.5, 1.0, 1.0, 0.5, -0.5, -0.5, 0.0, 1.0, 0.5, -0.5, -0.5, 0.0, 1.0, 0.5, -0.5, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 0.0, -0.5, -0.5, -0.5, 0.0, 1.0, 0.5, -0.5, -0.5, 1.0, 1.0, 0.5, -0.5, 0.5, 1.0, 0.0, 0.5, -0.5, 0.5, 1.0, 0.0, -0.5, -0.5, 0.5, 0.0, 0.0, -0.5, -0.5, -0.5, 0.0, 1.0, -0.5, 0.5, -0.5, 0.0, 1.0, 0.5, 0.5, -0.5, 1.0, 1.0, 0.5, 0.5, 0.5, 1.0, 0.0, 0.5, 0.5, 0.5, 1.0, 0.0, -0.5, 0.5, 0.5, 0.0, 0.0, -0.5, 0.5, -0.5, 0.0, 1.0 };
+    const vertices = [_]f32{ 
+        -0.5, -0.5, -0.5,  0.0, 0.0,
+         0.5, -0.5, -0.5,  1.0, 0.0,
+         0.5,  0.5, -0.5,  1.0, 1.0,
+         0.5,  0.5, -0.5,  1.0, 1.0,
+        -0.5,  0.5, -0.5,  0.0, 1.0,
+        -0.5, -0.5, -0.5,  0.0, 0.0,
 
-    const cubePositions = [_]glm.vec3{ glm.vec3{ 0.0, 0.0, 0.0 }, glm.vec3{ 2.0, 5.0, -15.0 }, glm.vec3{ -1.5, -2.2, -2.5 }, glm.vec3{ -3.8, -2.0, -12.3 }, glm.vec3{ 2.4, -0.4, -3.5 }, glm.vec3{ -1.7, 3.0, -7.5 }, glm.vec3{ 1.3, -2.0, -2.5 }, glm.vec3{ 1.5, 2.0, -2.5 }, glm.vec3{ 1.5, 0.2, -1.5 }, glm.vec3{ -1.3, 1.0, -1.5 } };
+        -0.5, -0.5,  0.5,  0.0, 0.0,
+         0.5, -0.5,  0.5,  1.0, 0.0,
+         0.5,  0.5,  0.5,  1.0, 1.0,
+         0.5,  0.5,  0.5,  1.0, 1.0,
+        -0.5,  0.5,  0.5,  0.0, 1.0,
+        -0.5, -0.5,  0.5,  0.0, 0.0,
+
+        -0.5,  0.5,  0.5,  1.0, 0.0,
+        -0.5,  0.5, -0.5,  1.0, 1.0,
+        -0.5, -0.5, -0.5,  0.0, 1.0,
+        -0.5, -0.5, -0.5,  0.0, 1.0,
+        -0.5, -0.5,  0.5,  0.0, 0.0,
+        -0.5,  0.5,  0.5,  1.0, 0.0,
+
+         0.5,  0.5,  0.5,  1.0, 0.0,
+         0.5,  0.5, -0.5,  1.0, 1.0,
+         0.5, -0.5, -0.5,  0.0, 1.0,
+         0.5, -0.5, -0.5,  0.0, 1.0,
+         0.5, -0.5,  0.5,  0.0, 0.0,
+         0.5,  0.5,  0.5,  1.0, 0.0,
+
+        -0.5, -0.5, -0.5,  0.0, 1.0,
+         0.5, -0.5, -0.5,  1.0, 1.0,
+         0.5, -0.5,  0.5,  1.0, 0.0,
+         0.5, -0.5,  0.5,  1.0, 0.0,
+        -0.5, -0.5,  0.5,  0.0, 0.0,
+        -0.5, -0.5, -0.5,  0.0, 1.0,
+
+        -0.5,  0.5, -0.5,  0.0, 1.0,
+         0.5,  0.5, -0.5,  1.0, 1.0,
+         0.5,  0.5,  0.5,  1.0, 0.0,
+         0.5,  0.5,  0.5,  1.0, 0.0,
+        -0.5,  0.5,  0.5,  0.0, 0.0,
+        -0.5,  0.5, -0.5,  0.0, 1.0
+    };
+
+
+    const cubePositions = [_]zglm.Vec3(f32){ 
+        zglm.Vec3(f32).init(.{ 0.0, 0.0, 0.0 }), 
+        zglm.Vec3(f32).init(.{ 2.0, 5.0, -15.0 }), 
+        zglm.Vec3(f32).init(.{ -1.5, -2.2, -2.5 }), 
+        zglm.Vec3(f32).init(.{ -3.8, -2.0, -12.3 }), 
+        zglm.Vec3(f32).init(.{ 2.4, -0.4, -3.5 }), 
+        zglm.Vec3(f32).init(.{ -1.7, 3.0, -7.5 }), 
+        zglm.Vec3(f32).init(.{ 1.3, -2.0, -2.5 }), 
+        zglm.Vec3(f32).init(.{ 1.5, 2.0, -2.5 }), 
+        zglm.Vec3(f32).init(.{ 1.5, 0.2, -1.5 }), 
+        zglm.Vec3(f32).init(.{ -1.3, 1.0, -1.5 } )};
 
     var VAO: u32 = undefined;
+
     var VBO: u32 = undefined;
 
     gl.glGenVertexArrays(1, @ptrCast(&VAO));
@@ -61,10 +108,10 @@ pub fn main(init: std.process.Init) !void {
     s.setInt("texture1", 0);
     s.setInt("texture2", 1);
 
-    var projection = MAT4_IDENTITY;
-    var view = MAT4_IDENTITY;
-    glm.glm_perspective(glm.glm_rad(45.0), @as(f32, @floatFromInt(WIDTH)) / @as(f32, @floatFromInt(HEIGHT)), 0.1, 100.0, @ptrCast(&projection[0]));
-    glm.glm_translate(@ptrCast(&view), @ptrCast(&(glm.vec3{ 0.0, 0.0, -3.0 })[0]));
+    var projection = zglm.Mat4(f32).init(zglm.MAT4_IDENTITY_INIT);
+    var view = zglm.Mat4(f32).init(zglm.MAT4_IDENTITY_INIT);
+    projection.perspective(zglm.to_rad(45.0), @as(f32, @floatFromInt(WIDTH)) / @as(f32, @floatFromInt(HEIGHT)), 0.1, 100.0);
+    view.translate(zglm.Vec3(f32).init(.{0.0, 0.0, -3.0}));
 
     s.setMat4("projection", projection);
     s.setMat4("view", view);
@@ -77,9 +124,9 @@ pub fn main(init: std.process.Init) !void {
 
         gl.glBindVertexArray(VAO);
         for (cubePositions[0..]) |pos| {
-            const model = MAT4_IDENTITY;
-            glm.glm_translate(model, @ptrCast(&pos[0]));
-            glm.glm_rotate(model, @as(f32, @floatCast(glfw.glfwGetTime())), @ptrCast(&(glm.vec3{ 1.0, 0.3, 0.5 })[0]));
+            var model = zglm.Mat4(f32).init(zglm.MAT4_IDENTITY_INIT);
+            model.translate(pos);
+            model.rotate(@floatCast(glfw.glfwGetTime()), zglm.Vec3(f32).init(.{1.0, 0.3, 0.5}));
             s.setMat4("model", model);
 
             gl.glDrawArrays(gl.GL_TRIANGLES, 0, 36);

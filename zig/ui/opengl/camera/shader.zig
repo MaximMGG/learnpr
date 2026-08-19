@@ -1,10 +1,6 @@
 const std = @import("std");
 const gl = @import("glad.zig");
-
-const glm = @cImport({
-    @cInclude("cglm/cglm.h");
-});
-
+const zglm = @import("zglm.zig");
 
 const ShaderType = enum {
     VERTEX_SHADER, FRAGMENT_SHADER, PROGRAM
@@ -132,25 +128,25 @@ pub fn Shader(allocator: std.mem.Allocator) type {
             gl.glUniform1i(loc, val);
         }
 
-        pub fn setVec2(self: *Self, uniform_name: []const u8, val: glm.vec2) void {
+        pub fn setVec2(self: *Self, uniform_name: []const u8, val: zglm.Vec2(f32)) void {
             const loc = self.uniformLocation(uniform_name);
             if (loc == -1) return;
-            gl.glUniform2fv(loc, 1, val);
+            gl.glUniform2fv(loc, 1, @ptrCast(&val.data[0]));
         }
-        pub fn setVec3(self: *Self, uniform_name: []const u8, val: glm.vec3) void {
+        pub fn setVec3(self: *Self, uniform_name: []const u8, val: zglm.Vec3(f32)) void {
             const loc = self.uniformLocation(uniform_name);
             if (loc == -1) return;
-            gl.glUniform3fv(loc, 1, val);
+            gl.glUniform3fv(loc, 1, @ptrCast(&val.data[0]));
         }
-        pub fn setVec4(self: *Self, uniform_name: []const u8, val: glm.vec4) void {
+        pub fn setVec4(self: *Self, uniform_name: []const u8, val: zglm.Vec4(f32)) void {
             const loc = self.uniformLocation(uniform_name);
             if (loc == -1) return;
-            gl.glUniform4fv(loc, 1, val);
+            gl.glUniform4fv(loc, 1, @ptrCast(&val.data[0]));
         }
-        pub fn setMat4(self: *Self, uniform_name: []const u8, val: glm.mat4) void {
+        pub fn setMat4(self: *Self, uniform_name: []const u8, val: zglm.Mat4(f32)) void {
             const loc = self.uniformLocation(uniform_name);
             if (loc == -1) return;
-            gl.glUniformMatrix4fv(loc, 1, gl.GL_FALSE, val);
+            gl.glUniformMatrix4fv(loc, 1, gl.GL_FALSE, @ptrCast(&val.data[0]));
         }
 
     };

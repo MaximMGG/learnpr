@@ -4,10 +4,26 @@ package mat_tests
 import "core:fmt"
 import la "core:math/linalg"
 
+mat_lookAt :: proc() {
+ 
+     eye := la.Vector3f32{0.5, 0.3, 0.0}
+     center := la.Vector3f32{1.5, 4.3, 2.0}
+     up := la.Vector3f32{9.5, 2.1, 0.2}
+     m := la.matrix4_look_at_f32(eye, center, up)
+
+     fmt.println(m)
+}
+
+
+mat_ortho :: proc() {
+  o := la.matrix_ortho3d_f32(0, 1280, 720, 0, -1, 1)
+  fmt.println(o)
+}
+
 
 mat_perspective :: proc() {
   a := la.Matrix4f32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-  a *= la.matrix4_perspective_f32(f32(la.to_radians(70.0)), 1280.0 / 720.0, 0.1, 100.0)
+  a *= la.matrix4_perspective_f32(f32(la.to_radians(40.0)), 1280.0 / 720.0, 0.1, 100.0)
 
   fmt.println(a)
 }
@@ -62,6 +78,8 @@ main :: proc() {
   // mat_translate()
   //mat_scale()
   // mat_combo()
-  mat_perspective()
+  // mat_perspective()
+  // mat_ortho()
 
+  mat_lookAt()
 }
