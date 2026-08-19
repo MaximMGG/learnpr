@@ -5,6 +5,14 @@ import "core:fmt"
 import la "core:math/linalg"
 
 
+mat_perspective :: proc() {
+  a := la.Matrix4f32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+  a *= la.matrix4_perspective_f32(f32(la.to_radians(70.0)), 1280.0 / 720.0, 0.1, 100.0)
+
+  fmt.println(a)
+}
+
+
 mat_combo :: proc() {
   a := la.Matrix4f32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
   a *= la.matrix4_scale(la.Vector3f32{7, 1, 8})
@@ -53,6 +61,7 @@ main :: proc() {
   //mat_mul()
   // mat_translate()
   //mat_scale()
-  mat_combo()
+  // mat_combo()
+  mat_perspective()
 
 }
