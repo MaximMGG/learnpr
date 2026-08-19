@@ -37,6 +37,7 @@ fn iterate_throuth_dir(allocator: std.mem.Allocator, dir: std.Io.Dir, path: []co
             },
             .file => {
                 const f = try dir.openFile(io, entry.name, .{ .mode =  .read_only});
+                defer f.close(io);
                 const stat = try f.stat(io);
                 const mode = stat.permissions.toMode();
 
