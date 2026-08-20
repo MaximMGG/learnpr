@@ -65,6 +65,6 @@ pub fn main() void {
     for(0..ITERATIONS) |_| {
         var m = Mat4(f32).init(m1.data);
         m.mul(m2);
-        std.debug.print("{any}\n", .{m});
+        // std.debug.print("{any}\n", .{m});
     }
 }

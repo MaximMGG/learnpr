@@ -44,3 +44,7 @@
 2026-08-09 13:57:25 [INFO] main.c:145 main Load textures
 2026-08-09 13:57:25 [INFO] main.c:151 main Enter main loop
 2026-08-09 13:57:34 [INFO] main.c:203 main Cleanup and end of OpenGL
+2026-08-18 20:13:59 [INFO] main.c:41 main Init glfw and create WINDOW
+2026-08-18 20:13:59 [INFO] main.c:145 main Load textures
+2026-08-18 20:13:59 [INFO] main.c:151 main Enter main loop
+2026-08-18 20:14:59 [INFO] main.c:203 main Cleanup and end of OpenGL
