@@ -4,15 +4,6 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-
-    const c = b.addTranslateC(.{
-        .target = target,
-        .optimize = optimize,
-        .root_source_file = b.path("c.h")
-    });
-
-    const c_module = c.createModule();
-
     const exe = b.addExecutable(.{
         .name = "coordiante",
         .root_module = b.createModule(.{
@@ -22,7 +13,6 @@ pub fn build(b: *std.Build) void {
         })
     });
 
-    exe.root_module.addImport("c", c_module);
     exe.root_module.linkSystemLibrary("glfw", .{});
     exe.root_module.linkSystemLibrary("glad", .{});
 
