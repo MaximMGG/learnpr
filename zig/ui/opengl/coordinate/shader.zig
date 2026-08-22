@@ -1,5 +1,5 @@
 const std = @import("std");
-const gl = @import("glad.zig");
+const gl = @cImport(@cInclude("glad/glad.h"));
 const zglm = @import("zglm.zig");
 
 const ShaderType = enum {

@@ -8,6 +8,7 @@ import "core:os"
 import "core:log"
 import "base:runtime"
 import la "core:math/linalg"
+import "core:fmt"
 
 WIDTH :: 1280
 HEIGHT :: 960
@@ -144,6 +145,12 @@ main :: proc() {
   shader.set_uniform1i(program, "texture1", 0)
   shader.set_uniform1i(program, "texture2", 1)
 
+  view2 := la.MATRIX4F32_IDENTITY
+  projection2 := la.MATRIX4F32_IDENTITY
+  view2 *= la.matrix4_translate_f32(la.Vector3f32{0.0, 0.0, -4.0})
+  projection2  *= la.matrix4_perspective_f32(f32(la.to_radians(45.0)), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
+  fmt.println("View:", view2)
+  fmt.println("Projection:", projection2)
 
   for !glfw.WindowShouldClose(window) {
     process_input(window)

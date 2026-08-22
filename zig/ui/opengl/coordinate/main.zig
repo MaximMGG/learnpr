@@ -21,9 +21,9 @@ pub fn processInput(window: *glfw.GLFWwindow) void {
 } 
 
 
-pub fn main(init: std.process.Init) void {
+pub fn main(init: std.process.Init) !void {
 
-    const allocator = std.heap.PageAllocator;
+    const allocator = std.heap.page_allocator;
 
     _ = glfw.glfwInit();
     defer _ = glfw.glfwTerminate();
@@ -39,13 +39,14 @@ pub fn main(init: std.process.Init) void {
 
     glfw.glfwMakeContextCurrent(window);
     _ = gl.gladLoadGLLoader(@ptrCast(&glfw.glfwGetProcAddress));
+    gl.glEnable(gl.GL_DEPTH_TEST);
 
-    const s = try shader.Shader(allocator).createProgram("vertex.glsl", "fragment.glsl", init.io);
-    const tex1 = try texture.loadJpg("container.jpg");
+    var s = try shader.Shader(allocator).createProgram("vertex.glsl", "fragment.glsl", init.io);
+    const tex1 = texture.loadJpg("container.jpg");
     if (tex1 == 0) {
         return;
     }
-    const tex2 = try texture.loadPng("awesomeface.png");
+    const tex2 = texture.loadPng("awesomeface.png");
     if (tex2 == 0) {
         return;
     }
@@ -106,9 +107,10 @@ pub fn main(init: std.process.Init) void {
         zglm.Vec3(f32).init(.{ 1.5, 0.2, -1.5 }), 
         zglm.Vec3(f32).init(.{ -1.3, 1.0, -1.5 } )};
 
+    _ = cubePositions;
 
-    const VAO: u32 = undefined;
-    const VBO: u32 = undefined;
+    var VAO: c_uint = undefined;
+    var VBO: c_uint = undefined;
 
     gl.glGenVertexArrays(1, &VAO);
     gl.glGenBuffers(1, &VBO);
@@ -122,11 +124,35 @@ pub fn main(init: std.process.Init) void {
     gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 5 * @sizeOf(f32), @ptrFromInt(3 * @sizeOf(f32)));
     gl.glEnableVertexAttribArray(1);
 
+    s.use();
+    s.setInt("tex1", 0);
+    s.setInt("tex2", 1);
+
+
+    var view = zglm.Mat4(f32).init(zglm.MAT4_IDENTITY_INIT);
+    view.translate(zglm.Vec3(f32).init(.{0.0, 0.0, -3.0}));
+    std.debug.print("View: {any}\n", .{view});
+
+    var projection = zglm.Mat4(f32).init(zglm.MAT4_IDENTITY_INIT);
+    projection.perspective(zglm.to_rad(45.0), @as(f32, @floatFromInt(WIDTH)) / @as(f32, @floatFromInt(HEIGHT)), 0.1, 100.0);
+    std.debug.print("Projection: {any}\n", .{projection});
+
+
+
+
     while(glfw.glfwWindowShouldClose(window) == 0) {
         processInput(window);
 
         gl.glClearColor(0.2, 0.3, 0.3, 1.0);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT);
+
+        gl.glActiveTexture(gl.GL_TEXTURE0);
+        gl.glBindTexture(gl.GL_TEXTURE_2D, tex1);
+        gl.glActiveTexture(gl.GL_TEXTURE1);
+        gl.glBindTexture(gl.GL_TEXTURE_2D, tex2);
+
+
+
 
         s.use();
 
