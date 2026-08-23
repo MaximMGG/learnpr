@@ -112,4 +112,7 @@ process_mouse_scroll :: proc(c: ^Camera, yoffset: f32) {
   }
 }
 
+get_view_matrix :: proc(c: ^Camera) -> Mat4 {
+  return la.matrix4_look_at(c.position, c.position + c.front, c.up)
+}
 

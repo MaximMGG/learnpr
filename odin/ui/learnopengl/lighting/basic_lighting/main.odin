@@ -4,6 +4,7 @@ import "core:log"
 import "core:os"
 import "base:runtime"
 import "shader"
+import cam "camera"
 import "core:fmt"
 
 import "vendor:glfw"
@@ -24,6 +25,7 @@ light_pos :: Vec3{1.2, 1.0, 2.0}
 lastX: f32 = f32(WIDTH) / 2.0
 lastY: f32 = f32(HEIGHT) / 2.0
 first_mouse := true
+camera: cam.Camera
 
 
 framebuffer_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
@@ -34,6 +36,44 @@ process_input :: proc(window: glfw.WindowHandle) {
   if glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS {
     glfw.SetWindowShouldClose(window, true)
   }
+
+  if glfw.GetKey(window, glfw.KEY_W) == glfw.PRESS {
+    cam.process_keyboard(&camera, .FORWARD, delta_time)
+  }
+  if glfw.GetKey(window, glfw.KEY_S) == glfw.PRESS {
+    cam.process_keyboard(&camera, .BACKWARD, delta_time)
+  }
+  if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
+    cam.process_keyboard(&camera, .LEFT, delta_time)
+  }
+  if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
+    cam.process_keyboard(&camera, .RIGHT, delta_time)
+  }
+}
+
+mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos_in, ypos_in: f64) {
+  context = runtime.default_context()
+  xpos := f32(xpos_in)
+  ypos := f32(ypos_in)
+
+  if first_mouse {
+    lastX = xpos
+    lastY = ypos
+    first_mouse = false
+  }
+
+  xoffset := xpos - lastX
+  yoffset := lastY - ypos
+
+  lastX = xpos
+  lastY = ypos
+
+  cam.process_mouse_movement(&camera, xoffset, yoffset)
+}
+
+scroll_callback :: proc "c" (window: glfw.WindowHandle, xoffset, yoffset: f64) {
+  context = runtime.default_context()
+  cam.process_mouse_scroll(&camera, f32(yoffset))
 }
 
 init_logger :: proc() -> runtime.Logger {
@@ -61,6 +101,9 @@ main :: proc() {
   context.logger = init_logger()
   defer deinit_logger()
 
+
+  camera = cam.create(Vec3{0.0, 0.0, 3.0})
+
   glfw.Init()
   defer glfw.Terminate()
 
@@ -76,9 +119,12 @@ main :: proc() {
   glfw.WindowHint(glfw.VERSION_MINOR, 3)
   glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
+  glfw.SetCursorPosCallback(window, mouse_callback)
+  glfw.SetScrollCallback(window, scroll_callback)
 
 
   glfw.MakeContextCurrent(window)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_NORMAL)
 
   gl.load_up_to(3, 3, glfw.gl_set_proc_address)
   gl.Enable(gl.DEPTH_TEST)
@@ -86,16 +132,18 @@ main :: proc() {
   log.info("Init glfw and OpenGL")
 
 
-  cube_shader := shader.load("cube_vertex.glsl", "cube_framgnet.glsl")
+  cube_shader := shader.load("cube_vertex.glsl", "cube_fragment.glsl")
   if cube_shader.id == 0 {
     log.error("Cant load cube shader")
     return
   }
+  defer shader.destroy(&cube_shader)
   light_shader := shader.load("light_vertex.glsl", "light_fragment.glsl")
   if light_shader.id == 0 {
     log.error("Cant' load light shader")
     return
   }
+  defer shader.destroy(&light_shader)
 
   vertices := [?]f32 {
         -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,
@@ -179,15 +227,38 @@ main :: proc() {
       shader.use(&cube_shader)
       shader.set_vec3(&cube_shader, "objectColor", Vec3{1.0, 0.5, 0.31})
       shader.set_vec3(&cube_shader, "lightColor", Vec3{1.0, 1.0, 1.0})
-      shader.set_vec3(&cube_shader, "lightPos", Vec3{1.0, 0.5, 0.31})
-      shader.set_vec3(&cube_shader, "viewPos", Vec3{1.0, 0.5, 0.31})
+      shader.set_vec3(&cube_shader, "lightPos", light_pos)
+      shader.set_vec3(&cube_shader, "viewPos", camera.position)
+
+      projection := la.matrix4_perspective(la.to_radians(camera.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
+      view := cam.get_view_matrix(&camera)
+      shader.set_mat4(&cube_shader, "projection", projection)
+      shader.set_mat4(&cube_shader, "view", view)
+
+      model := la.MATRIX4F32_IDENTITY
+      shader.set_mat4(&cube_shader, "model", model)
+
+      gl.BindVertexArray(cubeVAO)
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
 
+      shader.use(&light_shader)
+      shader.set_mat4(&cube_shader, "projection", projection)
+      shader.set_mat4(&cube_shader, "view", view)
+
+      model *= la.matrix4_translate(light_pos)
+      model *= la.matrix4_scale(Vec3(0.2))
+      shader.set_mat4(&cube_shader, "model", model)
+
+      gl.BindVertexArray(lightVAO)
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
 
-
+      glfw.SwapBuffers(window)
+      glfw.PollEvents()
     }
 
-
-
+    gl.DeleteVertexArrays(1, &cubeVAO)
+    gl.DeleteVertexArrays(1, &lightVAO)
+    gl.DeleteBuffers(1, &VBO)
 }

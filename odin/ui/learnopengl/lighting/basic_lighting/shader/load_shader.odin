@@ -143,5 +143,9 @@ set_mat4 :: proc(s: ^Shader, uniform_name: string, val: la.Matrix4x4f32) {
   }
 }
 
+destroy :: proc(s: ^Shader) {
+  gl.DeleteProgram(s.id)
+  delete(s.uniforms)
+}
 
 
