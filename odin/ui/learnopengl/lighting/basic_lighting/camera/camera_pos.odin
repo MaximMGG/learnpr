@@ -86,7 +86,7 @@ process_keyboard :: proc(c: ^Camera, direction: Camera_Movement, delta_time: f32
 
 process_mouse_movement :: proc(c: ^Camera, xoffset, yoffset: f32, constraint_pitch: bool = true) {
   xoffset := xoffset * c.mouse_sensitivity
-  yoffset := xoffset * c.mouse_sensitivity
+  yoffset := yoffset * c.mouse_sensitivity
 
   c.yaw += xoffset
   c.pitch += yoffset

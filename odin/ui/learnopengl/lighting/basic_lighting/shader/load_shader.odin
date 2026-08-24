@@ -16,28 +16,30 @@ checkStatus :: proc(element: u32, element_type: u32) -> bool {
   case gl.VERTEX_SHADER:
     status: i32
     gl.GetShaderiv(element, gl.COMPILE_STATUS, &status)
-    if status == i32(gl.FALSE) {
+    if status == 0 {
       buf: [512]u8
       gl.GetShaderInfoLog(element, 512, nil, raw_data(buf[:]))
-      log.error("Compile VERTEX shader error:", buf[:])
+      log.error("Compile VERTEX shader error:", transmute(string)buf[:])
       return false
     }
   case gl.FRAGMENT_SHADER:
     status: i32
     gl.GetShaderiv(element, gl.COMPILE_STATUS, &status)
-    if status == i32(gl.FALSE) {
+    if status == 0 {
       buf: [512]u8
       gl.GetShaderInfoLog(element, 512, nil, raw_data(buf[:]))
-      log.error("Compile FRAGMENT shader error:", buf[:])
+      log.error("Compile FRAGMENT shader error:", transmute(string)buf[:])
       return false
+    } else {
+      return true
     }
   case 0:
     status: i32
     gl.GetProgramiv(element, gl.LINK_STATUS, &status)
-    if status == i32(gl.FALSE) {
+    if status == 0 {
       buf: [512]u8
       gl.GetProgramInfoLog(element, 512, nil, raw_data(buf[:]))
-      log.error("Link progarm error:", buf[:])
+      log.error("Link progarm error:", transmute(string)buf[:])
       return false
     }
   }
@@ -70,9 +72,9 @@ load :: proc(vertex_path: string, fragment_path: string) -> Shader {
     log.error("load program error")
     return Shader{}
   }
-  f_shader := compile(vertex_path, gl.FRAGMENT_SHADER)
+  f_shader := compile(fragment_path, gl.FRAGMENT_SHADER)
   if f_shader == 0 {
-    gl.DeleteShader(v_shader)
+    gl.DeleteShader(f_shader)
     log.error("load program error")
     return Shader{}
   }

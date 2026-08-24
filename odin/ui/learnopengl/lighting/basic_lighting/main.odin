@@ -81,7 +81,7 @@ init_logger :: proc() -> runtime.Logger {
   f_err: os.Error
   if os.exists("gl_log.log") {
 
-    f, f_err = os.open("gl_log.log", {.Append})
+    f, f_err = os.open("gl_log.log", {.Append, .Write})
     if f_err != nil {
       fmt.eprintln("Can't open gl_log:", f_err)
     }
@@ -131,6 +131,12 @@ main :: proc() {
 
   log.info("Init glfw and OpenGL")
 
+  light_shader := shader.load("light_vertex.glsl", "light_fragment.glsl")
+  if light_shader.id == 0 {
+    log.error("Cant' load light shader")
+    return
+  }
+  defer shader.destroy(&light_shader)
 
   cube_shader := shader.load("cube_vertex.glsl", "cube_fragment.glsl")
   if cube_shader.id == 0 {
@@ -138,12 +144,6 @@ main :: proc() {
     return
   }
   defer shader.destroy(&cube_shader)
-  light_shader := shader.load("light_vertex.glsl", "light_fragment.glsl")
-  if light_shader.id == 0 {
-    log.error("Cant' load light shader")
-    return
-  }
-  defer shader.destroy(&light_shader)
 
   vertices := [?]f32 {
         -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,
