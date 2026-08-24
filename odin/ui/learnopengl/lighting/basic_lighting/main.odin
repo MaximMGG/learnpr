@@ -21,7 +21,7 @@ WIDTH :: 1280
 HEIGHT :: 720
 delta_time: f32
 last_frame: f32
-light_pos :: Vec3{1.2, 1.0, 2.0}
+light_pos := Vec3{1.2, 1.0, 2.0}
 lastX: f32 = f32(WIDTH) / 2.0
 lastY: f32 = f32(HEIGHT) / 2.0
 first_mouse := true
@@ -48,6 +48,24 @@ process_input :: proc(window: glfw.WindowHandle) {
   }
   if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
     cam.process_keyboard(&camera, .RIGHT, delta_time)
+  }
+  if glfw.GetKey(window, glfw.KEY_LEFT) == glfw.PRESS {
+    light_pos.x -= 0.1
+  }
+  if glfw.GetKey(window, glfw.KEY_RIGHT) == glfw.PRESS {
+    light_pos.x += 0.1
+  }
+  if glfw.GetKey(window, glfw.KEY_UP) == glfw.PRESS {
+    light_pos.y += 0.1
+  }
+  if glfw.GetKey(window, glfw.KEY_DOWN) == glfw.PRESS {
+    light_pos.y -= 0.1
+  }
+  if glfw.GetKey(window, glfw.KEY_Q) == glfw.PRESS {
+    light_pos.z -= 0.1
+  }
+  if glfw.GetKey(window, glfw.KEY_E) == glfw.PRESS {
+    light_pos.z += 0.1
   }
 }
 
