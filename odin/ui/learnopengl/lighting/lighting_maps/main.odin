@@ -157,6 +157,12 @@ main :: proc() {
   }
   defer texture.destroy(&specular_map)
 
+  emission_map := texture.load("matrix.jpg")
+  if emission_map.id == 0 {
+    log.error("Failed to load emission texture")
+    return
+  }
+  defer texture.destroy(&emission_map)
 
   vertices := [?]f32 {
     // positions          // normals           // texture coords
@@ -231,6 +237,7 @@ main :: proc() {
   shader.use(&cube_shader)
   shader.set_int(&cube_shader, "material.diffuse", 0)
   shader.set_int(&cube_shader, "material.specular", 1)
+  shader.set_int(&cube_shader, "material.emission", 2)
 
   for !glfw.WindowShouldClose(window) {
     current_frame := f32(glfw.GetTime())
@@ -246,8 +253,19 @@ main :: proc() {
     shader.set_vec3(&cube_shader, "light.position", light_pos)
     shader.set_vec3(&cube_shader, "viewPos", cam.position)
 
-    shader.set_vec3(&cube_shader, "light.ambient", 0.2, 0.2, 0.2)
-    shader.set_vec3(&cube_shader, "light.diffuse", 0.5, 0.5, 0.5)
+    //experiment
+
+    time := f32(glfw.GetTime())
+
+    x := la.sin(time * 0.3)
+    y := la.cos(time * 0.2)
+    z := la.sin(time * 0.8)
+
+    //
+    // shader.set_vec3(&cube_shader, "light.ambient", 0.2, 0.2, 0.2)
+    shader.set_vec3(&cube_shader, "light.ambient", z, y, x)
+    //shader.set_vec3(&cube_shader, "light.diffuse", 0.5, 0.5, 0.5)
+    shader.set_vec3(&cube_shader, "light.diffuse", x, y, z)
     shader.set_vec3(&cube_shader, "light.specular", 1.0, 1.0, 1.0)
 
     shader.set_float(&cube_shader, "material.shininess", 64.0)
@@ -264,6 +282,9 @@ main :: proc() {
     gl.BindTexture(gl.TEXTURE_2D, diffuse_map.id)
     gl.ActiveTexture(gl.TEXTURE1)
     gl.BindTexture(gl.TEXTURE_2D, specular_map.id)
+
+    gl.ActiveTexture(gl.TEXTURE2)
+    gl.BindTexture(gl.TEXTURE_2D, emission_map.id)
 
     gl.BindVertexArray(cubeVAO)
     gl.DrawArrays(gl.TRIANGLES, 0, 36)
