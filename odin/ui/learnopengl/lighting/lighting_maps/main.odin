@@ -70,6 +70,9 @@ mouse_callback :: proc "c" (window: glfw.WindowHandle, xpos_in, ypos_in: f64) {
   xoffset := xpos - lastX
   yoffset := lastY - ypos
 
+  lastX = xpos
+  lastY = ypos
+
   camera.process_mouse_movement(&cam, xoffset, yoffset)
 }
 
@@ -114,7 +117,7 @@ main :: proc() {
   glfw.WindowHint(glfw.VERSION_MAJOR, 3)
   glfw.WindowHint(glfw.VERSION_MINOR, 3)
   glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_CAPTURED)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_NORMAL)
 
   glfw.MakeContextCurrent(window)
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
@@ -252,7 +255,7 @@ main :: proc() {
     projection := la.matrix4_perspective(la.to_radians(cam.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     view := camera.get_view_matrix(&cam)
     shader.set_mat4(&cube_shader, "projection", projection)
-    shader.set_mat4(&cube_shader, "projection", view)
+    shader.set_mat4(&cube_shader, "view", view)
 
     model := la.MATRIX4F32_IDENTITY
     shader.set_mat4(&cube_shader, "model", model)
