@@ -81,25 +81,132 @@ main :: proc() {
   glfw.WindowHint(glfw.VERSION_MAJOR, 3)
   glfw.WindowHint(glfw.VERSION_MINOR, 3)
   glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_CAPTURED)
+  glfw.SetInputMode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
   glfw.MakeContextCurrent(window)
   glfw.SetCursorPosCallback(window, mouse_callback)
   glfw.SetScrollCallback(window, scroll_callback)
   glfw.SetFramebufferSizeCallback(window, framebuffer_callback)
 
-
-
   gl.load_up_to(3, 3, glfw.gl_set_proc_address)
   gl.Enable(gl.DEPTH_TEST)
 
-  
+  cube_shader, cube_shader_err := shader.load("cube_vertex.glsl", "cube_fragment.glsl")
+  if cube_shader_err != nil {
+    log.error("Failed to load cube shaders")
+    return
+  }
+  defer shader.destroy(&cube_shader)
+
+  light_shader, light_shader_err := shader.load("light_vertex.glsl", "light_fragment.glsl")
+  if light_shader_err != nil {
+    log.error("Failed to load light shaders")
+    return
+  }
+  defer shader.destroy(&light_shader)
 
 
+  diffuse_map, diffuse_map_err := texture.load("container2.png")
+  if diffuse_map_err != nil {
+    log.error("Load texture container2 error")
+    return
+  }
+  defer texture.destroy(&diffuse_map)
+
+  specular_map, specular_map_err := texture.load("container2_specular.png")
+  if specular_map_err != nil {
+    log.error("Load texture container2_specular error")
+    return
+  }
+  defer texture.destroy(&specular_map)
 
 
+  vertices := [?]f32 {
+    // positions          // normals           // texture coords
+    -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,  0.0,  0.0,
+    0.5, -0.5, -0.5,  0.0,  0.0, -1.0,  1.0,  0.0,
+    0.5,  0.5, -0.5,  0.0,  0.0, -1.0,  1.0,  1.0,
+    0.5,  0.5, -0.5,  0.0,  0.0, -1.0,  1.0,  1.0,
+    -0.5,  0.5, -0.5,  0.0,  0.0, -1.0,  0.0,  1.0,
+    -0.5, -0.5, -0.5,  0.0,  0.0, -1.0,  0.0,  0.0,
+
+    -0.5, -0.5,  0.5,  0.0,  0.0,  1.0,  0.0,  0.0,
+    0.5, -0.5,  0.5,  0.0,  0.0,  1.0,  1.0,  0.0,
+    0.5,  0.5,  0.5,  0.0,  0.0,  1.0,  1.0,  1.0,
+    0.5,  0.5,  0.5,  0.0,  0.0,  1.0,  1.0,  1.0,
+    -0.5,  0.5,  0.5,  0.0,  0.0,  1.0,  0.0,  1.0,
+    -0.5, -0.5,  0.5,  0.0,  0.0,  1.0,  0.0,  0.0,
+
+    -0.5,  0.5,  0.5, -1.0,  0.0,  0.0,  1.0,  0.0,
+    -0.5,  0.5, -0.5, -1.0,  0.0,  0.0,  1.0,  1.0,
+    -0.5, -0.5, -0.5, -1.0,  0.0,  0.0,  0.0,  1.0,
+    -0.5, -0.5, -0.5, -1.0,  0.0,  0.0,  0.0,  1.0,
+    -0.5, -0.5,  0.5, -1.0,  0.0,  0.0,  0.0,  0.0,
+    -0.5,  0.5,  0.5, -1.0,  0.0,  0.0,  1.0,  0.0,
+
+    0.5,  0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,
+    0.5,  0.5, -0.5,  1.0,  0.0,  0.0,  1.0,  1.0,
+    0.5, -0.5, -0.5,  1.0,  0.0,  0.0,  0.0,  1.0,
+    0.5, -0.5, -0.5,  1.0,  0.0,  0.0,  0.0,  1.0,
+    0.5, -0.5,  0.5,  1.0,  0.0,  0.0,  0.0,  0.0,
+    0.5,  0.5,  0.5,  1.0,  0.0,  0.0,  1.0,  0.0,
+
+    -0.5, -0.5, -0.5,  0.0, -1.0,  0.0,  0.0,  1.0,
+    0.5, -0.5, -0.5,  0.0, -1.0,  0.0,  1.0,  1.0,
+    0.5, -0.5,  0.5,  0.0, -1.0,  0.0,  1.0,  0.0,
+    0.5, -0.5,  0.5,  0.0, -1.0,  0.0,  1.0,  0.0,
+    -0.5, -0.5,  0.5,  0.0, -1.0,  0.0,  0.0,  0.0,
+    -0.5, -0.5, -0.5,  0.0, -1.0,  0.0,  0.0,  1.0,
+
+    -0.5,  0.5, -0.5,  0.0,  1.0,  0.0,  0.0,  1.0,
+    0.5,  0.5, -0.5,  0.0,  1.0,  0.0,  1.0,  1.0,
+    0.5,  0.5,  0.5,  0.0,  1.0,  0.0,  1.0,  0.0,
+    0.5,  0.5,  0.5,  0.0,  1.0,  0.0,  1.0,  0.0,
+    -0.5,  0.5,  0.5,  0.0,  1.0,  0.0,  0.0,  0.0,
+    -0.5,  0.5, -0.5,  0.0,  1.0,  0.0,  0.0,  1.0
+  }
+
+  cubePositions := [?]Vec3{
+    Vec3{ 0.0,  0.0,  0.0},
+    Vec3{ 2.0,  5.0, -15.0},
+    Vec3{-1.5, -2.2, -2.5},
+    Vec3{-3.8, -2.0, -12.3},
+    Vec3{ 2.4, -0.4, -3.5},
+    Vec3{-1.7,  3.0, -7.5},
+    Vec3{ 1.3, -2.0, -2.5},
+    Vec3{ 1.5,  2.0, -2.5},
+    Vec3{ 1.5,  0.2, -1.5},
+    Vec3{-1.3,  1.0, -1.5}
+  }
+
+  cubeVAO, lightVAO, VBO: u32
+
+  gl.GenVertexArrays(1, &cubeVAO)
+  gl.GenVertexArrays(1, &lightVAO)
+  gl.GenBuffers(1, &VBO)
+
+  gl.BindVertexArray(cubeVAO)
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices[0], gl.STATIC_DRAW)
+
+  gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 8 * size_of(f32), uintptr(0))
+  gl.EnableVertexAttribArray(0)
+  gl.VertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, 8 * size_of(f32), uintptr(3 * size_of(f32)))
+  gl.EnableVertexAttribArray(1)
+  gl.VertexAttribPointer(2, 2, gl.FLOAT, gl.FALSE, 8 * size_of(f32), uintptr(6 * size_of(f32)))
+  gl.EnableVertexAttribArray(2)
+
+  gl.BindVertexArray(lightVAO)
+  gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
+
+  gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 8 * size_of(f32), uintptr(0))
+  gl.EnableVertexAttribArray(0)
 
 
+  shader.use(&cube_shader)
+  shader.set_int(&cube_shader, "material.diffuse", 0)
+  shader.set_int(&cube_shader, "material.specular", 1)
+  shader.set_float(&cube_shader, "material.shininess", 32.0)
 
 
   for !glfw.WindowShouldClose(window) {
@@ -112,6 +219,39 @@ main :: proc() {
     gl.ClearColor(0.1, 0.1, 0.1, 1.0)
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
+    shader.use(&cube_shader)
+    shader.set_vec3(&cube_shader, "light.direction", -0.2, -1.0, -0.3)
+    shader.set_vec3(&cube_shader, "viewPos", cam.position)
+
+    shader.set_vec3(&cube_shader, "light.ambient", 0.2, 0.2, 0.2)
+    shader.set_vec3(&cube_shader, "light.diffuse", 0.5, 0.5, 0.5)
+    shader.set_vec3(&cube_shader, "light.specular", 1.0, 1.0, 1.0)
+
+    projection := la.matrix4_perspective(la.to_radians(cam.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
+    view := camera.get_view_matrix(&cam)
+    model := la.MATRIX4F32_IDENTITY
+
+    shader.set_mat4(&cube_shader, "projection", projection)
+    shader.set_mat4(&cube_shader, "view", view)
+    shader.set_mat4(&cube_shader, "model", model)
+
+
+    gl.ActiveTexture(gl.TEXTURE0)
+    gl.BindTexture(gl.TEXTURE_2D, diffuse_map.id)
+    gl.ActiveTexture(gl.TEXTURE1)
+    gl.BindTexture(gl.TEXTURE_2D, specular_map.id)
+
+    gl.BindVertexArray(cubeVAO)
+    for i in 0..<len(cubePositions) {
+      model = la.MATRIX4F32_IDENTITY
+      model *= la.matrix4_translate(cubePositions[i])
+      angle := f32(glfw.GetTime()) * f32(i)
+      model *= la.matrix4_rotate(la.to_radians(la.sin(angle)), Vec3{1.0, 0.3, 0.5})
+      shader.set_mat4(&cube_shader, "model", model)
+
+      gl.DrawArrays(gl.TRIANGLES, 0, 36)
+
+    }
 
 
     glfw.SwapBuffers(window)
@@ -161,10 +301,10 @@ process_input :: proc(window: glfw.WindowHandle) {
     camera.process_keyboard(&cam, .BACKWARD, delta_time)
   }
   if glfw.GetKey(window, glfw.KEY_D) == glfw.PRESS {
-    camera.process_keyboard(&cam, .LEFT, delta_time)
-  }
     camera.process_keyboard(&cam, .RIGHT, delta_time)
+  }
   if glfw.GetKey(window, glfw.KEY_A) == glfw.PRESS {
+    camera.process_keyboard(&cam, .LEFT, delta_time)
   }
 }
 

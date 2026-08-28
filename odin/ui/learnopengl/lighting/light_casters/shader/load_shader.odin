@@ -5,6 +5,13 @@ import "core:log"
 import gl "vendor:OpenGL"
 import la "core:math/linalg"
 
+Shader_Error :: enum {
+  SHADER_OK,
+  COMPILE_SHADER_ERROR,
+  LINK_PROGREM_ERROR,
+}
+
+
 Shader :: struct {
   id: u32,
   uniforms: map[string]i32
@@ -66,17 +73,17 @@ compile :: proc(path: string, shader_type: u32) -> u32 {
   return shader
 }
 
-load :: proc(vertex_path: string, fragment_path: string) -> Shader {
+load :: proc(vertex_path: string, fragment_path: string) -> (Shader, Shader_Error) {
   v_shader := compile(vertex_path, gl.VERTEX_SHADER)
   if v_shader == 0 {
     log.error("load program error")
-    return Shader{}
+    return Shader{}, .COMPILE_SHADER_ERROR
   }
   f_shader := compile(fragment_path, gl.FRAGMENT_SHADER)
   if f_shader == 0 {
     gl.DeleteShader(f_shader)
     log.error("load program error")
-    return Shader{}
+    return Shader{}, .COMPILE_SHADER_ERROR
   }
 
   program := gl.CreateProgram()
@@ -87,10 +94,10 @@ load :: proc(vertex_path: string, fragment_path: string) -> Shader {
   gl.DeleteShader(f_shader)
   if !checkStatus(program, 0) {
     log.error("load program error")
-    return Shader{}
+    return Shader{}, .LINK_PROGREM_ERROR
   }
 
-  return Shader{id = program, uniforms = make(map[string]i32)}
+  return Shader{id = program, uniforms = make(map[string]i32)}, nil
 }
 
 

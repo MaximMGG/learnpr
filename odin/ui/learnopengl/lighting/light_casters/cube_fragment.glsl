@@ -27,7 +27,7 @@ uniform Light light;
 
 void main() {
   //ambient
-  vec3 ambient = ligth.ambient * texture(material.diffuse, TexCoord).rgb;
+  vec3 ambient = light.ambient * texture(material.diffuse, TexCoord).rgb;
 
   //diffuse
   vec3 norm = normalize(Normal);
