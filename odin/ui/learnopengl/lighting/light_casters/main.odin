@@ -220,12 +220,18 @@ main :: proc() {
     gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
     shader.use(&cube_shader)
-    shader.set_vec3(&cube_shader, "light.direction", -0.2, -1.0, -0.3)
+    shader.set_vec3(&cube_shader, "light.direction", cam.front)
+    shader.set_vec3(&cube_shader, "light.position", cam.position)
+    shader.set_float(&cube_shader, "light.cutOff", f32(la.cos(la.to_radians(12.5))))
+    shader.set_float(&cube_shader, "light.outerCutOff", f32(la.cos(la.to_radians(17.5))))
     shader.set_vec3(&cube_shader, "viewPos", cam.position)
 
-    shader.set_vec3(&cube_shader, "light.ambient", 0.2, 0.2, 0.2)
-    shader.set_vec3(&cube_shader, "light.diffuse", 0.5, 0.5, 0.5)
+    shader.set_vec3(&cube_shader, "light.ambient", 0.1, 0.1, 0.1)
+    shader.set_vec3(&cube_shader, "light.diffuse", 0.8, 0.8, 0.8)
     shader.set_vec3(&cube_shader, "light.specular", 1.0, 1.0, 1.0)
+    shader.set_float(&cube_shader, "light.constant", 1.0)
+    shader.set_float(&cube_shader, "light.linear", 0.09)
+    shader.set_float(&cube_shader, "light.quadratic", 0.032)
 
     projection := la.matrix4_perspective(la.to_radians(cam.zoom), f32(WIDTH) / f32(HEIGHT), 0.1, 100.0)
     view := camera.get_view_matrix(&cam)
