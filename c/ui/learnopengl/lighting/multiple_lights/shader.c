@@ -77,7 +77,7 @@ Shader shaderCreate(str vertex_path, str fragment_path) {
     LOG(ERROR, "programCreate failed");
     return (Shader){.id = 0};
   }
-  p.uniforms = mapCreate(POINTER(str), NUMERIC(i32), null, MAP_EQL_STR_FUNC);
+  p.uniforms = mapCreate(POINTER(str), NUMERIC(i32), MAP_HASH_STR_FUNC, MAP_EQL_STR_FUNC);
   return p;
 }
 

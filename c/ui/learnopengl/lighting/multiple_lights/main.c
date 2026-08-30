@@ -15,9 +15,9 @@
 #define WIDTH 1280
 #define HEIGHT 720
 Camera *cam;
-vec3 light_pos;
-f32 lastX = 0;
-f32 lastY = 0;
+vec3 light_pos = {1.2, 1.0, 2.0};
+f32 lastX = F32(WIDTH) / 2.0;
+f32 lastY = F32(HEIGHT) / 2.0;
 f32 delta_time = 0;
 f32 last_frame = 0;
 bool first_mouse = true;
