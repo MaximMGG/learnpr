@@ -1,0 +1,39 @@
+2026-08-30 07:28:57 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:75(13): error: syntax error, unexpected NEW_IDENTIFIER, expecting ',' or ';'
+
+2026-08-30 07:28:57 [ERROR] shader.c:66 shaderCreate programCreate failed
+2026-08-30 07:28:57 [ERROR] main.c:100 main Load cube shader error
+2026-08-30 07:29:40 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:75(13): error: syntax error, unexpected NEW_IDENTIFIER, expecting ',' or ';'
+
+2026-08-30 07:29:40 [ERROR] shader.c:66 shaderCreate programCreate failed
+2026-08-30 07:29:41 [ERROR] main.c:100 main Load cube shader error
+2026-08-30 07:30:10 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:75(13): error: syntax error, unexpected NEW_IDENTIFIER, expecting ',' or ';'
+
+2026-08-30 07:30:10 [ERROR] shader.c:66 shaderCreate programCreate failed
+2026-08-30 07:30:10 [ERROR] main.c:100 main Load cube shader error
+2026-08-30 07:32:05 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:63(16): error: no function with name 'CalDirLight'
+0:96(46): error: cannot access field `lenear2026-08-30 07:32:05 [ERROR] shader.c:22 programCheckStatus 
+2026-08-30 07:32:05 [ERROR] shader.c:66 shaderCreate programCreate failed
+2026-08-30 07:32:05 [ERROR] main.c:100 main Load cube shader error
+2026-08-30 07:33:01 [ERROR] shader.c:22 programCheckStatus Compile FRAGMENT shader error: 0:96(46): error: cannot access field `lenear' of structure
+0:96(46): error: type mismatch
+0:96(462026-08-30 07:33:01 [ERROR] shader.c:22 programCheckStatus 
+2026-08-30 07:33:01 [ERROR] shader.c:66 shaderCreate programCreate failed
+2026-08-30 07:33:01 [ERROR] main.c:100 main Load cube shader error
+2026-08-30 07:43:33 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:43:33 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:44:16 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:44:16 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:46:51 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:46:52 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:48:17 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:48:17 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:48:32 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:48:32 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:49:08 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:49:08 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:50:04 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:50:04 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:55:43 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:55:43 [INFO] main.c:128 main Load shaders and texutres
+2026-08-30 07:57:09 [INFO] main.c:99 main Init glfw and OpenGL
+2026-08-30 07:57:09 [INFO] main.c:128 main Load shaders and texutres

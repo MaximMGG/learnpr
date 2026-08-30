@@ -1,3 +1,5 @@
+#include <cglm/mat4.h>
+#include <cglm/util.h>
 #include <cstdext/core.h>
 #include <cstdext/io/logger.h>
 #include "camera.h"
@@ -26,8 +28,8 @@ void framebuffer_callback(GLFWwindow *window, i32 width, i32 height) {
 }
 
 void mouse_callback(GLFWwindow *window, f64 xpos_in, f64 ypos_in) {
-  f32 xpos = F32(xpos_in) * cam->mouse_sensitivity;
-  f32 ypos = F32(ypos_in) * cam->mouse_sensitivity;
+  f32 xpos = F32(xpos_in);
+  f32 ypos = F32(ypos_in);
 
   if (first_mouse) {
     lastX = xpos;
@@ -93,11 +95,15 @@ i32 main() {
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
 
+
+  LOG(INFO, "Init glfw and OpenGL");
+
   Shader cube_shader = shaderCreate("cube_vertex.glsl", "cube_fragment.glsl");
   if (cube_shader.id == 0) {
     LOG(ERROR, "Load cube shader error");
     glfwDestroyWindow(window);
     glfwTerminate();
+    return 1;
   }
   Shader light_shader = shaderCreate("light_vertex.glsl", "cube_fragment.glsl");
   if (light_shader.id == 0) {
@@ -105,6 +111,7 @@ i32 main() {
     shaderDestroy(cube_shader);
     glfwDestroyWindow(window);
     glfwTerminate();
+    return 1;
   }
 
   Texture diffuse_map = textureLoad("container2.png");
@@ -117,6 +124,10 @@ i32 main() {
     LOG(ERROR, "Load specular_map texture error");
     return 1;
   }
+
+  LOG(INFO, "Load shaders and texutres");
+
+
 
   f32 vertices[] = {
      -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
@@ -219,9 +230,90 @@ i32 main() {
     shaderSetUniformFloat(cube_shader, "material.shininess", 32.0);
 
     //directional light
-    shaderSetUniformVec3(cube_shader, "", (vec3){});
-    
+    shaderSetUniformVec3(cube_shader, "dirLight.direction", (vec3){-0.2f, -1.0f, -0.3f});
+    shaderSetUniformVec3(cube_shader, "dirLight.ambient", (vec3){0.05f, 0.05f, 0.05f});
+    shaderSetUniformVec3(cube_shader, "dirLight.diffuse", (vec3){0.4f, 0.4f, 0.4f});
+    shaderSetUniformVec3(cube_shader, "dirLight.specular", (vec3){0.5f, 0.5f, 0.5f});
+    // point light 1
+    shaderSetUniformVec3(cube_shader, "pointLights[0].position", pointLightPositions[0]);
+    shaderSetUniformVec3(cube_shader, "pointLights[0].ambient", (vec3){0.05f, 0.05f, 0.05f});
+    shaderSetUniformVec3(cube_shader, "pointLights[0].diffuse", (vec3){0.8f, 0.8f, 0.8f});
+    shaderSetUniformVec3(cube_shader, "pointLights[0].specular",(vec3){ 1.0f, 1.0f, 1.0f});
+    shaderSetUniformFloat(cube_shader, "pointLights[0].constant", 1.0f);
+    shaderSetUniformFloat(cube_shader, "pointLights[0].linear", 0.09f);
+    shaderSetUniformFloat(cube_shader, "pointLights[0].quadratic", 0.032f);
+    // point light 2
+    shaderSetUniformVec3(cube_shader, "pointLights[1].position", pointLightPositions[1]);
+    shaderSetUniformVec3(cube_shader, "pointLights[1].ambient", (vec3){0.05f, 0.05f, 0.05f});
+    shaderSetUniformVec3(cube_shader, "pointLights[1].diffuse", (vec3){0.8f, 0.8f, 0.8f});
+    shaderSetUniformVec3(cube_shader, "pointLights[1].specular",(vec3){ 1.0f, 1.0f, 1.0f});
+    shaderSetUniformFloat(cube_shader, "pointLights[1].constant", 1.0f);
+    shaderSetUniformFloat(cube_shader, "pointLights[1].linear", 0.09f);
+    shaderSetUniformFloat(cube_shader, "pointLights[1].quadratic", 0.032f);
+    // point light 3
+    shaderSetUniformVec3(cube_shader, "pointLights[2].position", pointLightPositions[2]);
+    shaderSetUniformVec3(cube_shader, "pointLights[2].ambient", (vec3){0.05f, 0.05f, 0.05f});
+    shaderSetUniformVec3(cube_shader, "pointLights[2].diffuse", (vec3){0.8f, 0.8f, 0.8f});
+    shaderSetUniformVec3(cube_shader, "pointLights[2].specular",(vec3){ 1.0f, 1.0f, 1.0f});
+    shaderSetUniformFloat(cube_shader, "pointLights[2].constant", 1.0f);
+    shaderSetUniformFloat(cube_shader, "pointLights[2].linear", 0.09f);
+    shaderSetUniformFloat(cube_shader, "pointLights[2].quadratic", 0.032f);
+    // point light 4
+    shaderSetUniformVec3(cube_shader, "pointLights[3].position", pointLightPositions[3]);
+    shaderSetUniformVec3(cube_shader, "pointLights[3].ambient", (vec3){0.05f, 0.05f, 0.05f});
+    shaderSetUniformVec3(cube_shader, "pointLights[3].diffuse", (vec3){0.8f, 0.8f, 0.8f});
+    shaderSetUniformVec3(cube_shader, "pointLights[3].specular",(vec3){ 1.0f, 1.0f, 1.0f});
+    shaderSetUniformFloat(cube_shader, "pointLights[3].constant", 1.0f);
+    shaderSetUniformFloat(cube_shader, "pointLights[3].linear", 0.09f);
+    shaderSetUniformFloat(cube_shader, "pointLights[3].quadratic", 0.032f);
+    // spotLight
+    shaderSetUniformVec3(cube_shader, "spotLight.position", cam->position);
+    shaderSetUniformVec3(cube_shader, "spotLight.direction", cam->front);
+    shaderSetUniformVec3(cube_shader, "spotLight.ambient", (vec3){0.0f, 0.0f, 0.0f});
+    shaderSetUniformVec3(cube_shader, "spotLight.diffuse", (vec3){1.0f, 1.0f, 1.0f});
+    shaderSetUniformVec3(cube_shader, "spotLight.specular",(vec3){ 1.0f, 1.0f, 1.0f});
+    shaderSetUniformFloat(cube_shader, "spotLight.constant", 1.0f);
+    shaderSetUniformFloat(cube_shader, "spotLight.linear", 0.09f);
+    shaderSetUniformFloat(cube_shader, "spotLight.quadratic", 0.032f);
+    shaderSetUniformFloat(cube_shader, "spotLight.cutOff", cos(glm_rad(12.5f)));
+    shaderSetUniformFloat(cube_shader, "spotLight.outerCutOff", cos(glm_rad(15.0f)));
 
+    mat4 projection = GLM_MAT4_IDENTITY_INIT;
+    glm_perspective(glm_rad(cam->zoom), F32(WIDTH) / F32(HEIGHT), 0.1, 100.0, projection);
+    mat4 view = GLM_MAT4_IDENTITY_INIT;
+    cameraGetViewMatrix(cam, view);
+    shaderSetUniformMat4(cube_shader, "projection", projection);
+    shaderSetUniformMat4(cube_shader, "view", view);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuse_map.id);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specular_map.id);
+
+    glBindVertexArray(cubeVAO);
+    for(i32 i = 0; i < 10; i++) {
+      mat4 model = GLM_MAT4_IDENTITY_INIT;
+      glm_translate(model, cube_positions[i]);
+      f32 angle = 20.0 * i;
+      glm_rotate(model, glm_rad(angle), (vec3){1.0, 0.3, 0.5});
+      shaderSetUniformMat4(cube_shader, "model", model);
+
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    shaderUse(light_shader);
+    shaderSetUniformMat4(light_shader, "projection", projection);
+    shaderSetUniformMat4(light_shader, "view", view);
+
+    glBindVertexArray(lightVAO);
+    for(i32 i = 0; i < 4; i++) {
+      mat4 model = GLM_MAT4_IDENTITY_INIT;
+      glm_translate(model, pointLightPositions[i]);
+      glm_scale(model, (vec3){0.2, 0.2, 0.2});
+      shaderSetUniformMat4(light_shader, "model", model);
+
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -235,3 +327,4 @@ i32 main() {
   logCleanup();
   return 0;
 }
+

@@ -5,11 +5,9 @@ LIBS = -lglfw -lglad -lm -lcext
 SRC = $(wildcard *.c)
 OBJ = $(SRC:%.c=%.o)
 
-
 .PHONY: default build run clean
 
-
-default: clean build run
+default: build run
 
 build: $(OBJ)
 	gcc -o $(APP) $^ $(FLAGS) $(LIBS)

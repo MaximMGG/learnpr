@@ -55,18 +55,18 @@ u32 programCompileShader(str path, u32 type) {
 }
 
 
-Program programCreate(str vertex_path, str fragment_path) {
+Shader shaderCreate(str vertex_path, str fragment_path) {
   u32 v_shader = programCompileShader(vertex_path, GL_VERTEX_SHADER);
   if (v_shader == 0) {
     LOG(ERROR, "programCreate failed");
-    return (Program){.id = 0};
+    return (Shader){.id = 0};
   }
   u32 f_shader = programCompileShader(fragment_path, GL_FRAGMENT_SHADER);
   if (f_shader == 0) {
     LOG(ERROR, "programCreate failed");
-    return (Program){.id = 0};
+    return (Shader){.id = 0};
   }
-  Program p;
+  Shader p;
   p.id = glCreateProgram();
   glAttachShader(p.id, v_shader);
   glAttachShader(p.id, f_shader);
@@ -75,17 +75,17 @@ Program programCreate(str vertex_path, str fragment_path) {
   glDeleteShader(f_shader);
   if(!programCheckStatus(p.id, 0)) {
     LOG(ERROR, "programCreate failed");
-    return (Program){.id = 0};
+    return (Shader){.id = 0};
   }
   p.uniforms = mapCreate(POINTER(str), NUMERIC(i32), null, MAP_EQL_STR_FUNC);
   return p;
 }
 
-void programUse(Program p) {
+void shaderUse(Shader p) {
   glUseProgram(p.id);
 }
 
-void programDestroy(Program p) {
+void shaderDestroy(Shader p) {
   Iter *it = mapIter(p.uniforms);
   while(it->ok) {
     DEALLOC(it->key);
@@ -96,7 +96,7 @@ void programDestroy(Program p) {
   glDeleteProgram(p.id);
 }
 
-static i32 programGetUniformLocation(Program p, str uniform_name) {
+static i32 shaderGetUniformLocation(Shader p, str uniform_name) {
   KV kv = mapGet(p.uniforms, uniform_name);
   if (kv.key != null) {
     return *((i32 *)(kv.val));
@@ -110,44 +110,44 @@ static i32 programGetUniformLocation(Program p, str uniform_name) {
   return loc;
 }
 
-void programSetUniformInt(Program p, str uniform_name, i32 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformInt(Shader p, str uniform_name, i32 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
   glUniform1i(loc, val);
 }
-void programSetUniformFloat(Program p, str uniform_name, f32 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformFloat(Shader p, str uniform_name, f32 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
   glUniform1f(loc, val);
 }
-void programSetUniformVec2(Program p, str uniform_name, vec2 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformVec2(Shader p, str uniform_name, vec2 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
   glUniform2fv(loc, 1, val);
 }
 
-void programSetUniformVec3(Program p, str uniform_name, vec3 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformVec3(Shader p, str uniform_name, vec3 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
   glUniform3fv(loc, 1, val);
 }
-void programSetUniformVec4(Program p, str uniform_name, vec4 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformVec4(Shader p, str uniform_name, vec4 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
   glUniform4fv(loc, 1, val);
 }  
-void programSetUniformMat4(Program p, str uniform_name, mat4 val) {
-  i32 loc = programGetUniformLocation(p, uniform_name);
+void shaderSetUniformMat4(Shader p, str uniform_name, mat4 val) {
+  i32 loc = shaderGetUniformLocation(p, uniform_name);
   if (loc == -1) {
     return;
   }
