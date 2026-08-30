@@ -226,6 +226,8 @@ i32 main() {
 
     process_input(window);
 
+
+    shaderUse(cube_shader);
     shaderSetUniformVec3(cube_shader, "viewPos", cam->position);
     shaderSetUniformFloat(cube_shader, "material.shininess", 32.0);
 
