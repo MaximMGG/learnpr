@@ -1,0 +1,18 @@
+#ifndef MY_TYPES_HPP
+#define MY_TYPES_HPP
+
+typedef char           byte;
+typedef char           i8;
+typedef unsigned char  u8;
+typedef short          i16;
+typedef unsigned short u16;
+typedef int            i32;
+typedef unsigned int   u32;
+typedef long           i64;
+typedef unsigned long  u64;
+typedef float          f32;
+typedef double         f64;
+typedef void *         ptr;
+
+
+#endif
