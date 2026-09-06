@@ -5,11 +5,13 @@
 #include "types.hpp"
 #include <GLFW/glfw3.h>
 
+#include <stb_image.h>
+
 #include <iostream>
 
 
-#define WIDTH 1280
-#define HEIGHT 720
+#define WIDTH (1280 * 2)
+#define HEIGHT (720 * 2)
 Camera camera(glm::vec3(0.0, 0.0, 3.0));
 f32 lastX = F32(WIDTH) / 2.0;
 f32 lastY = F32(HEIGHT) / 2.0;
@@ -19,7 +21,7 @@ bool first_mouse = true;
 f32 delta_time{};
 f32 last_frame{};
 
-
+glm::vec3 lightPos(1.2, 1.0, 2.0);
 
 void framebuffer_callback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
@@ -64,6 +66,30 @@ void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_D)) {
     camera.processKeyboard(RIGHT, delta_time);
   }
+  if (glfwGetKey(window, GLFW_KEY_UP)) {
+    lightPos.y += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+    lightPos.y -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+    lightPos.x -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+    lightPos.x += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_Q)) {
+    lightPos.z -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_E)) {
+    lightPos.z += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_R)) {
+    lightPos.x = 1.2;
+    lightPos.y = 1.0;
+    lightPos.z = 2.0;
+  }
+
 }
 
 
@@ -114,6 +140,15 @@ i32 main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     s.use();
+
+    s.setVec3("light.position", lightPos);
+    s.setVec3("viewPos", camera.Position);
+
+    s.setVec3("light.ambient", glm::vec3(0.2, 0.2, 0.2));
+    s.setVec3("light.diffuse", glm::vec3(0.5, 0.5, 0.5));
+    s.setVec3("light.specular", glm::vec3(1.0, 1.0, 1.0));
+
+    s.setFloat("shininess", 32.0f);
 
     glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), F32(WIDTH) / F32(HEIGHT), 0.1f, 100.0f);
     glm::mat4 view = camera.getViewMatrix();
