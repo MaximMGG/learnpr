@@ -25,6 +25,8 @@ f32 last_frame{};
 glm::vec3 lightPos(1.2, 1.0, 2.0);
 std::vector<glm::vec3> backpacks;
 i32 active_texture{0};
+bool select_next = false;
+bool create_new = false;
 
 void framebuffer_callback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
@@ -93,15 +95,10 @@ void processInput(GLFWwindow *window) {
     lightPos.z = 2.0;
   }
   if (glfwGetKey(window, GLFW_KEY_TAB)) {
-    if (active_texture == backpacks.size() - 1) {
-      active_texture = 0;
-    } else {
-      active_texture++;
-    }
+    select_next = true;
   }
   if (glfwGetKey(window, GLFW_KEY_N)) {
-    backpacks.push_back(glm::vec3(0.0, 0.0, 0.0));
-    active_texture = backpacks.size() - 1;
+    create_new = true;
   }
   if (glfwGetKey(window, GLFW_KEY_J)) {
     backpacks[active_texture].y -= 0.1;
@@ -235,6 +232,22 @@ i32 main() {
 
 
   while(!glfwWindowShouldClose(window)) {
+
+    if (select_next) {
+      if (active_texture == backpacks.size() - 1) {
+        active_texture = 0;
+      } else {
+        active_texture++;
+      }
+      select_next = false;
+    }
+
+    if (create_new) {
+      backpacks.push_back(glm::vec3(0.0));
+      active_texture = backpacks.size() - 1;
+      create_new = false;
+    }
+
     f32 current_frame = F32(glfwGetTime());
     delta_time = current_frame - last_frame;
     last_frame = current_frame;
@@ -268,7 +281,7 @@ i32 main() {
       model = glm::scale(model, glm::vec3(1.0, 1.0, 1.0));
       s.setMat4("model", model);
       m.draw(s);
-      if (i == active_texture) {
+      if (i == active_texture - 1) {
         s.setInt("active_texture", 1);
       } else {
         s.setInt("active_texture", 0);
