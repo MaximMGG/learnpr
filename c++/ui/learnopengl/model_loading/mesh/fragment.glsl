@@ -19,7 +19,7 @@ uniform sampler2D texture_specular1;
 uniform float shininess;
 uniform vec3 viewPos;
 uniform Light light;
-
+uniform int active_texture;
 
 void main() {
   //ambient
@@ -38,5 +38,8 @@ void main() {
   vec3 specular = light.specular * spec * texture(texture_specular1, TexCoord).rgb;
 
   vec3 res = ambient + diffuse + specular;
+  if (active_texture == 1) {
+    res *= 3.1;
+  }
   FragColor = vec4(res, 1.0);
 }

@@ -8,6 +8,7 @@
 #include <stb_image.h>
 
 #include <iostream>
+#include <vector>
 
 
 #define WIDTH (1280 * 2)
@@ -22,6 +23,8 @@ f32 delta_time{};
 f32 last_frame{};
 
 glm::vec3 lightPos(1.2, 1.0, 2.0);
+std::vector<glm::vec3> backpacks;
+i32 active_texture{0};
 
 void framebuffer_callback(GLFWwindow *window, i32 width, i32 height) {
   glViewport(0, 0, width, height);
@@ -89,12 +92,39 @@ void processInput(GLFWwindow *window) {
     lightPos.y = 1.0;
     lightPos.z = 2.0;
   }
-
+  if (glfwGetKey(window, GLFW_KEY_TAB)) {
+    if (active_texture == backpacks.size() - 1) {
+      active_texture = 0;
+    } else {
+      active_texture++;
+    }
+  }
+  if (glfwGetKey(window, GLFW_KEY_N)) {
+    backpacks.push_back(glm::vec3(0.0, 0.0, 0.0));
+    active_texture = backpacks.size() - 1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_J)) {
+    backpacks[active_texture].y -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_K)) {
+    backpacks[active_texture].y += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_H)) {
+    backpacks[active_texture].x -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_L)) {
+    backpacks[active_texture].x += 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_U)) {
+    backpacks[active_texture].z -= 0.1;
+  }
+  if (glfwGetKey(window, GLFW_KEY_O)) {
+    backpacks[active_texture].z += 0.1;
+  }
 }
 
 
 i32 main() {
-
   glfwInit();
 
   GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Model", NULL, NULL);
@@ -177,6 +207,21 @@ i32 main() {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
   };
 
+  backpacks.push_back(glm::vec3(0.0, 0.0, 0.0));
+
+  glm::vec3 cubePositions[] = {
+    glm::vec3( 0.0f,  0.0f,  0.0f),
+    glm::vec3( 2.0f,  5.0f, -15.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3( 2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3( 1.3f, -2.0f, -2.5f),
+    glm::vec3( 1.5f,  2.0f, -2.5f),
+    glm::vec3( 1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+  };
+
   u32 VAO, VBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
@@ -216,18 +261,26 @@ i32 main() {
     s.setMat4("projection", projection);
     s.setMat4("view", view);
 
-    glm::mat4 model = glm::mat4(1.0);
-    model = glm::translate(model, glm::vec3(0.0, 0.0, 0.0));
-    model = glm::scale(model, glm::vec3(1.0, 1.0, 1.0));
-    s.setMat4("model", model);
-    m.draw(s);
+
+    for(u32 i = 0; i < backpacks.size(); i++) {
+      glm::mat4 model = glm::mat4(1.0);
+      model = glm::translate(model, backpacks[i]);
+      model = glm::scale(model, glm::vec3(1.0, 1.0, 1.0));
+      s.setMat4("model", model);
+      m.draw(s);
+      if (i == active_texture) {
+        s.setInt("active_texture", 1);
+      } else {
+        s.setInt("active_texture", 0);
+      }
+    }
 
 
     light_s.use();
     light_s.setMat4("projection", projection);
     light_s.setMat4("view", view);
 
-    model = glm::mat4(1.0);
+    glm::mat4 model = glm::mat4(1.0);
     model = glm::translate(model, lightPos);
     model = glm::scale(model, glm::vec3(0.2));
 
