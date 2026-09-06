@@ -1,4 +1,6 @@
 #include "model.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 u32 TextureFromFile(const char *path, const std::string &directory, bool gamme) {
   std::string filename = std::string(path);

@@ -105,6 +105,10 @@ public:
     }
   }
 
+  void use() {
+    glUseProgram(this->id);
+  }
+
 
 
 private:

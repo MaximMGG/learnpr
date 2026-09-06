@@ -2,6 +2,7 @@
 #define MY_MODEL_HPP
 
 #include "mesh.hpp"
+//#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
