@@ -12,7 +12,7 @@ i32 main() {
     listAppend(l, &i);
   }
 
-  printf("List len: %d, last item: %d\n", l->len, *cast(i32 *, listGet(l, COUNT - 1)));
+  printf("List len: %ld, last item: %d\n", l->len, *cast(i32 *, listGet(l, COUNT - 1)));
   listDestroy(l);
 
   return 0;
