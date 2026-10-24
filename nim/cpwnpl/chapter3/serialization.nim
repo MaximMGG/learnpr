@@ -28,6 +28,7 @@ var
   storage1, storage2: Storage
   outFile, inFile: File
 
+let l = Line(x1: 0)
 d1.elements.add(Line(x1: 0, y1: 0, x2: 5, y2: 10))
 d1.elements.add(Circ(x0: 7, y0: 3, radius: 20))
 d1.elements.add(Line(x1: 3, y1: 2, x2: 7, y2: 9))
