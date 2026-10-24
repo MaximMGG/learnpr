@@ -45,7 +45,7 @@ void print_level(i32 level) {
 void check_dir(str dir_name, i32 level) {
   DIR *dir = opendir(dir_name);
   if (dir == null) {
-    log(FATAL, "Cant open dir %s", dir_name);
+    LOG(FATAL, "Cant open dir %s", dir_name);
     exit(1);
   }
   print_level(level);
