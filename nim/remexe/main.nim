@@ -25,19 +25,20 @@ proc remExe(w: var Writer, path: Path, dip_level: int) =
   printDip(w, dip_level)
   w.append("Entering '" & path.string & "' -> \n")
 
-  for i in walkDir(path):
+  for i in walkDir(path, true):
+    if i.path.string[0] == '.': continue
+    let full_path = path.string & "/" & i.path.string
     case i.kind:
     of PathComponent.pcFile:
-
-      let fi = getFileInfo(i.path.string)
+      let fi = getFileInfo(full_path)
       if fpUserExec in fi.permissions:
         if not i.path.string.endsWith(".sh"):
           printDip(w, dip_level)
-          w.append("\x1b[31mDelete exe: " & i.path.string & "\x1b[0m\n")
-          removeFile(i.path.string)
+          w.append("\x1b[31mDelete exe: " & full_path & "\x1b[0m\n")
+          removeFile(full_path)
           printDip(w, dip_level)
     of pcDir:
-      remExe(w, i.path, dip_level + 1)
+      remExe(w, Path(full_path), dip_level + 1)
     else:
       echo ""
 
