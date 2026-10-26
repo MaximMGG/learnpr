@@ -35,5 +35,6 @@ pub fn main() !void {
         _ = c.refresh();
     }
 
+
     _ = c.endwin();
 }

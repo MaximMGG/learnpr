@@ -57,15 +57,16 @@ fn iterate_throuth_dir(allocator: std.mem.Allocator, dir: std.Io.Dir, path: []co
 
 
 pub fn main(init: std.process.Init) !void {
-
     var buf: [1024]u8 = undefined;
     var f_stdout = std.Io.File.stdout().writer(init.io, &buf);
     stdout = &f_stdout.interface;
 
-
     // var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     // const allocator = gpa.allocator();
     const c_allocator = std.heap.c_allocator;
+    // var arena = std.heap.ArenaAllocator.init(c_allocator);
+    // defer arena.deinit();
+    // const a_allocator = arena.allocator();
 
     var cwd = try std.Io.Dir.cwd().openDir(init.io, ".", .{.iterate = true});
     defer cwd.close(init.io);
