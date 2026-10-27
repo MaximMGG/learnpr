@@ -90,7 +90,6 @@ process_dir :: proc(dir_name: string, level: int) {
 }
 
 main :: proc() {
-
   arena: mem.Dynamic_Arena
   mem.dynamic_arena_init(&arena)
   defer mem.dynamic_arena_destroy(&arena)
