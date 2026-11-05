@@ -1,8 +1,9 @@
 
 
-
-extern fn SSL_new() -> u64;
-extern fn SSL_free(ssl: u64);
+extern fn  {
+  fn SSL_new() -> u64;
+  fn SSL_free(ssl: u64);
+}
 
 
 fn main() {
